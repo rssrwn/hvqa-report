@@ -15,11 +15,11 @@ interim-report/interim.run.xml
 interim-report/interim-blx.bib
 interim-report/interim.toc
 
-report/interim.aux
-report/interim.bbl
-report/interim.blg
-report/interim.log
-report/interim.out
-report/interim.run.xml
-report/interim-blx.bib
+report/report.aux
+report/report.bbl
+report/report.blg
+report/report.log
+report/report.out
+report/report.run.xml
+report/report-blx.bib
 report/report.toc
