@@ -6,11 +6,20 @@
 */*/__pycache__/
 
 # Latex compiled files
-report/interim-report/interim.aux
-report/interim-report/interim.bbl
-report/interim-report/interim.blg
-report/interim-report/interim.log
-report/interim-report/interim.out
-report/interim-report/interim.run.xml
-report/interim-report/interim-blx.bib
+interim-report/interim.aux
+interim-report/interim.bbl
+interim-report/interim.blg
+interim-report/interim.log
+interim-report/interim.out
+interim-report/interim.run.xml
+interim-report/interim-blx.bib
+interim-report/interim.toc
 
+report/interim.aux
+report/interim.bbl
+report/interim.blg
+report/interim.log
+report/interim.out
+report/interim.run.xml
+report/interim-blx.bib
+report/report.toc

@@ -1,0 +1,41 @@
+\documentclass[../interim.tex]{subfiles}
+
+
+\begin{document}
+
+
+\chapter{Hybrid VideoQA}
+\label{chapter:hybrid-video-qa}
+
+In this chapter we outline a novel paradigm for solving the VideoQA problem. This structure attempts to merge deep learning and logic-based machine learning and inference methods, hence we name it Hybrid VideoQA.
+
+\section{Architecture}
+
+Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
+
+TODO: show diagram
+
+Hybrid VideoQA is a generic, pipelined structure for finding an answer to a question, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific 'instance' of the Hybrid VideoQA pipeline). A number of models trained on our Sea-World (TODO rename?) dataset are outlined in Chapter~\ref{chapter:implementation}.
+
+A Hybrid VideoQA pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our Sea-World dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. The Hybrid VideoQA structure does also not allow for more complex relations between objects.
+
+As shown in Figure TODO, a Hybrid VideoQA model contains the following components:
+\begin{itemize}
+  \item \textbf{Object Detector}. Produces bounding boxes and classes for each object in each frame of the video. The object detector also needs run an object tracking algorithm to assign each object in the video a unqiue identifier. Ideally the object tracker would correctly identify all objects in the video, however errors in the object detection stage can confuse the tracker as to which identifier should be assigned to each object. In this case some form of error correction may be helpful. TODO
+
+  \item \textbf{Property Extractor}. Given a set of properties, classifies the value of each property for each object in each frame of the video. As mentioned in Chapter~\ref{chapter:dataset}, possible properties could be colour or rotation. The property component does not classify the position or class of an object (this is always handled by the detector).
+
+  \item \textbf{Relation Classifier}.
+
+  \item \textbf{Event Detector}.
+
+  \item \textbf{QA System}.
+\end{itemize}
+
+\section{Components}
+
+Give an intro to the job of each component in the Hybrid VideoQA model.
+
+
+
+\end{document}
