@@ -7,9 +7,21 @@
 \chapter{Dataset}
 \label{chapter:dataset}
 
+Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name TODO. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements, for the following reasons:
+\begin{enumerate}
+  \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
+
+  \item Hybrid models generally require some form of environment specification (or ontology) so that intermediate knowledge can be represented symbolically (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or confine object properties or video events to a given set, they cannot provide such a specification of the evironment.
+\end{enumerate}
+
+The CLEVRER dataset~\cite{dataset:clevrer} would have been a good candidate for this project, however it was published in March 2020, six months after the project began.
+
+The remainder of this chapter outlines the details of the TODO dataset, including how each video is created.
+
+
 \section{Videos}
 
-Talk about objects, properties, relations, actions and events.
+Talk about objects, properties, relations, actions and events. Talk about objects, properties, relations, actions and events. Talk about objects, properties, relations, actions and events.
 
 \section{Questions and Answers}
 
@@ -19,6 +31,7 @@ Different types of questions and answers.
 \section{Specification}
 
 Outline a formal specificiation and why it is necessary/helpful.
+
 
 
 \end{document}
