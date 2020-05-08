@@ -16,7 +16,7 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
 
 The CLEVRER dataset~\cite{dataset:clevrer} does, however, meet these requirements and would have been a good candidate for this project. Unfortunately it was published in March 2020, six months after the project began.
 
-Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
+Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at $256$ x $256$ pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
 
 
 \section{Videos}
@@ -25,7 +25,7 @@ Since the focus of this project is to investigate logical reasoning, we do not a
 
 Each video in the TODO dataset is a sequence of 32 frames. Each frame contains a flat background and a maximum of 16 objects. Objects form the central component of each video, since all of the useful information in each video can be modelled by the following: properties of objects; binary relations between objects; and events, which relate to at least one object, occuring between two consecutive frames of the video. Each object is modelled using the following attributes: object type (or class), position, rotation and colour.
 
-Figure TODO shows an example of each of the four possible classes of objects. Each class can be described as follows:
+Figure~\ref{fig:dataset-objects} shows an example of each of the four possible classes of objects. Each class can be described as follows:
 \begin{itemize}
   \item \textbf{Octopus}. The `main' character in the video - the octopus is the only non-static character and its properties change as it comes into contact with other objects. In the initial frame the colour of the octopus is always red, however, it can take any rotation.
 
@@ -35,6 +35,71 @@ Figure TODO shows an example of each of the four possible classes of objects. Ea
 
   \item \textbf{Rock}. Rocks can have four colours: brown, blue, purple and green, but always face upright. When an octopus comes near a rock the octopus' colour will change (if necessary) to match that of the rock (it will be camouflaged). The octopus keeps this colour even after moving away from the rock.
 \end{itemize}
+
+The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}.
+
+\begin{algorithm}
+  \caption{Determine whether one object is close to another}
+  \label{algo:close_to}
+  \begin{algorithmic}[1]
+    \Procedure{CloseTo}{$obj1, obj2$}
+      \State \Call{ExpandEdges}{$obj1$}\Comment{Add $5$ pixels to each side}
+      \State $overlapX \gets obj2.x2 \geq obj1.x2 \textbf{ and } obj2.x1 \leq obj1.x1$
+      \State $overlapY \gets obj2.y2 \geq obj1.y2 \textbf{ and } obj2.y1 \leq obj1.y1$
+      \For{$(x,y) \gets obj2.corners$}
+        \State $matchX \gets obj1.x1 \leq x \leq obj1.x2 \textbf{ or } overlapX$
+        \State $matchY \gets obj1.y1 \leq y \leq obj1.y2 \textbf{ or } overlapY$
+        \If{$matchX \textbf{ and } matchY$}
+          \State \textbf{return} $True$
+        \EndIf
+      \EndFor
+      \State \textbf{return} $False$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+\begin{figure}
+  \begin{subfigure}{0.24\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{octopus.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.24\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fish.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.24\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{bag.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.24\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{rock.png}
+  \end{subfigure}
+  \caption{Examples of each object type in the videos (not to scale). Left-to-right: octopus, fish, bag, rock.}
+  \label{fig:dataset-objects}
+\end{figure}
+
+\begin{figure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{frame_0.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{frame_1.png}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{frame_2.png}
+  \end{subfigure}
+  \caption{An example of the octopus moving close to a green rock, and turning green itself.}
+  \label{fig:dataset-frames}
+\end{figure}
 
 
 \section{Questions and Answers}
