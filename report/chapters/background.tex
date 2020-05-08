@@ -1,4 +1,4 @@
-\documentclass[../interim.tex]{subfiles}
+\documentclass[../report.tex]{subfiles}
 
 
 \begin{document}
@@ -70,7 +70,7 @@ Firstly, for classification tasks the following terminology is commonly used:
   \item $F_1 = 2 * \frac{precision * recall}{precision + recall}$. The $F_1$ score is a way of combining the precision and recall scores.
 \end{itemize}
 
-Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value which determines what is counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in Figure~\ref{fig:prec-recall}.
+Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value such that confidence scores below the threshold are not counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in Figure~\ref{fig:prec-recall}.
 
 \begin{figure}
   \centering
@@ -88,23 +88,23 @@ Each object detector model will output a confidence score for each object classi
   \caption{Precision-recall curves and definition of intersection over union}
 \end{figure}
 
-For object detection tasks, where a bounding box is produced to estimate an object's position, metrics which measure the accuracy of the detection are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (although estimates of this value are usually used). In order to assess how well a model localises an object in an image, the Interesection over Union (IoU) is calculated between the ground-truth bounding box and the box produced by the model. Figure~\ref{fig:iou} gives a visualisation of IoU. Each IoU threshold will produce its own precision-recall curve.
+For object detection tasks, where a bounding box is produced to estimate an object's position, metrics which measure the accuracy of the detection are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (although estimates of this value are usually used and there a number of slightly different definitions). In order to assess how well a model localises an object in an image, the Interesection over Union (IoU) is calculated between the ground-truth bounding box and the box produced by the model. The IoU between object A and object B is defined as the area of intersection between A and B divided by the area of union between A and B. Figure~\ref{fig:iou} gives a visualisation of IoU. Each IoU threshold will produce its own precision-recall curve.
 
 
-\subsection{Multiple Object Tracking}
-
-Multiple Object Tracking (MOT) is a computer vision task that aims to identify and track objects from a sequence of images without any prior knowledge about the appearance or number of targets~\cite{obj-tracking-survey}. Most object tracking methods share a very similar pipeline~\cite{obj-tracking-survey}, as follows:
-\begin{itemize}
-  \item \textbf{Detection}. Each input frame is analysed to identify objects.
-
-  \item \textbf{Feature Extraction}. Algorithms extract appearance, motion and/or interaction features from objects.
-
-  \item \textbf{Affinity Computation}. Features are used to compute a similarity score between objects.
-
-  \item \textbf{Association}. Similarity scores are used to associate detections and compute the object trajectories.
-\end{itemize}
-
-The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter~\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm~\cite{hungarian-algo} for association. Whereas SORT attempts to track objects using motion prediction, other algorithms focus on extracting features from objects and using these to match objects in successor frames. Commonly used features include Histogram of Orientated Gradients (HOG)~\cite{hog-features}, Scale Invariant Feature Transform (SIFT)~\cite{sift} and Speeded-Up Robust Features (SURF)~\cite{surf}. More recent methods tend to use features extracted directly from a CNN.
+% \subsection{Multiple Object Tracking}
+%
+% Multiple Object Tracking (MOT) is a computer vision task that aims to identify and track objects from a sequence of images without any prior knowledge about the appearance or number of targets~\cite{obj-tracking-survey}. Most object tracking methods share a very similar pipeline~\cite{obj-tracking-survey}, as follows:
+% \begin{itemize}
+%   \item \textbf{Detection}. Each input frame is analysed to identify objects.
+%
+%   \item \textbf{Feature Extraction}. Algorithms extract appearance, motion and/or interaction features from objects.
+%
+%   \item \textbf{Affinity Computation}. Features are used to compute a similarity score between objects.
+%
+%   \item \textbf{Association}. Similarity scores are used to associate detections and compute the object trajectories.
+% \end{itemize}
+%
+% The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter~\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm~\cite{hungarian-algo} for association. Whereas SORT attempts to track objects using motion prediction, other algorithms focus on extracting features from objects and using these to match objects in successor frames. Commonly used features include Histogram of Orientated Gradients (HOG)~\cite{hog-features}, Scale Invariant Feature Transform (SIFT)~\cite{sift} and Speeded-Up Robust Features (SURF)~\cite{surf}. More recent methods tend to use features extracted directly from a CNN.
 
 
 \section{Knowledge Representation and Reasoning}
@@ -125,8 +125,6 @@ The following templates are some of the possible forms of rules in an ASP progra
 {\footnotesize Where $a$ and each $b_i$ and $c_i$ are atoms in first-order logic, $l$ and $u$ are integers.} \\
 
 The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a \textit{choice rule}. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. The bounds can be left off, in which case they take default values of $0$ and the size of the choice set, respectively. Finally, rule~\ref{asp-rule:constraint} is known as a \textit{constraint}. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
-
-% TODO l and u are optional
 
 As well as negation as failure, ASP also has a notion of `strong negation'. The strong negation of an atom $p$ is written $\neg p$. Strong negation can be thought of as classical negation, although it does not always have the same properties. In practice, ASP solvers implement strong negation by treating $\neg p$ as an additional atom, and enforce that no answer set can contain both $p$ and $\neg p$.
 
@@ -154,22 +152,26 @@ Action languages are formal models for describing the behaviour of dynamic syste
 \end{gather}
 \noindent
 {\footnotesize Where:
-\vspace{-0.8em}
+\vspace{-0.5em}
 \renewcommand{\labelitemi}{$\textendash$}
 \begin{itemize}
-  \setlength\itemsep{-0.4em}
+  \setlength\itemsep{-0.2em}
   \item $a$ is an action
   \item $l$ and $p_0,...,p_m$ are domain literals
   \item $l_{in}$ is a literal formed by an inertial fluent
 \end{itemize}}
+% \noindent
+% {\footnotesize Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent.} \\
 
-Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executability condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this encoding is given in Appendix~\ref{appendix-al}.
+Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executability condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}.
 
 \subsection{Symbolic Rule Learning}
 
 Inductive Logic Programming~\cite{ilp-intro} (ILP) is a field of symbolic AI research concerned with learning symbolic rules which, when combined with background knowledge, entail a set of positive examples and do not entail any negative examples. ILASP~\cite{ilasp-system} (Inductive Learning of Answer Set Programs) is an ILP framework for learning ASP programs.
 
-The authors of~\cite{ilasp-1} define the \textit{Learning from Answer Sets} ($ILP_{LAS}$) task (which is the task solved by the original version of ILASP), by first defining a \textit{partial interpretation}. A partial interpretation $E$ is a pair of sets of atoms $E^{inc}$ and $E^{exc}$, known as the \textit{inclusions} and \textit{exclusions} of $E$. An answer set $A$ \textit{extends} $E$ if it contains all of the inclusions ($E^{inc} \subseteq A$) and none of the exlusions ($E^{exc} \cap A = \emptyset$). An $ILP_{LAS}$ task is then defined as the tuple $T = \langle B, S_M, E^+, E^- \rangle$, where $B$ is the background knowledge, $S_M$ is the search space, $E^+$ and $E^-$ are the partial interpretations for the positive and negative examples, respectively. An hypothesis $H$ is known as an inductive solution of $T$ if and only if all of the following are true:
+The authors of~\cite{ilasp-1} define the \textit{Learning from Answer Sets} ($ILP_{LAS}$) task (which is the task solved by the original version of ILASP), by first defining a \textit{partial interpretation}. A partial interpretation $E$ is a pair of sets of atoms $E^{inc}$ and $E^{exc}$, known as the \textit{inclusions} and \textit{exclusions} of $E$. An answer set $A$ \textit{extends} $E$ if it contains all of the inclusions ($E^{inc} \subseteq A$) and none of the exclusions ($E^{exc} \cap A = \emptyset$). An $ILP_{LAS}$ task is then defined as the tuple $T = \langle B, S_M, E^+, E^- \rangle$, where $B$ is the background knowledge, $S_M$ is the search space, $E^+$ and $E^-$ are the partial interpretations for the positive and negative examples, respectively. ILASP is able to construct the search space from a \textit{language bias} specified by \textit{mode declarations}. Full details, and examples, on how to write a language bias for ILASP can be found in the ILASP manual~\cite{ilasp-system}.
+
+Given an $ILP_{LAS}$ task, $T$, ILASP finds an hypothesis (an ASP program), $H$, which is known as an inductive solution of $T$, such that all of the following are true:
 \begin{enumerate}
   \item $H \subseteq S_M$
   \item $\forall e^+ \in E^+ \text{ } \exists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^+$
