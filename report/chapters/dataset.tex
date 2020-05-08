@@ -82,15 +82,17 @@ The dataset models a single binary relation between objects, `close to'. Interna
   \end{algorithmic}
 \end{algorithm}
 
-Other than object properties and relations between objects, which encode visual and spatial information from a single frame, the other key data from the video are the events, which encode temporal information from the frames. Events occur between two consecutive frames, each video therefore contains 31 sets of events.
+Other than object properties and relations between objects, which encode visual and spatial information from a single frame, the other key data from the video are the events, which encode temporal information from the frames. Events occur between two consecutive frames, and each timestep can contain multiple (or no) events. Each video therefore contains 31 sets of events.
 
 We choose to split events into two disjoint sets: actions and effects. Actions can be thought of as motions that an object can make to alter its position or rotation. We consider three such actions: move, rotate clockwise and rotate anticlockwise. Rotations have the intuitive effect on an object's rotation. Move causes the object to move 15 pixels in the direction of its rotation. For example, an object at position $(20, 100, 30, 110)$ with a `right-facing' rotation will be at position $(35, 100, 45, 110)$ after a move action.
 
 Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above the octopus takes the colour of the rock. The octopus then continues to keep this colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, when a bag is eaten the octopus also disappears, this does not occur with fish. Examples of all events can be found in Appendix TODO.
 
+To create a video, we first create an initial frame by randomly sampling the number of each object from a set of uniform distributions: $\mathcal{U}(5, 8)$ for fish, $\mathcal{U}(2, 3)$ for bags and $\mathcal{U}(3, 4)$ for rocks, where $\mathcal{U}(l, u)$ refers to a discrete uniform distribution with lower and upper bounds $l$ and $u$, respectively. Where colours and rotations need to be chosen for objects, these are sampled uniformly from the set of colours and/or rotations that are possible for that type of object.
 
+To create the rest of the video, actions for the octopus are randomly sampled for each timestep, we then work out which effects have occurred in each frame and, finally, the properties of each object are updated accordingly. The octopus has a $0.1$ probability of choosing to rotate at each timestep. However, if the octopus chooses to move but moving would cause the octopus to be outside the frame, the octopus will rotate instead. Clockwise and anticlockwise rotations are sampled uniformly.
 
-\begin{figure}[b]
+\begin{figure}[t]
   \begin{subfigure}{0.32\textwidth}
     \centering
     \includegraphics[width=\textwidth]{frame_0.png}
