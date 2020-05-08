@@ -11,17 +11,31 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
 \begin{enumerate}
   \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
 
-  \item Hybrid models generally require some form of environment specification (or ontology) so that intermediate knowledge can be represented symbolically (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or confine object properties or video events to a given set, they cannot provide such a specification of the evironment.
+  \item Hybrid models generally require some form of environment specification (or ontology) so that the model's internal knowledge can be represented explicitly (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or restrict object properties or video events to a given set, they cannot provide such a specification of the environment.
 \end{enumerate}
 
-The CLEVRER dataset~\cite{dataset:clevrer} would have been a good candidate for this project, however it was published in March 2020, six months after the project began.
+The CLEVRER dataset~\cite{dataset:clevrer} does, however, meet these requirements and would have been a good candidate for this project. Unfortunately it was published in March 2020, six months after the project began.
 
-The remainder of this chapter outlines the details of the TODO dataset, including how each video is created.
+Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
 
 
 \section{Videos}
 
-Talk about objects, properties, relations, actions and events. Talk about objects, properties, relations, actions and events. Talk about objects, properties, relations, actions and events.
+% Talk about objects, properties, relations, actions and events.
+
+Each video in the TODO dataset is a sequence of 32 frames. Each frame contains a flat background and a maximum of 16 objects. Objects form the central component of each video, since all of the useful information in each video can be modelled by the following: properties of objects; binary relations between objects; and events, which relate to at least one object, occuring between two consecutive frames of the video. Each object is modelled using the following attributes: object type (or class), position, rotation and colour.
+
+Figure TODO shows an example of each of the four possible classes of objects. Each class can be described as follows:
+\begin{itemize}
+  \item \textbf{Octopus}. The `main' character in the video - the octopus is the only non-static character and its properties change as it comes into contact with other objects. In the initial frame the colour of the octopus is always red, however, it can take any rotation.
+
+  \item \textbf{Fish}. The fish are always silver, but can have any rotation. When the octopus comes close to the fish, the fish disappears (gets eaten).
+
+  \item \textbf{Bag}. Similarly to the fish, the plastic bags are always white but can have any rotation. Each bag is harmful to the octopus, so both objects disappear when in close contact.
+
+  \item \textbf{Rock}. Rocks can have four colours: brown, blue, purple and green, but always face upright. When an octopus comes near a rock the octopus' colour will change (if necessary) to match that of the rock (it will be camouflaged). The octopus keeps this colour even after moving away from the rock.
+\end{itemize}
+
 
 \section{Questions and Answers}
 
