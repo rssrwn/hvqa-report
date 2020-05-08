@@ -7,16 +7,16 @@
 \chapter{Dataset}
 \label{chapter:dataset}
 
-Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name TODO. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements, for the following reasons:
+Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name TODO. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements\footnotemark, for the following reasons:
 \begin{enumerate}
   \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
 
   \item Hybrid models generally require some form of environment specification (or ontology) so that the model's internal knowledge can be represented explicitly (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or restrict object properties or video events to a given set, they cannot provide such a specification of the environment.
 \end{enumerate}
 
-The CLEVRER dataset~\cite{dataset:clevrer} does, however, meet these requirements and would have been a good candidate for this project. Unfortunately it was published in March 2020, six months after the project began.
+\footnotetext{The CLEVRER dataset~\cite{dataset:clevrer} does meet these requirements and would have been a good candidate for this project. Unfortunately it was published in March 2020, six months after the project began.}
 
-Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at $256$ x $256$ pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
+Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
 
 
 \section{Videos}
@@ -27,38 +27,16 @@ Each video in the TODO dataset is a sequence of 32 frames. Each frame contains a
 
 Figure~\ref{fig:dataset-objects} shows an example of each of the four possible classes of objects. Each class can be described as follows:
 \begin{itemize}
-  \item \textbf{Octopus}. The `main' character in the video - the octopus is the only non-static character and its properties change as it comes into contact with other objects. In the initial frame the colour of the octopus is always red, however, it can take any rotation.
+  \item \textbf{Octopus}. The `main' character in the video - the octopus is the only non-static character and its properties change due to its actions. Each frame contains at most one octopus. The initial frame always contains a red octopus with a randomly assigned rotation.
 
-  \item \textbf{Fish}. The fish are always silver, but can have any rotation. When the octopus comes close to the fish, the fish disappears (gets eaten).
+  \item \textbf{Fish}. Fish are always silver, but can have any rotation. When the octopus comes close to the fish, the fish disappears (gets eaten).
 
-  \item \textbf{Bag}. Similarly to the fish, the plastic bags are always white but can have any rotation. Each bag is harmful to the octopus, so both objects disappear when in close contact.
+  \item \textbf{Bag}. Similarly to fish, plastic bags are always white but can take any rotation. Bags are harmful to the octopus, so both objects disappear when close.
 
-  \item \textbf{Rock}. Rocks can have four colours: brown, blue, purple and green, but always face upright. When an octopus comes near a rock the octopus' colour will change (if necessary) to match that of the rock (it will be camouflaged). The octopus keeps this colour even after moving away from the rock.
+  \item \textbf{Rock}. Rocks can have four colours: brown, blue, purple and green, but always face upright. When an octopus comes near a rock the octopus' colour will change (if necessary) to match that of the rock (it will be camouflaged).
 \end{itemize}
 
-The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}.
-
-\begin{algorithm}
-  \caption{Determine whether one object is close to another}
-  \label{algo:close_to}
-  \begin{algorithmic}[1]
-    \Procedure{CloseTo}{$obj1, obj2$}
-      \State \Call{ExpandEdges}{$obj1$}\Comment{Add $5$ pixels to each side}
-      \State $overlapX \gets obj2.x2 \geq obj1.x2 \textbf{ and } obj2.x1 \leq obj1.x1$
-      \State $overlapY \gets obj2.y2 \geq obj1.y2 \textbf{ and } obj2.y1 \leq obj1.y1$
-      \For{$(x,y) \gets obj2.corners$}
-        \State $matchX \gets obj1.x1 \leq x \leq obj1.x2 \textbf{ or } overlapX$
-        \State $matchY \gets obj1.y1 \leq y \leq obj1.y2 \textbf{ or } overlapY$
-        \If{$matchX \textbf{ and } matchY$}
-          \State \textbf{return} $True$
-        \EndIf
-      \EndFor
-      \State \textbf{return} $False$
-    \EndProcedure
-  \end{algorithmic}
-\end{algorithm}
-
-\begin{figure}
+\begin{figure}[b!]
   \begin{subfigure}{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{octopus.png}
@@ -78,11 +56,41 @@ The dataset models a single binary relation between objects, `close to'. Interna
     \centering
     \includegraphics[width=\textwidth]{rock.png}
   \end{subfigure}
-  \caption{Examples of each object type in the videos (not to scale). Left-to-right: octopus, fish, bag, rock.}
+  \caption{Examples of each object type in the videos (not to scale).}
   \label{fig:dataset-objects}
 \end{figure}
 
-\begin{figure}
+The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. Object positions are always given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top-left corner of the object, and $(x2, y2)$ is the bottom right. The dataset does not consider any relations with an arity higher than two.
+
+\begin{algorithm}[t]
+  \caption{Determine whether one object is close to another}
+  \label{algo:close_to}
+  \begin{algorithmic}[1]
+    \Procedure{CloseTo}{$obj1, obj2$}
+      \State \Call{ExpandEdges}{$obj1$}\Comment{Add $5$ pixels to each side}
+      \State $overlapX \gets obj2.x2 \geq obj1.x2 \textbf{ and } obj2.x1 \leq obj1.x1$
+      \State $overlapY \gets obj2.y2 \geq obj1.y2 \textbf{ and } obj2.y1 \leq obj1.y1$
+      \For{$(x,y) \gets obj2.corners$}
+        \State $matchX \gets obj1.x1 \leq x \leq obj1.x2 \textbf{ or } overlapX$
+        \State $matchY \gets obj1.y1 \leq y \leq obj1.y2 \textbf{ or } overlapY$
+        \If{$matchX \textbf{ and } matchY$}
+          \State \textbf{return} $True$
+        \EndIf
+      \EndFor
+      \State \textbf{return} $False$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
+
+Other than object properties and relations between objects, which encode visual and spatial information from a single frame, the other key data from the video are the events, which encode temporal information from the frames. Events occur between two consecutive frames, each video therefore contains 31 sets of events.
+
+We choose to split events into two disjoint sets: actions and effects. Actions can be thought of as motions that an object can make to alter its position or rotation. We consider three such actions: move, rotate clockwise and rotate anticlockwise. Rotations have the intuitive effect on an object's rotation. Move causes the object to move 15 pixels in the direction of its rotation. For example, an object at position $(20, 100, 30, 110)$ with a `right-facing' rotation will be at position $(35, 100, 45, 110)$ after a move action.
+
+Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above the octopus takes the colour of the rock. The octopus then continues to keep this colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, when a bag is eaten the octopus also disappears, this does not occur with fish. Examples of all events can be found in Appendix TODO.
+
+
+
+\begin{figure}[b]
   \begin{subfigure}{0.32\textwidth}
     \centering
     \includegraphics[width=\textwidth]{frame_0.png}
@@ -97,7 +105,7 @@ The dataset models a single binary relation between objects, `close to'. Interna
     \centering
     \includegraphics[width=\textwidth]{frame_2.png}
   \end{subfigure}
-  \caption{An example of the octopus moving close to a green rock, and turning green itself.}
+  \caption{An example of an octopus moving close to a green rock and turning green.}
   \label{fig:dataset-frames}
 \end{figure}
 
