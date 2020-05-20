@@ -124,30 +124,31 @@ The TODO dataset contains ten QA pairs per video, sampled randomly from seven qu
 \begin{equation}
   \label{eqn:spec-grammar}
   \begin{split}
-    \textbf{object} & ::= [ \textbf{ property\_val } ] \textbf{  class } \\
-    \textbf{property\_val} & ::= \textbf{ rotation\_val } | \textbf{ colour\_val } \\
-    \textbf{rotation\_val} & ::= \text{upward-facing } | \text{ right-facing } | \text{ downward-facing } | \text{ left-facing } \\
-    \textbf{colour\_val} & ::= \text{red } | \text{ blue } | \text{ purple } | \text{ brown } | \text{ green } | \text{ silver } | \text{ white } \\
-    \textbf{class} & ::= \text{ octopus } | \text{ fish } | \text{ bag } | \text{ rock } \\
-    \textbf{property} & ::= \text{ rotation } | \text{ colour } \\
-    \textbf{relation} & ::= \text{close} \\
-    \textbf{event} & ::= \textbf{action } | \textbf{ effect } \\
-    \textbf{action} & ::= \text{move } |  \text{ rotate clockwise } | \text{ rotate anti-clockwise } \\
-    \textbf{effect} & ::= \text{change colour } | \text{ eat a fish } | \text{ eat a bag } \\
-    \textbf{frame_idx} & ::= \text{ 0 } | \text{ 1 } | \text{ ... } | \text{ 31 }
+    \textit{$<$object$>$} & ::= [ \textit{$<$property\_value$>$} ] \textit{  $<$class$>$ } \\
+    \textit{$<$property\_value$>$} & ::= \textit{$<$rotation\_value$>$ } | \textit{ $<$colour\_value$>$ } \\
+    \textit{$<$rotation\_value$>$} & ::= \text{upward-facing } | \text{ right-facing } | \text{ downward-facing } | \text{ left-facing } \\
+    \textit{$<$colour\_value$>$} & ::= \text{red } | \text{ blue } | \text{ purple } | \text{ brown } | \text{ green } | \text{ silver } | \text{ white } \\
+    \textit{$<$class$>$} & ::= \text{octopus } | \text{ fish } | \text{ bag } | \text{ rock } \\
+    \textit{$<$property$>$} & ::= \text{rotation } | \text{ colour } \\
+    \textit{$<$relation$>$} & ::= \text{close} \\
+    \textit{$<$event$>$} & ::= \textit{$<$action$>$ } | \textit{ $<$effect$>$ } \\
+    \textit{$<$action$>$} & ::= \text{move } |  \text{ rotate clockwise } | \text{ rotate anti-clockwise } \\
+    \textit{$<$effect$>$} & ::= \text{change colour } | \text{ eat a fish } | \text{ eat a bag } \\
+    \textit{$<$frame\_idx$>$} & ::= \text{$0$ } | \text{ $1$ } | \text{ ... } | \text{ $31$ }
   \end{split}
 \end{equation}
 
 As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each question requires only knowledge of the preceeding question types to answer. For example, event questions require knowledge of object properties and relations, but relation questions only require knowledge of object properties.
 
-% \begin{enumerate}
-%   \item Question type 1 is designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer. However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset. The EBNF grammar for type 1 questions and answers id as follows:
-%   \begin{equation}
-%     \begin{split}
-%       \textbf{q_type_1} & ::= \text{What \textbf{property} was the \textbf{object} in frame \textbf{frame_idx}?} \\
-%     \end{split}
-%   \end{equation}
-% \end{enumerate}
+\begin{enumerate}
+  \item Question type 1 is designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is dicsussed further in Chapter~\ref{chapter:hybrid-video-qa}). The EBNF grammar for type 1 questions and answers id as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
+      \textit{$<$ans\_type\_1$>$} & ::= \textit{$<$property\_value$>$}
+    \end{split}
+  \end{equation}
+\end{enumerate}
 
 
 \section{Specification}
