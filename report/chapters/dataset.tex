@@ -141,11 +141,19 @@ The TODO dataset contains ten QA pairs per video, sampled randomly from seven qu
 As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each question requires only knowledge of the preceeding question types to answer. For example, event questions require knowledge of object properties and relations, but relation questions only require knowledge of object properties.
 
 \begin{enumerate}
-  \item Question type 1 is designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is dicsussed further in Chapter~\ref{chapter:hybrid-video-qa}). The EBNF grammar for type 1 questions and answers id as follows:
+  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
       \textit{$<$ans\_type\_1$>$} & ::= \textit{$<$property\_value$>$}
+    \end{split}
+  \end{equation}
+
+  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer, and the answer is `yes' for roughly TODO \% of these questions. The grammar for these questions and answers is as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_2$>$} & ::= \text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame idx$>$}?} \\
+      \textit{$<$ans\_type\_2$>$} & ::= \text{yes } | \text{ no}
     \end{split}
   \end{equation}
 \end{enumerate}
