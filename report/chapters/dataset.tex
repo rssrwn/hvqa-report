@@ -138,10 +138,10 @@ The TODO dataset contains ten QA pairs per video, sampled randomly from seven qu
   \end{split}
 \end{equation}
 
-As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each question requires only knowledge of the preceeding question types to answer. For example, event questions require knowledge of object properties and relations, but relation questions only require knowledge of object properties.
+As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each of these questions requires only knowledge of the preceeding question types to answer. TODO rewrite this if a new question type is added. For example, event questions require knowledge of both object properties and relations, but relation questions only require knowledge of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas.
 
 \begin{enumerate}
-  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). The EBNF grammar for property questions and answers is as follows:
+  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). TODO talk about distribution of answers. The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
@@ -154,6 +154,14 @@ As mentioned above there are seven question types. The first three of these are 
     \begin{split}
       \textit{$<$q\_type\_2$>$} & ::= \text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame idx$>$}?} \\
       \textit{$<$ans\_type\_2$>$} & ::= \text{yes } | \text{ no}
+    \end{split}
+  \end{equation}
+
+  \item Action questions ask which action occurred between two frames of a video. TODO talk about distribution of actions in the answers.
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_3$>$} & ::= \text{Which action occurred immediately after frame \textit{$<$frame\_idx$>$}?} \\
+      \textit{$<$ans\_type\_3$>$} & ::= \textit{$<$action$>$}
     \end{split}
   \end{equation}
 \end{enumerate}
