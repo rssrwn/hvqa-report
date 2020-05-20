@@ -11,7 +11,7 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
 \begin{enumerate}
   \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
 
-  \item Hybrid models generally require some form of environment specification (or ontology) so that the model's internal knowledge can be represented explicitly (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or restrict object properties or video events to a given set, they cannot provide such a specification of the environment.
+  \item Hybrid models generally require some form of environment specification (or ontology) so that the model's internal knowledge can be represented explicitly (see~\cite{dataset:clevrer, model:ns-cl, model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or restrict object properties or video events to a given set, they cannot provide such a specification of the environment.
 \end{enumerate}
 
 \footnotetext{The CLEVRER dataset~\cite{dataset:clevrer} meets these requirements and would have been a good candidate for this project. Unfortunately, it was published in March 2020, six months after the project began.}
@@ -117,9 +117,9 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 \section{Questions and Answers}
 
-% Different types of questions and answers.
+As well as videos, VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are usually the only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of sparsely labelled data. For example, our dataset can contain 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video, but perhaps only a single QA pair. For this reason, VideoQA tasks can resemble `semi-supervised' tasks, where a model is given partially labelled data, but asked to produce all labels.
 
-As well as videos VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are the usually only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of data which is sparsely labelled. For example, our dataset contains 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video.
+The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}. These EBNF grammar rules are used in the rules for the questions and answers.
 
 \begin{equation}
   \label{eqn:spec-grammar}
@@ -133,16 +133,21 @@ As well as videos VideoQA datasets must also contain question-answer pairs (QA p
     \textbf{relation} & ::= \text{close} \\
     \textbf{event} & ::= \textbf{action } | \textbf{ effect } \\
     \textbf{action} & ::= \text{move } |  \text{ rotate clockwise } | \text{ rotate anti-clockwise } \\
-    \textbf{effect} & ::= \text{change colour } | \text{ eat a fish } | \text{ eat a bag }
+    \textbf{effect} & ::= \text{change colour } | \text{ eat a fish } | \text{ eat a bag } \\
+    \textbf{frame_idx} & ::= \text{ 0 } | \text{ 1 } | \text{ ... } | \text{ 31 }
   \end{split}
 \end{equation}
 
-The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The grammar for each QA pair is presented in extended Backus-Naur form (EBNF) in Equation~\ref{eqn:qa-grammar}, while Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}.
+As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each question requires only knowledge of the preceeding question types to answer. For example, event questions require knowledge of object properties and relations, but relation questions only require knowledge of object properties.
 
-\begin{equation}
-  \label{eqn:qa-grammar}
-  \textbf{}
-\end{equation}
+% \begin{enumerate}
+%   \item Question type 1 is designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer. However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset. The EBNF grammar for type 1 questions and answers id as follows:
+%   \begin{equation}
+%     \begin{split}
+%       \textbf{q_type_1} & ::= \text{What \textbf{property} was the \textbf{object} in frame \textbf{frame_idx}?} \\
+%     \end{split}
+%   \end{equation}
+% \end{enumerate}
 
 
 \section{Specification}
