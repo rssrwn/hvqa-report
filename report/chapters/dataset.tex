@@ -20,6 +20,7 @@ Since the focus of this project is to investigate logical reasoning, we do not a
 
 
 \section{Videos}
+\label{section:dataset-videos}
 
 % Talk about objects, properties, relations, actions and events.
 
@@ -114,7 +115,31 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 \section{Questions and Answers}
 
-Different types of questions and answers.
+% Different types of questions and answers.
+
+As well as videos VideoQA datasets must also contain question-and-answer pairs (QA pairs). Answers to questions are the usually only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of data which is sparsely labelled. For example, our dataset contains 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video.
+
+\begin{equation}
+  \label{eqn:spec-grammar}
+  \begin{split}
+    \textbf{object} & ::= [ \textbf{ property\_val } ] \textbf{  class } \\
+    \textbf{property\_val} & ::= \textbf{ rotation\_val } | \textbf{ colour\_val } \\
+    \textbf{rotation\_val} & ::= \text{upward-facing } | \text{ right-facing } | \text{ downward-facing } | \text{ left-facing } \\
+    \textbf{colour\_val} & ::= \text{red } | \text{ blue } | \text{ purple } | \text{ brown } | \text{ green } | \text{ silver } | \text{ white } \\
+    \textbf{class} & ::= \text{ octopus } | \text{ fish } | \text{ bag } | \text{ rock } \\
+    \textbf{property} & ::= \text{ rotation } | \text{ colour } \\
+    \textbf{relation} & ::= \text{close} \\
+    \textbf{event} & ::= \textbf{action } | \textbf{ effect } \\
+    \textbf{action} & ::= \text{move } |  \text{ rotate clockwise } | \text{ rotate anti-clockwise } \\
+    \textbf{effect} & ::= \text{change colour } | \text{ eat a fish } | \text{ eat a bag }
+  \end{split}
+\end{equation}
+
+The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The grammar for each QA pair is presented in extended Backus-Naur form (EBNF) in Equation~\ref{eqn:qa-grammar}, while Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in the Section~\ref{section:dataset-videos}.
+
+\begin{equation}
+  \label{eqn:qa-grammar}
+\end{equation}
 
 
 \section{Specification}
