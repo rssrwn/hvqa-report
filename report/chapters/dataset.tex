@@ -14,9 +14,11 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
   \item Hybrid models generally require some form of environment specification (or ontology) so that the model's internal knowledge can be represented explicitly (see~\cite{dataset:clevrer}\cite{model:ns-cl}\cite{model:ns-vqa} for examples from VideoQA and VQA). Since most of the existing VideoQA datasets do not limit objects to be of specific types, or restrict object properties or video events to a given set, they cannot provide such a specification of the environment.
 \end{enumerate}
 
-\footnotetext{The CLEVRER dataset~\cite{dataset:clevrer} does meet these requirements and would have been a good candidate for this project. Unfortunately it was published in March 2020, six months after the project began.}
+\footnotetext{The CLEVRER dataset~\cite{dataset:clevrer} meets these requirements and would have been a good candidate for this project. Unfortunately, it was published in March 2020, six months after the project began.}
 
-Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels, to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
+The dataset is generated programmatically, and can therefore be made as large as required. However, in order to allow comparisons between models, we generate a fixed dataset of 1400 videos (each video contains 10 question-answer pairs) and use this data to train and evaluate the models outlined in Chapter~\ref{chapter:implementation}. This dataset is further divided into 1000 training, 200 validation and 200 testing videos.
+
+Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
 
 
 \section{Videos}
@@ -117,7 +119,7 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 % Different types of questions and answers.
 
-As well as videos VideoQA datasets must also contain question-and-answer pairs (QA pairs). Answers to questions are the usually only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of data which is sparsely labelled. For example, our dataset contains 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video.
+As well as videos VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are the usually only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of data which is sparsely labelled. For example, our dataset contains 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video.
 
 \begin{equation}
   \label{eqn:spec-grammar}
@@ -135,10 +137,11 @@ As well as videos VideoQA datasets must also contain question-and-answer pairs (
   \end{split}
 \end{equation}
 
-The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The grammar for each QA pair is presented in extended Backus-Naur form (EBNF) in Equation~\ref{eqn:qa-grammar}, while Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in the Section~\ref{section:dataset-videos}.
+The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The grammar for each QA pair is presented in extended Backus-Naur form (EBNF) in Equation~\ref{eqn:qa-grammar}, while Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}.
 
 \begin{equation}
   \label{eqn:qa-grammar}
+  \textbf{}
 \end{equation}
 
 
