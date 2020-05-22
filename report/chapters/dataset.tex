@@ -190,6 +190,19 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
+  \item State transition questions ask the model to find an action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions are also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_7$>$} & ::= \begin{multlined}[t]
+          \text{What does the octopus do immediately after} \\
+          \text{\textit{$<$event\_noun$>$} [for the \textit{$<$nth$>$} time]?}
+        \end{multlined} \\
+      \textit{$<$ans\_type\_7$>$} & ::= \textit{$<$action$>$} \\
+      \textit{$<$event\_noun$>$} & ::= \text{moving } | \text{ rotating clockwise } | \text{ rotating anticlockwise} \\
+      \textit{$<$nth$>$} & ::= \text{first } | \text{ second } | \text{ third } | \text{ fourth } | \text{ fifth}
+    \end{split}
+  \end{equation}
+
 \end{enumerate}
 
 
