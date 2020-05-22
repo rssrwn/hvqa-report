@@ -172,6 +172,15 @@ As mentioned above there are seven question types. The first three of these are 
       \textit{$<$ans\_type\_4$>$} & ::= \text{Its \textit{$<$property$>$} changed from \textit{$<$property\_value$>$} to \textit{$<$property\_value$>$}}
     \end{split}
   \end{equation}
+
+  \item Repetition count questions ask the model to work out how many times an event occurs in a given video. This requires the model to be able to count the number of occurences of an event. Events are sampled from a uniform distribution; if the event never occurs in the video, the answer is simply $0$. Since each event can occur at most once per frame-interval, the answer is guaranteed to be between 0 and 30 (inclusive). The grammar for repetition count questions is as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_5$>$} & ::= \text{How many times does the octopus \textit{$<$event$>$}?} \\
+      \textit{$<$ans\_type\_5$>$} & ::= \text{$0$ } | \text{ $1$ } | \text{ ... } | \text{ $30$ }
+    \end{split}
+  \end{equation}
+
 \end{enumerate}
 
 
