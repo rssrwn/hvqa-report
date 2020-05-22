@@ -7,7 +7,7 @@
 \chapter{Dataset}
 \label{chapter:dataset}
 
-Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name TODO. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements\footnotemark, for the following reasons:
+Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name `OceanQA'. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements\footnotemark, for the following reasons:
 \begin{enumerate}
   \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
 
@@ -18,7 +18,7 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
 
 The dataset is generated programmatically, and can therefore be made as large as required. However, in order to allow comparisons between models, we generate a fixed dataset of 1400 videos (each video contains 10 question-answer pairs) and use this data to train and evaluate the models outlined in Chapter~\ref{chapter:implementation}. This dataset is further divided into 1000 training, 200 validation and 200 testing videos.
 
-Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels to allow faster network training. The remainder of this chapter outlines the full details of the TODO dataset.
+Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels to allow faster network training. The remainder of this chapter outlines the full details of the OceanQA dataset.
 
 
 \section{Videos}
@@ -26,7 +26,7 @@ Since the focus of this project is to investigate logical reasoning, we do not a
 
 % Talk about objects, properties, relations, actions and events.
 
-Each video in the TODO dataset is a sequence of 32 frames. Each frame contains a flat background and a maximum of 16 objects. Objects form the central component of each video, since all of the useful information in each video can be modelled by the following: properties of objects; binary relations between objects; and events, which relate to at least one object, occuring between two consecutive frames of the video. Each object is modelled using the following attributes: object type (or class), position, rotation and colour.
+Each video in the OceanQA dataset is a sequence of 32 frames. Each frame contains a flat background and a maximum of 16 objects. Objects form the central component of each video, since all of the useful information in each video can be modelled by the following: properties of objects; binary relations between objects; and events, which relate to at least one object, occuring between two consecutive frames of the video. Each object is modelled using the following attributes: object type (or class), position, rotation and colour.
 
 Figure~\ref{fig:dataset-objects} shows an example of each of the four possible classes of objects. Each class can be described as follows:
 \begin{itemize}
@@ -119,7 +119,7 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 As well as videos, VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are usually the only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of sparsely labelled data. For example, our dataset can contain 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video, but perhaps only a single QA pair. For this reason, VideoQA tasks can resemble `semi-supervised' tasks, where a model is given partially labelled data, but asked to produce all labels.
 
-The TODO dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}. These EBNF grammar rules are used in the rules for the questions and answers.
+The OceanQA dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}. These EBNF grammar rules are used in the rules for the questions and answers.
 
 \begin{equation}
   \label{eqn:spec-grammar}
@@ -138,10 +138,10 @@ The TODO dataset contains ten QA pairs per video, sampled randomly from seven qu
   \end{split}
 \end{equation}
 
-As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of object properties, relations between objects and events between frames, respectively. Each of these questions requires only knowledge of the preceeding question types to answer. TODO rewrite this if a new question type is added. For example, event questions require knowledge of both object properties and relations, but relation questions only require knowledge of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas.
+As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of: object properties; relations between objects; and events between frames, respectively. Each of these questions requires, at most, knowledge of the preceeding question types to answer, and may require less. For example, answering an event question may require the model to understand both object properties and relations, but answering a relation question will require, at most, an understanding of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas to answer (other than the ability to count).
 
 \begin{enumerate}
-  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). TODO talk about distribution of answers. The EBNF grammar for property questions and answers is as follows:
+  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). In the training data 620 of the questions ask about colour, while 875 ask about rotation. All property values are represented in the answers, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
@@ -149,7 +149,7 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
-  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer, and the answer is `yes' for roughly TODO \% of these questions. The grammar for these questions and answers is as follows:
+  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer. The answer is `yes' for roughly $16\%$ of these questions in the training data. This imbalance reflects the lack of instances of binary relations between objects, since we only model the `close' relation. The grammar for these questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_2$>$} & ::= \text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame idx$>$}?} \\
