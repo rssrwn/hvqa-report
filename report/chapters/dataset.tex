@@ -173,11 +173,20 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
-  \item Repetition count questions ask the model to work out how many times an event occurs in a given video. This requires the model to be able to count the number of occurences of an event. Events are sampled from a uniform distribution; if the event never occurs in the video, the answer is simply $0$. Since each event can occur at most once per frame-interval, the answer is guaranteed to be between 0 and 30 (inclusive). The grammar for repetition count questions is as follows:
+  \item Repetition count questions ask the model to work out how many times an event occurs in a given video. This requires the model to be able to count the number of occurences of an event. Events are sampled from a uniform distribution; if the event never occurs in the video, the answer is simply $0$. Since each event can occur at most once per frame-interval, the answer is guaranteed to be between 0 and 30 (inclusive). The grammar for repetition count questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_5$>$} & ::= \text{How many times does the octopus \textit{$<$event$>$}?} \\
       \textit{$<$ans\_type\_5$>$} & ::= \text{$0$ } | \text{ $1$ } | \text{ ... } | \text{ $30$ }
+    \end{split}
+  \end{equation}
+
+  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find an event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. The model can assume that there is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_6$>$} & ::= \text{What does the octopus do \textit{$<$positive\_int$>$} times?} \\
+      \textit{$<$ans\_type\_6$>$} & ::= \textit{$<$event$>$} \\
+      \textit{$<$positive\_int$>$} & ::= \text{$0$ } | \text{ $1$ } | \text{ ... } | \text{ $30$ }
     \end{split}
   \end{equation}
 
