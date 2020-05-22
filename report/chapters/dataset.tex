@@ -183,7 +183,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find an event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. The model can assume that there is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
+  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find the event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. The model can assume that there is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_6$>$} & ::= \text{What does the octopus do \textit{$<$positive\_int$>$} times?} \\
@@ -192,7 +192,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item State transition questions ask the model to find an action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions are also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
+  \item State transition questions ask the model to find the action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions are also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_7$>$} & ::= \begin{multlined}[t]
@@ -206,7 +206,31 @@ As mentioned above there are seven question types. The first two of these are VQ
   \end{equation}
 \end{enumerate}
 
+% TODO Rewrite this, add sentence about curriculum learning?
 Property, relation and action questions are intended to be used to train and test the model's understanding of these specific parts of the video. Each of these three question types requires, at most, knowledge of the preceeding question types to answer, and may require less. For example, answering an action question may require the model to understand both object properties and relations, but answering a relation question will require, at most, an understanding of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas to answer (other than the ability to count).
+
+% TODO ??
+% \begin{center}
+% \begin{threeparttable}
+%   \caption{Caption}
+%   \label{table:qa-pairs}
+%   \begin{tabular}{ |l|c c c c c| }
+%     \hline
+%     \textbf{Question Type} & \textbf{\#Videos} & \textbf{\#QA pairs} & \textbf{MC} & \textbf{FIB} & \textbf{Source} \\
+%     \hline
+%     MovieQA         & 408$^1$        & 14,944  & Y  & N & Movies \\
+%     Zeng et al.     & 18,100     & 175,076 & N  & N & Online videos \\
+%     TGIF-QA         & 71,741     & 165,165 & Y$^2$  & N & Online videos \\
+%     Zhu  et al.     & $>$100,000 & 400,000 & Y  & Y & Various \\
+%     EgoVQA          & 16         & 581     & Y  & N & First-person videos \\
+%     MSVD-QA         & 1,970      & 50,505  & N  & N & Video desc. corpus \\
+%     MSRVTT-QA       & 10,000     & 243,680 & N  & N & Video desc. corpus \\
+%     \hline
+%   \end{tabular}
+%   % \begin{tablenotes}
+%   % \end{tablenotes}
+% \end{threeparttable}
+% \end{center}
 
 
 \section{Specification}
