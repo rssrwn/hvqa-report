@@ -157,7 +157,7 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
-  \item Action questions ask which action occurred between two frames of a video. `Move' actions account for around $45\%$ of answers to these questions, while `rotate left' and `rotate right' account for approximately $27.5\%$ of questions each. The answer to these questions will never be `nothing'. The grammar for action questions ans answers is as follows:
+  \item Action questions ask which action occurred between two frames of a video. `Move' actions account for around $45\%$ of answers to these questions, while `rotate clockwise' and `rotate anticlockwise' account for approximately $27.5\%$ of questions each. The answer to these questions will never be `nothing'. The grammar for action questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_3$>$} & ::= \text{Which action occurred immediately after frame \textit{$<$frame\_idx$>$}?} \\
@@ -165,7 +165,13 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
-  \item
+  \item Changed-property questions require the model to reason about how a property of the octopus changes from one frame to the next. The model can assume that only a single property changes after the frame mentioned in the question. Approximately $78\%$ of these questions ask about the colour of the octopus, while the remaining $22\%$ ask about the rotation. The grammar is as follows:
+  \begin{equation}
+    \begin{split}
+      \textit{$<$q\_type\_4$>$} & ::= \text{What happened to the octopus immediately after \textit{$<$frame\_idx$>$?}} \\
+      \textit{$<$ans\_type\_4$>$} & ::= \text{Its \textit{$<$property$>$} changed from \textit{$<$property\_value$>$} to \textit{$<$property\_value$>$}}
+    \end{split}
+  \end{equation}
 \end{enumerate}
 
 
