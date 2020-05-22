@@ -141,7 +141,7 @@ The OceanQA dataset contains ten QA pairs per video, sampled randomly from seven
 As mentioned above there are seven question types. The first three of these are intended to be used to train and test the model's understanding of specific pieces of information contained in a video. The first three question types correspond to understanding of: object properties; relations between objects; and events between frames, respectively. Each of these questions requires, at most, knowledge of the preceeding question types to answer, and may require less. For example, answering an event question may require the model to understand both object properties and relations, but answering a relation question will require, at most, an understanding of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas to answer (other than the ability to count).
 
 \begin{enumerate}
-  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). In the training data 620 of the questions ask about colour, while 875 ask about rotation. All property values are represented in the answers, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
+  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the answers, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
@@ -157,13 +157,15 @@ As mentioned above there are seven question types. The first three of these are 
     \end{split}
   \end{equation}
 
-  \item Action questions ask which action occurred between two frames of a video. TODO talk about distribution of actions in the answers.
+  \item Action questions ask which action occurred between two frames of a video. `Move' actions account for around $45\%$ of answers to these questions, while `rotate left' and `rotate right' account for approximately $27.5\%$ of questions each. The answer to these questions will never be `nothing'. The grammar for action questions ans answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_3$>$} & ::= \text{Which action occurred immediately after frame \textit{$<$frame\_idx$>$}?} \\
       \textit{$<$ans\_type\_3$>$} & ::= \textit{$<$action$>$}
     \end{split}
   \end{equation}
+
+  \item
 \end{enumerate}
 
 
