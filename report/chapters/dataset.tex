@@ -143,7 +143,7 @@ Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects,
 As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five questions require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values. The full set of question and answer templates is as follows:
 
 \begin{enumerate}
-  \item Property questions are designed to test a model's understanding of object properties. It does not require knowledge of any other part of the video to answer, however knowledge of object properties may be required to select the correct training data (this is discussed further in Chapter~\ref{chapter:hybrid-video-qa}). In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the answers, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
+  \item Property questions are designed to test a model's understanding of object properties. In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the training data, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
@@ -197,40 +197,21 @@ As mentioned above there are seven question types. The first two of these are VQ
     \begin{split}
       \textit{$<$q\_type\_7$>$} & ::= \begin{multlined}[t]
           \text{What does the octopus do immediately after} \\
-          \text{\textit{$<$event\_noun$>$} [for the \textit{$<$nth$>$} time]?}
+          \text{\textit{$<$action\_noun$>$} [for the \textit{$<$nth$>$} time]?}
         \end{multlined} \\
       \textit{$<$ans\_type\_7$>$} & ::= \textit{$<$action$>$} \\
-      \textit{$<$event\_noun$>$} & ::= \text{moving } | \text{ rotating clockwise } | \text{ rotating anticlockwise} \\
+      \textit{$<$action\_noun$>$} & ::= \begin{multlined}[t]
+          \text{rotating clockwise } | \text{ rotating anticlockwise } | \\
+          \text{eating a fish } | \text{ eating a bag } | \text{ changing colour}
+        \end{multlined} \\
       \textit{$<$nth$>$} & ::= \text{first } | \text{ second } | \text{ third } | \text{ fourth } | \text{ fifth}
     \end{split}
   \end{equation}
 \end{enumerate}
 
-% TODO Rewrite this, add sentence about curriculum learning?
-Property, relation and action questions are intended to be used to train and test the model's understanding of these specific parts of the video. Each of these three question types requires, at most, knowledge of the preceeding question types to answer, and may require less. For example, answering an action question may require the model to understand both object properties and relations, but answering a relation question will require, at most, an understanding of object properties. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. These questions do not require knowledge outside of these three areas to answer (other than the ability to count).
+Property, relation and action questions are intended to be used to train and test the model's understanding of object properties, binary relations between objects and actions between two consecutive frames, respectively. Since the property and relation questions contain the `\textit{$<$object$>$}' rule, knowledge of property values may be required to select the corresponding object from the frame. This means it would be helpful to train the model's understanding of object properties before relations. Selecting the training data for object properties is, however, non-trivial. Chapter~\ref{chapter:implementation} discusses one possible solution to this problem. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. None of the questions require any sort of external knowledge (other than the ability to count).
 
-% TODO ??
-% \begin{center}
-% \begin{threeparttable}
-%   \caption{Caption}
-%   \label{table:qa-pairs}
-%   \begin{tabular}{ |l|c c c c c| }
-%     \hline
-%     \textbf{Question Type} & \textbf{\#Videos} & \textbf{\#QA pairs} & \textbf{MC} & \textbf{FIB} & \textbf{Source} \\
-%     \hline
-%     MovieQA         & 408$^1$        & 14,944  & Y  & N & Movies \\
-%     Zeng et al.     & 18,100     & 175,076 & N  & N & Online videos \\
-%     TGIF-QA         & 71,741     & 165,165 & Y$^2$  & N & Online videos \\
-%     Zhu  et al.     & $>$100,000 & 400,000 & Y  & Y & Various \\
-%     EgoVQA          & 16         & 581     & Y  & N & First-person videos \\
-%     MSVD-QA         & 1,970      & 50,505  & N  & N & Video desc. corpus \\
-%     MSRVTT-QA       & 10,000     & 243,680 & N  & N & Video desc. corpus \\
-%     \hline
-%   \end{tabular}
-%   % \begin{tablenotes}
-%   % \end{tablenotes}
-% \end{threeparttable}
-% \end{center}
+Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in ecah video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively.
 
 
 \section{Specification}
