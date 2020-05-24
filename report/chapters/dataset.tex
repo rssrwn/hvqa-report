@@ -211,12 +211,14 @@ As mentioned above there are seven question types. The first two of these are VQ
 
 Property, relation and action questions are intended to be used to train and test the model's understanding of object properties, binary relations between objects and actions between two consecutive frames, respectively. Since the property and relation questions contain the `\textit{$<$object$>$}' rule, knowledge of property values may be required to select the corresponding object from the frame. This means it would be helpful to train the model's understanding of object properties before relations. Selecting the training data for object properties is, however, non-trivial. Chapter~\ref{chapter:implementation} discusses one possible solution to this problem. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. None of the questions require any sort of external knowledge (other than the ability to count).
 
-Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in ecah video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively.
+Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in each video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively. Appendix (TODO create appendix for example videos and QA pairs) contains a number of example images and QA pairs from the dataset.
 
 
 \section{Specification}
 
-Outline a formal specificiation and why it is necessary/helpful.
+% Outline a formal specificiation and why it is necessary/helpful.
+
+Unlike end-to-end neural network models, hybrid models require knowledge that has been extracted from a video to be made explicit. For example, if a neural model is shown a video and asked for the colour of the octopus, it will first extract features from the video and then encode the video into a vector. This vector is combined with the encoding of the question, before a final section of the model produces either a short, free-form sentence or a probability distribution over possible answers. Relevant information from the video, including the colour of the octopus, is implicitly included in the video encoding. Hybrid models, however, usually require that this information is symbolic so that logical reasoning can be employed to find an answer to the question. For this reason it is necessary to define a specification of the video environment, which outlines the set concepts which the model must learn in order to accurately answer the questions. This specification can also provide a way to inject background knowledge about the environment into the model.
 
 
 
