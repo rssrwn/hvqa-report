@@ -4,18 +4,19 @@
 \begin{document}
 
 
-\chapter{Hybrid VideoQA}
-\label{chapter:hybrid-video-qa}
+\chapter{Hybrid Property, Event and Relation Learner}
+\label{chapter:h-perl}
 
-In this chapter we outline a novel paradigm for solving the VideoQA problem. This structure attempts to merge deep learning and logic-based machine learning and inference methods, hence we name it Hybrid VideoQA.
+We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions, hence we name it Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-arch} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
 
 \section{Architecture}
+\label{section:h-perl-arch}
 
-Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
+% Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
 
 TODO: show diagram
 
-Hybrid VideoQA is a generic, pipelined structure for finding an answer to a question, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific 'instance' of the Hybrid VideoQA pipeline). A number of models trained on our Sea-World (TODO rename?) dataset are outlined in Chapter~\ref{chapter:implementation}.
+Hybrid VideoQA is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific 'instance' of the Hybrid VideoQA pipeline). A number of models trained on our Sea-World (TODO rename?) dataset are outlined in Chapter~\ref{chapter:implementation}.
 
 A Hybrid VideoQA pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our Sea-World dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. The Hybrid VideoQA structure does also not allow for more complex relations between objects.
 
@@ -35,9 +36,10 @@ As shown in Figure TODO, a Hybrid VideoQA model contains the following component
 % TODO add this to property extractor discussion
 % However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset.
 
-\section{Components}
+\section{Common Components}
+\label{section:common-components}
 
-Give an intro to the job of each component in the Hybrid VideoQA model.
+Give an intro to the each of the components common to all models: object detector, tracker, (QA system), QA parser.
 
 
 
