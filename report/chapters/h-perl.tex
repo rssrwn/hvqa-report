@@ -5,9 +5,10 @@
 
 
 \chapter{Hybrid Property, Event and Relation Learner}
+\chaptermark{H-PERL}
 \label{chapter:h-perl}
 
-We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions, hence we name it Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-arch} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
+We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this structure, Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-arch} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
 
 \section{Architecture}
 \label{section:h-perl-arch}
@@ -16,11 +17,11 @@ We outline a novel paradigm for solving the VideoQA problem. This structure merg
 
 TODO: show diagram
 
-Hybrid VideoQA is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific 'instance' of the Hybrid VideoQA pipeline). Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outline an H-PERL model for the OceanQA dataset.
+H-PERL is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific 'instance' of the H-PERL pipeline). Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outline an H-PERL model for the OceanQA dataset.
 
-A Hybrid VideoQA pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our Sea-World dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. The Hybrid VideoQA structure does also not allow for more complex relations between objects.
+An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
 
-As shown in Figure TODO, a Hybrid VideoQA model contains the following components:
+As shown in Figure TODO, an H-PERL model contains the following components:
 \begin{itemize}
   \item \textbf{Object Detector}. Produces bounding boxes and classes for each object in each frame of the video. The object detector also needs run an object tracking algorithm to assign each object in the video a unqiue identifier. Ideally the object tracker would correctly identify all objects in the video, however errors in the object detection stage can confuse the tracker as to which identifier should be assigned to each object. In this case some form of error correction may be helpful. TODO
 
