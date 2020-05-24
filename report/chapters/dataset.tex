@@ -235,35 +235,21 @@ Each environment specification must contain the following information:
   \item A set of effects of actions.
 \end{enumerate}
 
-The following is the specification for the OceanQA dataset environment:
+Although it has been described in detail already, Equation~\ref{eqn:env-spec} provides the formal environment specification for the OceanQA dataset.
 \begin{equation}
+  \label{eqn:env-spec}
   \begin{split}
     \textit{num\_frames} & ::= 32 \\
-
-    \textit{classes} & ::= \{ \langle \text{octopus}, \textit{false} \rangle, \text{fish}, \textit{true} \rangle, \text{bag}, \textit{true} \rangle, \text{rock}, \textit{true} \rangle \} \\
-
-    \textit{properties} & ::= \{
-      \begin{multlined}
-        \langle \text{colour}, \{ \text{red}, \text{blue}, \text{purple}, \text{brown}, \text{green}, \text{silver}, \text{white} \} \rangle \\
-
-        \langle \text{rotation}, \{ \text{upward-facing}, \text{right-facing}, \text{downward-facing}, \text{left-facing} \} \rangle \\
-
-        \}
+    \textit{objects} & ::= \{ \langle \text{octopus}, \text{ false} \rangle, \langle \text{fish}, \text{ true} \rangle, \langle \text{bag}, \text{ true} \rangle, \langle \text{rock}, \text{ true} \rangle \} \\
+    \textit{properties} & ::= \begin{multlined}[t]
+        \{ \langle \text{colour}, \{ \text{red}, \text{ blue}, \text{ purple}, \text{ brown}, \text{ green}, \text{ silver}, \text{ white} \} \rangle \\
+        \langle \text{rotation}, \{ \text{upward-facing}, \text{ right-facing}, \text{ downward-facing}, \text{ left-facing} \} \rangle \}
       \end{multlined} \\
+    \textit{relations} & ::= \{ \text{close} \} \\
+    \textit{actions} & ::= \{ \text{move}, \text{ rotate clockwise}, \text{ rotate anticlockwise} \} \\
+    \textit{effects} & ::= \{ \text{change colour}, \text{ eat a fish}, \text{ eat a bag} \}
   \end{split}
 \end{equation}
-
-% spec = EnvSpec.from_dict({
-%     "num_frames": 32,
-%     "obj_types": [("octopus", False), ("fish", True), ("rock", True), ("bag", True)],
-%     "properties": {
-%         "colour": ["red", "blue", "purple", "brown", "green", "silver", "white"],
-%         "rotation": ["upward-facing", "right-facing", "downward-facing", "left-facing"]
-%     },
-%     "relations": ["close"],
-%     "actions": ["move", "rotate left", "rotate right", "nothing"],
-%     "effects": ["change colour", "eat a bag", "eat a fish"],
-% })
 
 
 \end{document}
