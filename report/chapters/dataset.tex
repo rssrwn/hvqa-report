@@ -119,7 +119,7 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 As well as videos, VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are usually the only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of sparsely labelled data. For example, our dataset can contain at most 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video, but perhaps only a single QA pair. For this reason, VideoQA tasks can resemble `semi-supervised' tasks, where a model is given partially labelled data, but asked to produce all labels.
 
-The OceanQA dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Since Natural Language Processing (NLP) is not the focus of this project, we choose to use a small, discrete set of structured question templates, which allow the model to easily extract relevant symbolic information from the questions. Allowing free-form natural langauge questions creates additional complexity and uncertainty for the model, which we felt would distract from the core focus on hybrid machine learning for VideoQA. Generating these free-form questions can also be very time and resource intensive. A further discussion on possible future work on hybrid models for VideoQA tasks which use free-form questions and answers is contained in Chapter TODO (is this done / should this be done?).
+The OceanQA dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Since Natural Language Processing (NLP) is not the focus of this project, we choose to use a small, discrete set of structured question templates, which allow the model to easily extract relevant symbolic information from the questions. Allowing free-form natural langauge questions creates additional complexity and uncertainty for the model, which we felt would distract from the core focus on hybrid machine learning for VideoQA. Generating these free-form questions can also be very time and resource intensive. A further discussion on possible future work on hybrid models for VideoQA tasks which use free-form questions and answers is contained in Chapter~\ref{chapter:conclusion}.
 
 Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects, relations and events, which was implicitly described in Section~\ref{section:dataset-videos}. These EBNF grammar rules are used in the rules for the questions and answers.
 
@@ -226,7 +226,7 @@ Each environment specification must contain the following information:
 
   \item A set of pairs, $\langle \textit{class}, \textit{is\_static} \rangle$. Each element of the set contains the type of an object and a boolean corresponding to whether the object is capable of performing an action. All (relevant) object classes must be mentioned in this set.
 
-  \item A set of pairs, $\langle \textit{property}, \{ \textit{ property\_value } \} \rangle$, corresponding to a set of properties along with a set of their respective values. This representation for object properties assumes that each property has a discrete, finite set of values. Continuous properties (other than position) are not considered in this project. Object class and position are assumed to be implicit properties since all objects must have a value for them. These implicit properties should not be listed here.
+  \item A set of pairs, $\langle \textit{property}, \{ \textit{ property\_value } \} \rangle$, corresponding to a set of properties along with a set of their respective values. This representation for object properties assumes that each property has a discrete, finite set of values. Continuous properties are not considered in this project. Object class and position are assumed to be implicit properties since all objects must have a value for them. These implicit properties should not be listed here.
 
   \item A set of binary relations.
 
@@ -236,10 +236,11 @@ Each environment specification must contain the following information:
 \end{enumerate}
 
 Although it has been described in detail already, Equation~\ref{eqn:env-spec} provides the formal environment specification for the OceanQA dataset.
+
 \begin{equation}
   \label{eqn:env-spec}
   \begin{split}
-    \textit{num\_frames} & ::= 32 \\
+    \textit{frames} & ::= 32 \\
     \textit{objects} & ::= \{ \langle \text{octopus}, \text{ false} \rangle, \langle \text{fish}, \text{ true} \rangle, \langle \text{bag}, \text{ true} \rangle, \langle \text{rock}, \text{ true} \rangle \} \\
     \textit{properties} & ::= \begin{multlined}[t]
         \{ \langle \text{colour}, \{ \text{red}, \text{ blue}, \text{ purple}, \text{ brown}, \text{ green}, \text{ silver}, \text{ white} \} \rangle \\
@@ -250,6 +251,8 @@ Although it has been described in detail already, Equation~\ref{eqn:env-spec} pr
     \textit{effects} & ::= \{ \text{change colour}, \text{ eat a fish}, \text{ eat a bag} \}
   \end{split}
 \end{equation}
+
+As alluded to already, an environment specification, like the one shown in Equation~\ref{eqn:env-spec}, requires that objects, properties, relations, actions and effects are all discrete, and does not allow the modelling of continuous variables. For many environments this requirement would be debilitating to any model attempting to learn the the environment's underlying rules. This may have to be treated as a trade-off for using hybrid models (Chapter~\ref{chapter:conclusion} discusses trade-offs further). On the other hand, this is one of the first pieces of work which explores the use of hybrid models in VideoQA tasks; future work may be able to overcome this problem.
 
 
 \end{document}
