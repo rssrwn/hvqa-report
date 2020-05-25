@@ -8,14 +8,18 @@
 \chaptermark{H-PERL}
 \label{chapter:h-perl}
 
-We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this structure: Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-arch} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
+We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this structure: Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-model} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
 
-\section{Architecture}
-\label{section:h-perl-arch}
+
+\section{H-PERL Model}
+\label{section:h-perl-model}
 
 % Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
 
 H-PERL is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific `instance' of the H-PERL pipeline). Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outline an H-PERL model for the OceanQA dataset.
+
+
+\subsection{Architecture}
 
 An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
 
@@ -38,14 +42,38 @@ The following is a high-level description of the tasks each component is require
 
   \item \textbf{Object Tracker}. The object tracker is required to assign an identifier to each object in a given video. The object identifiers assigned in the initial frame of the video can be arbitrary, but then an algorithm is usually applied inductively to each remaining frame of the video in an attempt to assign each object the same identifier as it was given in the previous frame.
 
-  \item \textbf{Relation Classifier}.
+  \item \textbf{Relation Classifier}. The job of the binary relation classifier is, given a video, to list all of the instances of binary relations between objects in the video. The set of possible binary relation is defined in the dataset's environment specification.
 
-  \item \textbf{Event Detector}.
+  \item \textbf{Event Detector}. The event detection component produces a set of events for each pair of consecutive frames in the video. Each set of events can contain both actions and effects, and each event consists of an event name and an object identifier which signifies the non-static object that took part in that event.
 
-  \item \textbf{QA System}. Told which type of question is given
+  \item \textbf{QA System}. The job of the QA system is to take all of the features which have been accumulated by previous components in the pipeline, along with a parsed question, and produce an answer to the question. The QA system is also given the question type, this allows it to make sense of the parsed question and to apply different reasoning for each question type.
 \end{enumerate}
 
-TODO assumptions
+
+\subsection{Requirements}
+
+To give a complete view of what is needed to construct an H-PERL model, we outline the minimum set of requirements and a number of assumptions. Each instance of an H-PERL model may require additional constraints to be applied on top of these. The set of requirements is as follows:
+\begin{enumerate}
+  \item A set of pre-made, non-core components (question parser, object detector and QA system).
+
+  \item A VideoQA dataset, where each element is of the form: $$\langle \text{video}, \{ \langle \text{question}, \text{answer}, \text{question type} \rangle \} \rangle$$
+
+  \item Environment specification for the given dataset.
+
+  \item (Optionally) Background knowledge of the environment written in ASP.
+\end{enumerate}
+
+
+H-PERL also requires that the following assumptions be made about the data:
+\begin{enumerate}
+  \item All relevant information in the video can be modelled by: object properties; binary relations between objects; and events occuring between consecutive frames of the video.
+
+  \item Each of the properties, relations and events components can be trained individually and directly using a specific type of question. For example, for the OceanQA dataset, we can use question types $1$, $2$ and $3$ to train the properties, relations and events components, respectively.
+\end{enumerate}
+
+TODO discuss
+these allow us to see the limitations of H-PERL, and give direction of extensions and more research to be done.
+
 
 \section{Common Components}
 \label{section:common-components}
