@@ -22,13 +22,15 @@ An H-PERL pipeline assumes that all of the information in an environment which i
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{h-perl-pipeline}
-  \caption{TODO}
+  \caption{An H-PERL pipeline for VideoQA. Green, red and blue shading indicates components which work to extract features at different levels of abstraction. Grey shading indicates the `core' components of the pipeline.}
   \label{fig:h-perl-pipeline}
 \end{figure}
 
-As shown in Figure~\ref{fig:h-perl-pipeline}, an H-PERL model contains the following components:
-\begin{itemize}
-  \item \textbf{Question Parser}.
+Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection and question parsing components are ``pre-made'' (either pre-trained or manually engineered), we refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
+
+The following is a high-level description of the tasks each component is required to complete for the H-PERL pipeline to work with high accuracy:
+\begin{enumerate}
+  \item \textbf{Question Parser}. The QA parsing component is used to extract relevant pieces of information from the questions (and answers when training). For example, given the question: ``What does the octopus do immediately after eating a fish?", the parsing component would
 
   \item \textbf{Object Detector}. Produces bounding boxes and classes for each object in each frame of the video. The object detector also needs run an object tracking algorithm to assign each object in the video a unqiue identifier. Ideally the object tracker would correctly identify all objects in the video, however errors in the object detection stage can confuse the tracker as to which identifier should be assigned to each object. In this case some form of error correction may be helpful. TODO
 
@@ -41,7 +43,7 @@ As shown in Figure~\ref{fig:h-perl-pipeline}, an H-PERL model contains the follo
   \item \textbf{Event Detector}.
 
   \item \textbf{QA System}.
-\end{itemize}
+\end{enumerate}
 
 % TODO add this to property extractor discussion
 % However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset.
