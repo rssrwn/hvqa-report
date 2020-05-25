@@ -26,27 +26,26 @@ An H-PERL pipeline assumes that all of the information in an environment which i
   \label{fig:h-perl-pipeline}
 \end{figure}
 
-Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection and question parsing components are ``pre-made'' (either pre-trained or manually engineered), we refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
+Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection and question parsing (TODO add QA system component??) components are ``pre-made'' (either pre-trained or manually engineered), we refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
 
 The following is a high-level description of the tasks each component is required to complete for the H-PERL pipeline to work with high accuracy:
 \begin{enumerate}
-  \item \textbf{Question Parser}. The QA parsing component is used to extract relevant pieces of information from the questions (and answers when training). For example, given the question: ``What does the octopus do immediately after eating a fish?", the parsing component would
+  \item \textbf{Question Parser}. The QA parsing component is used to extract relevant pieces of information from the questions (and answers when training). For example, given the question: ``What does the octopus do immediately after eating a fish?" and that the question is a state-transition question, the parsing component would extract, firstly, that the object in question was an octopus, and secondly, that the event was `eat a fish'. The parsing component, therefore, bridges the gap between the symbolic data, which the model works with, and the natural language questions and answers. When an H-PERL model is being evaluated, only the question needs to be parsed. However, when the model is training this component acts as a question-and-answer parser, since the model requires that the feedback that comes from the answer is also in symbolic form.
 
-  \item \textbf{Object Detector}. Produces bounding boxes and classes for each object in each frame of the video. The object detector also needs run an object tracking algorithm to assign each object in the video a unqiue identifier. Ideally the object tracker would correctly identify all objects in the video, however errors in the object detection stage can confuse the tracker as to which identifier should be assigned to each object. In this case some form of error correction may be helpful. TODO
+  \item \textbf{Object Detector}. The detection component produces bounding boxes and classes for each object in each frame of the video. Any object not detected at this stage of the pipeline is assumed to part of the background and is therefore ignored by the rest of the model.
 
-  \item \textbf{Property Extractor}. Given a set of properties, classifies the value of each property for each object in each frame of the video. As mentioned in Chapter~\ref{chapter:dataset}, possible properties could be colour or rotation. The property component does not classify the position or class of an object (this is always handled by the detector).
+  \item \textbf{Property Extractor}. Given a video, the property extraction component assigns a value to every property listed in the environment specification for every object in every frame of the video.
 
-  \item \textbf{Object Tracker}.
+  \item \textbf{Object Tracker}. The object tracker is required to assign an identifier to each object in a given video. The object identifiers assigned in the initial frame of the video can be arbitrary, but then an algorithm is usually applied inductively to each remaining frame of the video in an attempt to assign each object the same identifier as it was given in the previous frame.
 
   \item \textbf{Relation Classifier}.
 
   \item \textbf{Event Detector}.
 
-  \item \textbf{QA System}.
+  \item \textbf{QA System}. Told which type of question is given
 \end{enumerate}
 
-% TODO add this to property extractor discussion
-% However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset.
+TODO assumptions
 
 \section{Common Components}
 \label{section:common-components}
