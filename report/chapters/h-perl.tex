@@ -21,7 +21,7 @@ H-PERL is a generic, pipelined structure for finding an answer to a set of quest
 
 \subsection{Architecture}
 
-An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
+An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events (which occur due to an object) between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
 
 \begin{figure}
   \centering
@@ -49,10 +49,44 @@ The following is a high-level description of the tasks each component is require
   \item \textbf{QA System}. The job of the QA system is to take all of the features which have been accumulated by previous components in the pipeline, along with a parsed question, and produce an answer to the question. The QA system is also given the question type, this allows it to make sense of the parsed question and to apply different reasoning for each question type.
 \end{enumerate}
 
+While VideoQA tasks may require the pipeline to contain the above set of components, the H-PERL structure can also be modified for solving related problems. For example, by removing the tracking and events components and keeping the rest of the pipeline the same, the H-PERL structure could be used to solve VQA (also known as FrameQA) tasks. In fact, the pipeline could be modified to work with many different input types, including images, videos, text or speech, provided that the data contains something akin to an `object', and that extracting these objects (and features from these objects) is feasible. We could also swap out the final component in the pipeline, the QA system, for another task-specific component. For example, we could create a video (or image) captioning pipeline by using a captioning component rather than a QA component. Figure~\ref{fig:other-pipelines} shows a number of pipelines similar to H-PERL that have been modified for other tasks.
+
+\begin{figure}
+  \begin{subfigure}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{vqa-pipeline}
+    \caption{A pipeline for a VQA task.}
+  \end{subfigure}
+  \begin{subfigure}{\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{captioning-pipeline}
+    \caption{A pipeline for an image captioning task.}
+  \end{subfigure}
+  \caption{Potential modifications to the H-PERL pipeline for solving other tasks}
+  \label{fig:other-pipelines}
+\end{figure}
+%
+% \begin{figure}
+%   \centering
+%   \includegraphics[width=\textwidth]{vqa-pipeline}
+%   \includegraphics[width=\textwidth]{captioning-pipeline}
+%   \caption{Potential modifications to the H-PERL pipeline for solving other tasks. \textbf{Top}: VQA pipeline. \textbf{Bottom}: Image captioning pipeline.}
+%   \label{fig:other-pipelines}
+% \end{figure}
+
+At a high level, then, the H-PERL pipeline consists of three main stages:
+\begin{enumerate}
+  \item Attention restriction
+  \item Feature extraction
+  \item Task-specific output generation
+\end{enumerate}
+
+These stages are similar to some approaches used in VQA tasks~\cite{attention-vqa, stacked-attention-vqa}, where the model's attention is firstly restricted to specific parts of the input (in this case objects), before features are extracted from the input and an output is generated. However, unlike other approaches, H-PERL does not dynamically update the model's attention based on the input question. Another key difference between H-PERL and other quesiton-answering approaches is that extracted features are stored symbolically. This gives the observer a better understanding of what the model is learning and allows the injection of background or commonsense knowledge directly into the model.
+
 
 \subsection{Information Representation}
 
-The first component in the H-PERL pipepline, the object detector, takes a raw video as input and produces a set of bounding boxes (object positions) and object classes for each frame of the video. After object detection has been applied data about the video is stored symbolically for each object in each frame of the video. Each of the following components in the pipeline can access this symbolic data along with the raw image of each object (the raw video frames are discarded). Each of these components then accumulates symbolic information about the objects, frames or video. This is what is meant by extracting object, frame and video-level features.
+The first component in the H-PERL pipeline, the object detector, takes a raw video as input and produces a set of bounding boxes (object positions) and object classes for each frame of the video. After object detection has been applied, data about the video is stored symbolically for each object in each frame of the video. Each of the subsequent components in the pipeline can access this symbolic data along with the raw image of each object (the raw video frames are discarded). Each of these components then accumulates symbolic information about the objects, frames or video. This is what is meant by extracting object, frame and video-level features.
 
 The pipeline needs an agreed upon way of representing the extracted information. This representation is as follows:
 \begin{itemize}
@@ -101,7 +135,7 @@ H-PERL also requires that the following assumptions be made about the data:
 
 These requirements and assumptions clarify some of the limitations of H-PERL models. Firstly, for some environments pre-trained object detectors (or data to train them with) may be difficult to find. Secondly, it may also be difficult, if not impossible, to construct or train a question parser for free-form, natural language question-answering datasets. Additionally, most QA datasets are not guaranteed to contain questions which canbe used to directly train components of the model. Finally, many environments will simply be too complex to be accurately modelled by discrete properties, relations and events. These requirements and assumptions do, however, provide initial directions for future research in the area of Hybrid question-answering models. We discuss some potential extensions to H-PERL in Chapter~\ref{chapter:conclusion}.
 
-As well as drawbacks, the H-PERL architecture does also provide a number of advantages. One of the most important advantages of hybrid models is the ability to encode common-sense knowledge or background knowledge of the environment directly into the model without having to learn it. Since the model accumulates video information symbolically, we can inject background knowledge at any stage of the pipeline. A number of further advantages will present themselves in the following chapters, and these are discussed in more detail in Chapter~\ref{chapter:conclusion}.
+As well as drawbacks, the H-PERL architecture does also provide a number of advantages. One of the most important advantages of hybrid models is the ability to encode commonsense knowledge or background knowledge of the environment directly into the model without having to learn it. Since the model accumulates video information symbolically, we can inject background knowledge at any stage of the pipeline. A number of further advantages of hybrid models are presented in the subsequent chapters, and these, along with the disadvantages, are summarised in Chapter~\ref{chapter:conclusion}.
 
 
 \section{Common Components}
