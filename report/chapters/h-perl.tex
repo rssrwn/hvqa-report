@@ -30,7 +30,7 @@ An H-PERL pipeline assumes that all of the information in an environment which i
   \label{fig:h-perl-pipeline}
 \end{figure}
 
-Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection and question parsing (TODO add QA system component??) components are ``pre-made'' (either pre-trained or manually engineered), we refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
+Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection, question parsing and QA system components are ``pre-made'' (either pre-trained or manually engineered). We refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
 
 The following is a high-level description of the tasks each component is required to complete for the H-PERL pipeline to work with high accuracy:
 \begin{enumerate}
@@ -50,6 +50,9 @@ The following is a high-level description of the tasks each component is require
 \end{enumerate}
 
 
+\subsection{Information Representation}
+
+
 \subsection{Requirements}
 
 To give a complete view of what is needed to construct an H-PERL model, we outline the minimum set of requirements and a number of assumptions. Each instance of an H-PERL model may require additional constraints to be applied on top of these. The set of requirements is as follows:
@@ -66,13 +69,16 @@ To give a complete view of what is needed to construct an H-PERL model, we outli
 
 H-PERL also requires that the following assumptions be made about the data:
 \begin{enumerate}
-  \item All relevant information in the video can be modelled by: object properties; binary relations between objects; and events occuring between consecutive frames of the video.
+  \item All relevant information in the video can be modelled by object properties; binary relations between objects; and events occuring between consecutive frames of the video.
 
-  \item Each of the properties, relations and events components can be trained individually and directly using a specific type of question. For example, for the OceanQA dataset, we can use question types $1$, $2$ and $3$ to train the properties, relations and events components, respectively.
+  \item Each of the properties, relations and events components can be trained individually and directly using a specific type of question. For example, for the OceanQA dataset, we can use question types 1, 2 and 3 to train the properties, relations and events components, respectively.
+
+  \item As mentioned in Chapter~\ref{chapter:dataset}, properties, relations and events must be discrete. There is also currently no way of modelling continuous variables in the data, for example, we cannot say that the octopus rotated clockwise by 32\degree.
 \end{enumerate}
 
-TODO discuss
-these allow us to see the limitations of H-PERL, and give direction of extensions and more research to be done.
+These requirements and assumptions clarify some of the limitations of H-PERL models. Firstly, for some environments pre-trained object detectors (or data to train them with) may be difficult to find. Secondly, it may also be difficult, if not impossible, to construct or train a question parser for free-form, natural language question-answering datasets. Additionally, most QA datasets are not guaranteed to contain questions which canbe used to directly train components of the model. Finally, many environments will simply be too complex to be accurately modelled by discrete properties, relations and events. These requirements and assumptions do, however, provide initial directions for future research in the area of Hybrid question-answering models. We discuss some potential extensions to H-PERL in Chapter~\ref{chapter:conclusion}.
+
+As well as drawbacks, the H-PERL architecture does also provide a number of advantages. One of the most important advantages of hybrid models is the ability to encode common-sense knowledge or background knowledge of the environment directly into the model without having to learn it. Since the model accumulates video information symbolically, we can inject background knowledge at any stage of the pipeline. A number of further advantages will present themselves in the following chapters, and these are discussed in more detail in Chapter~\ref{chapter:conclusion}.
 
 
 \section{Common Components}
