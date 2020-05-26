@@ -66,7 +66,14 @@ The pipeline needs an agreed upon way of representing the extracted information.
   \begin{equation}
     \text{obs}(\textit{$<$relation$>$}(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})
   \end{equation}
+
+  \item An event which occurs immediately after frame \textit{$<$frame$>$}, due to an object with identifier \textit{$<$id$>$}, is represented by one of the following rules, depending on whether the event was an action or effect:
+  \begin{equation}
+    \text{occurs\_action}(\textit{$<$action$>$}(\textit{$<$id$>$}), \textit{$<$frame$>$})
+  \end{equation}
 \end{itemize}
+
+Using these representations an entire video can be encoded into a logic program. The final component in the pipeline, the QA system, takes as input a video encoding and a set of parsed questions, and constructs a set of ASP rules which are used, along with the video encoding, to find an answer to the question.
 
 
 \subsection{Requirements}
