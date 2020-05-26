@@ -63,7 +63,7 @@ Figure~\ref{fig:dataset-objects} shows an example of each of the four possible c
   \label{fig:dataset-objects}
 \end{figure}
 
-The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. Object positions are always given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top-left corner of the object, and $(x2, y2)$ is the bottom right. The dataset does not consider any relations with an arity higher than two.
+The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. Object positions are always given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right. The dataset does not consider any relations with an arity higher than two.
 
 \begin{algorithm}[t]
   \caption{Determine whether one object is close to another}

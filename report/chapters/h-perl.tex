@@ -38,11 +38,11 @@ The following is a high-level description of the tasks each component is require
 
   \item \textbf{Object Detector}. The detection component produces bounding boxes and classes for each object in each frame of the video. Any object not detected at this stage of the pipeline is assumed to part of the background and is therefore ignored by the rest of the model.
 
-  \item \textbf{Property Extractor}. Given a video, the property extraction component assigns a value to every property listed in the environment specification for every object in every frame of the video.
+  \item \textbf{Property Extractor}. Given a set of images of objects from the detection component, the property extraction component assigns a value to every property listed in the environment specification for every object in the set.
 
   \item \textbf{Object Tracker}. The object tracker is required to assign an identifier to each object in a given video. The object identifiers assigned in the initial frame of the video can be arbitrary, but then an algorithm is usually applied inductively to each remaining frame of the video in an attempt to assign each object the same identifier as it was given in the previous frame.
 
-  \item \textbf{Relation Classifier}. The job of the binary relation classifier is, given a video, to list all of the instances of binary relations between objects in the video. The set of possible binary relation is defined in the dataset's environment specification.
+  \item \textbf{Relation Classifier}. The job of the binary relation classifier is, given a symbolic representation of a video, to list all of the instances of binary relations between objects in the video. The set of possible binary relation is defined in the dataset's environment specification.
 
   \item \textbf{Event Detector}. The event detection component produces a set of events for each pair of consecutive frames in the video. Each set of events can contain both actions and effects, and each event consists of an event name and an object identifier which signifies the non-static object that took part in that event.
 
@@ -51,6 +51,22 @@ The following is a high-level description of the tasks each component is require
 
 
 \subsection{Information Representation}
+
+The first component in the H-PERL pipepline, the object detector, takes a raw video as input and produces a set of bounding boxes (object positions) and object classes for each frame of the video. After object detection has been applied data about the video is stored symbolically for each object in each frame of the video. Each of the following components in the pipeline can access this symbolic data along with the raw image of each object (the raw video frames are discarded). Each of these components then accumulates symbolic information about the objects, frames or video. This is what is meant by extracting object, frame and video-level features.
+
+The pipeline needs an agreed upon way of representing the extracted information. This representation is as follows:
+\begin{itemize}
+  \item For an object with identifier \textit{$<$id$>$} in frame \textit{$<$frame$>$}, the object's properties, rotation and class (all referred to as $\textit{$<$property$>$}$), each with value $\textit{$<$value$>$}$, are represented as follows:
+  \begin{equation}
+    \text{obs}(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$})
+  \end{equation}
+  As described in Chapter~\ref{chapter:dataset}, the value of an object's rotation is given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right.
+
+  \item For two objects in frame \textit{$<$frame$>$}, with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, a binary relation, \textit{$<$relation$>$}, between the objects is represented as follows:
+  \begin{equation}
+    \text{obs}(\textit{$<$relation$>$}(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})
+  \end{equation}
+\end{itemize}
 
 
 \subsection{Requirements}
