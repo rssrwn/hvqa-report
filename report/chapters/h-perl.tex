@@ -152,10 +152,17 @@ Take the question ``What does the octopus do immediately after rotating clockwis
 \end{equation}
 Note that the action noun `rotating clockwise' has been converted to the verb form, as given in the environment specification. In addition, the occurrence, `second', is converted to a number, which is simpler for the QA system to work with. These conversions are all hand-engineered, as opposed to learnt.
 
-The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which in all four of these question types is guaranteed to be octopus.
+The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which is guaranteed to be octopus in all four of these question types.
 
 
 \subsection{Object Detector}
+
+The object detection component uses the Faster R-CNN algorithm~\cite{cnn-uses:faster-r-cnn}, as described in Chapter~\ref{chapter:background}. Faster R-CNN was chosen over YOLO~\cite{yolo} since it has been shown to be more accurate~\cite{cnn-uses:yolo-v3}. YOLO's main advantage or Faster R-CNN is its speed~\cite{cnn-uses:yolo-v3}. However, since the video frames are fairly small and simple, and since VideoQA is not a real-time task, speed is not the highest priority.
+
+The object detection network use a pre-built Faster R-CNN model from the \textit{Torchvision}\footnote{Available at: https://github.com/pytorch/vision} library. A custom built, three-layer convolutional network is added to the front of this model to extract features from the input, these features are then passed to the Faster R-CNN model. The full detection model is trained on the `hardcoded' OceanQA dataset (where every object in every frame is fully labelled), using Faster R-CNN's multi-task loss function~\cite{cnn-uses:faster-r-cnn}. The \textit{PyCOCOTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library is used to implement the core training functionality.
+
+% TODO explain feature extractor arch
+
 
 \subsection{Object Tracker}
 
