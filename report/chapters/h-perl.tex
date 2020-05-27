@@ -112,7 +112,7 @@ To give a complete view of what is needed to construct an H-PERL model, we outli
 
   \item Environment specification for the given dataset.
 
-  \item (Optionally) Background knowledge of the environment written in ASP.
+  \item (Optionally) Background knowledge of the environment, written in ASP.
 \end{enumerate}
 
 
@@ -140,7 +140,7 @@ The two models, one hardcoded and one trained, which are outlined in subsequent 
 
 As mentioned previously, the role of the question parsing component is to translate the natual language questions into a set of keywords (and their types). This extracted information is then used by the QA system to construct ASP rules with which the answers to the questions are found. During training, the question parser acts as a question-and-answer parser, as the model needs to collect training data from the answer.
 
-Both the hardcoded and the trained H-PERL model use a very simple hand-engineered question parser. Since the question parser is told the type of the question it has been given, and since the OceanQA dataset uses templated questions, the question parser can simply extract the relevant parts of the question by looking at the corresponding template. This is implemented by splitting the question into a list of words and simply picking the correct word based on the template.
+Both the hardcoded and the trained H-PERL models use a very simple hand-engineered question parser. Since the question parser is told the type of the question it has been given, and since the OceanQA dataset uses templated questions, the question parser can simply extract the relevant parts of the question by looking at the corresponding template. This is implemented by splitting the question into a list of words and simply picking the correct word based on the template.
 
 Take the question ``What does the octopus do immediately after rotating clockwise for the second time?" as an example. Based on the question template shown in Chapter~\ref{chapter:dataset}, the parsing component would extract the following from the question:
 \begin{equation}
@@ -150,10 +150,9 @@ Take the question ``What does the octopus do immediately after rotating clockwis
     \textit{occurrence} & = \text{2}
   \end{split}
 \end{equation}
-
 Note that the action noun `rotating clockwise' has been converted to the verb form, as given in the environment specification. In addition, the occurrence, `second', is converted to a number, which is simpler for the QA system to work with. These conversions are all hand-engineered, as opposed to learnt.
 
-The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the object, which in all of these questions is guaranteed to be the octopus.
+The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which in all four of these question types is guaranteed to be octopus.
 
 
 \subsection{Object Detector}
