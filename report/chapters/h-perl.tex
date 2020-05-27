@@ -122,7 +122,7 @@ H-PERL also requires that the following assumptions be made about the data:
 
   \item Each of the properties, relations and events components can be trained individually and directly using a specific type of question. For example, for the OceanQA dataset, we can use question types 1, 2 and 3 to train the properties, relations and events components, respectively.
 
-  \item As mentioned in Chapter~\ref{chapter:dataset}, properties, relations and events must be discrete. There is also currently no way of modelling continuous variables in the data, for example, we cannot say that the octopus rotated clockwise by 32\degree.
+  \item As mentioned in Chapter~\ref{chapter:dataset}, properties, relations and events must be discrete. There is also currently no way of modelling continuous variables in the data; for example, we cannot say that the octopus rotated clockwise by $\frac{1}{4}\pi$ radians.
 \end{enumerate}
 
 These requirements and assumptions clarify some of the limitations of H-PERL models. Firstly, for some environments pre-trained object detectors (or data to train them with) may be difficult to find. Secondly, it may also be difficult, if not impossible, to construct or train a question parser for free-form, natural language question-answering datasets. Additionally, most QA datasets are not guaranteed to contain questions which canbe used to directly train components of the model. Finally, many environments will simply be too complex to be accurately modelled by discrete properties, relations and events. These requirements and assumptions do, however, provide initial directions for future research in the area of Hybrid question-answering models. We discuss some potential extensions to H-PERL in Chapter~\ref{chapter:conclusion}.
@@ -132,6 +132,8 @@ As well as drawbacks, the H-PERL architecture does also provide a number of adva
 
 \section{Common Components}
 \label{section:common-components}
+
+The two models, one hardcoded and one trained, which are outlined in subsequent chapters, contain a number of common components. Before describing the implementation of these models, we first outline the details of the components common to both. These components include the non-core components, which the H-PERL pipeline assumes are pre-made, as well as the object tracker, which uses the a similar algorithm for both the hardcoded and trained models.
 
 \subsection{Question Parser}
 
