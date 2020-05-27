@@ -8,7 +8,7 @@
 \chaptermark{H-PERL}
 \label{chapter:h-perl}
 
-We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this structure: Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-model} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models shown in this report.
+We outline a novel paradigm for solving the VideoQA problem. This structure merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this structure: Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-model} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models presented in the subsequent chapters.
 
 
 \section{H-PERL Model}
@@ -16,12 +16,12 @@ We outline a novel paradigm for solving the VideoQA problem. This structure merg
 
 % Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
 
-H-PERL is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as a specific `instance' of the H-PERL pipeline). Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outline an H-PERL model for the OceanQA dataset.
+H-PERL is a generic, pipelined structure for finding an answer to a set of questions, given a video. The pipeline is composed of a number of components which, when strung together, form a model (a model can be thought of as an `instance' of the H-PERL structure). Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outline an H-PERL model for the OceanQA dataset.
 
 
 \subsection{Architecture}
 
-An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events (which occur due to an object) between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However for many other VideoQA environments, particularly those set in the real-world, this assumption may not be suitable. For example, we may not always be able to extract objects from a video (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
+An H-PERL pipeline assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events (which occur due to an object) between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However, for many VideoQA datasets, particularly those set in the real-world, this assumption may not be suitable. For example, extracting some objects from a video may be non-trivial (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, the H-PERL structure is not capable of modelling relations between objects with an arity larger than 2.
 
 \begin{figure}
   \centering
@@ -30,7 +30,7 @@ An H-PERL pipeline assumes that all of the information in an environment which i
   \label{fig:h-perl-pipeline}
 \end{figure}
 
-Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection, question parsing and QA system components are ``pre-made'' (either pre-trained or manually engineered). We refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees to add more features to the data, rather than overwrite existing features (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
+Figure~\ref{fig:h-perl-pipeline} shows the components involved in a typical H-PERL pipeline. During evaluation, information from the video and the question flow, from left to right, through the pipeline. Each H-PERL model assumes that the object detection, question parsing and QA system components are ``pre-made'' (either pre-trained or manually engineered). We refer to these as `non-core' components. H-PERL allows the remaining, `core' components to be updated as the model is trained, although they don't necessarily have to be. Each core component in the pipeline accumulates information. This means that each component guarantees that existing information (or features of the data) will not be overwritten (with the small exception of the event component when error correction is used, discussed further in Chapter~\ref{chapter:hardcoded}). As shown in Figure~\ref{fig:h-perl-pipeline} components in the pipeline work at different levels of abstraction; the object properties and tracking components work to extract object-level features, while the relations and events components work to extract frame and video-level features, respectively.
 
 The following is a high-level description of the tasks each component is required to complete for the H-PERL pipeline to work with high accuracy:
 \begin{enumerate}
@@ -51,7 +51,7 @@ The following is a high-level description of the tasks each component is require
 
 While VideoQA tasks may require the pipeline to contain the above set of components, the H-PERL structure can also be modified for solving related problems. For example, by removing the tracking and events components and keeping the rest of the pipeline the same, the H-PERL structure could be used to solve VQA (also known as FrameQA) tasks. In fact, the pipeline could be modified to work with many different input types, including images, videos, text or speech, provided that the data contains something akin to an `object', and that extracting these objects (and features from these objects) is feasible. We could also swap out the final component in the pipeline, the QA system, for another task-specific component. For example, we could create a video (or image) captioning pipeline by using a captioning component rather than a QA component. Figure~\ref{fig:other-pipelines} shows a number of pipelines similar to H-PERL that have been modified for other tasks.
 
-\begin{figure}
+\begin{figure}[h!]
   \begin{subfigure}{\textwidth}
     \centering
     \includegraphics[width=\textwidth]{vqa-pipeline}
@@ -62,17 +62,9 @@ While VideoQA tasks may require the pipeline to contain the above set of compone
     \includegraphics[width=\textwidth]{captioning-pipeline}
     \caption{A pipeline for an image captioning task.}
   \end{subfigure}
-  \caption{Potential modifications to the H-PERL pipeline for solving other tasks}
+  \caption{Potential modifications to the H-PERL pipeline for solving other tasks. Grey shading indicates feature extraction components. Green and red shading indicate components which extract object-level and frame-level features, respectively.}
   \label{fig:other-pipelines}
 \end{figure}
-%
-% \begin{figure}
-%   \centering
-%   \includegraphics[width=\textwidth]{vqa-pipeline}
-%   \includegraphics[width=\textwidth]{captioning-pipeline}
-%   \caption{Potential modifications to the H-PERL pipeline for solving other tasks. \textbf{Top}: VQA pipeline. \textbf{Bottom}: Image captioning pipeline.}
-%   \label{fig:other-pipelines}
-% \end{figure}
 
 At a high level, then, the H-PERL pipeline consists of three main stages:
 \begin{enumerate}
@@ -88,7 +80,7 @@ These stages are similar to some approaches used in VQA tasks~\cite{attention-vq
 
 The first component in the H-PERL pipeline, the object detector, takes a raw video as input and produces a set of bounding boxes (object positions) and object classes for each frame of the video. After object detection has been applied, data about the video is stored symbolically for each object in each frame of the video. Each of the subsequent components in the pipeline can access this symbolic data along with the raw image of each object (the raw video frames are discarded). Each of these components then accumulates symbolic information about the objects, frames or video. This is what is meant by extracting object, frame and video-level features.
 
-The pipeline needs an agreed upon way of representing the extracted information. This representation is as follows:
+Once the symbolic features have been extracted from the input, each of the components in the pipeline need an agreed upon way of representing the information. This symbolic representation is as follows:
 \begin{itemize}
   \item For an object with identifier \textit{$<$id$>$} in frame \textit{$<$frame$>$}, the object's properties, rotation and class (all referred to as $\textit{$<$property$>$}$), each with value $\textit{$<$value$>$}$, are represented as follows:
   \begin{equation}
