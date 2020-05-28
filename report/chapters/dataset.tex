@@ -16,9 +16,9 @@ Before discussing the implementation of our solution to the VideoQA task, it is 
 
 \footnotetext{The CLEVRER dataset~\cite{dataset:clevrer} meets these requirements and would have been a good candidate for this project. Unfortunately, it was published in March 2020, six months after the project began.}
 
-The dataset is generated programmatically, and can therefore be made as large as required. However, in order to allow comparisons between models, we generate a fixed dataset of 1400 videos (each video contains 10 question-answer pairs) and use this data to train and evaluate the models outlined in the following Chapters of this report. This dataset is further divided into 1000 training, 200 validation and 200 testing videos.
+The dataset is generated programmatically and can therefore be made as large as required. However, in order to allow comparisons between models, we generate a fixed dataset of 1400 videos (each video contains 10 question-answer pairs) and use this data to train and evaluate the models outlined in subsequent Chapters. This dataset is divided into 1000 training, 200 validation and 200 testing videos.
 
-% Talk about hardcoded version of dataset
+The generated dataset can be used in either `full-data' form or in `QA-data' form. The full-data form contains videos, question-answer pairs and the ground truth of all the information in the videos; this means that every object property, relation and event is labelled by the dataset. This form gives the programmer complete access to the information in the video, which allows baseline models to be constructed, and may also allow internal parts of models to be evaluated. The QA-form, on the other hand, contains only videos and question-answer pairs. Since no additional data about the video is provided, this form reflects a `real' VideoQA dataset, and should be used for evaluating the model as a whole.
 
 Since the focus of this project is to investigate logical reasoning, we do not attempt to make the job of the neural network difficult by creating complex scenes; the dataset emulates a simple retro-game environment. Each image is also quite small at 256x256 pixels to allow faster network training. The remainder of this Chapter outlines the full details of the OceanQA dataset.
 
@@ -41,7 +41,7 @@ Figure~\ref{fig:dataset-objects} shows an example of each of the four possible c
   \item \textbf{Rock}. Rocks can have four colours: brown, blue, purple and green, but always face upright. When an octopus comes near a rock the octopus' colour will change (if necessary) to match that of the rock (it will be camouflaged).
 \end{itemize}
 
-\begin{figure}[b!]
+\begin{figure}[t]
   \begin{subfigure}{0.24\textwidth}
     \centering
     \includegraphics[width=\textwidth]{octopus.png}
@@ -67,7 +67,7 @@ Figure~\ref{fig:dataset-objects} shows an example of each of the four possible c
 
 The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. Object positions are always given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right. The dataset does not consider any relations with an arity higher than two.
 
-\begin{algorithm}[t]
+\begin{algorithm}[b]
   \caption{Determine whether one object is close to another}
   \label{algo:close_to}
   \begin{algorithmic}[1]
@@ -91,7 +91,7 @@ Other than object properties and relations between objects, which encode visual 
 
 We choose to split events into two disjoint sets: actions and effects. Actions can be thought of as motions that an object can make to alter its position or rotation. We consider three such actions: move, rotate clockwise and rotate anticlockwise. Rotations have the intuitive effect on an object's rotation. Move causes the object to move 15 pixels in the direction of its rotation. For example, an object at position $(20, 100, 30, 110)$ with a `right-facing' rotation will be at position $(35, 100, 45, 110)$ after a move action.
 
-Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above the octopus takes the colour of the rock. The octopus then continues to keep this colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, when a bag is eaten the octopus also disappears, this does not occur with fish. Examples of all events can be found in Appendix TODO.
+Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above the octopus takes the colour of the rock. The octopus then continues to keep this new colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, when a bag is eaten the octopus also disappears, this does not occur with fish. Examples of all events can be found in Appendix TODO.
 
 To create a video, we first create an initial frame by randomly sampling the number of each object from a set of uniform distributions: $\mathcal{U}(5, 8)$ for fish, $\mathcal{U}(2, 3)$ for bags and $\mathcal{U}(3, 4)$ for rocks, where $\mathcal{U}(l, u)$ refers to a discrete uniform distribution with lower and upper bounds $l$ and $u$, respectively. Where colours and rotations need to be chosen for objects, these are sampled uniformly from the set of colours and/or rotations that are possible for that type of object.
 
@@ -142,7 +142,9 @@ Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects,
   \end{split}
 \end{equation}
 
-As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five questions require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values. The full set of question and answer templates is as follows:
+As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five questions require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values.
+
+The full set of question and answer templates is as follows:
 
 \begin{enumerate}
   \item Property questions are designed to test a model's understanding of object properties. In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the training data, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
@@ -169,7 +171,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Changed-property questions require the model to reason about how a property of the octopus changes from one frame to the next. The model can assume that only a single property changes after the frame mentioned in the question. Approximately $78\%$ of these questions ask about the colour of the octopus, while the remaining $22\%$ ask about the rotation. The grammar is as follows:
+  \item Changed-property questions require the model to reason about how a property of the octopus changes from one frame to the next. The dataset guarantees that only a single (explicit) property changes immediately after \textit{$<$frame\_idx$>$}. Approximately $78\%$ of these questions ask about the colour of the octopus, while the remaining $22\%$ ask about the rotation. The grammar is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_4$>$} & ::= \text{What happened to the octopus immediately after \textit{$<$frame\_idx$>$?}} \\
@@ -194,7 +196,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item State transition questions ask the model to find the action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions are also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
+  \item State transition questions ask the model to find the action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_7$>$} & ::= \begin{multlined}[t]
@@ -213,14 +215,14 @@ As mentioned above there are seven question types. The first two of these are VQ
 
 Property, relation and action questions are intended to be used to train and test the model's understanding of object properties, binary relations between objects and actions between two consecutive frames, respectively. Since the property and relation questions contain the `\textit{$<$object$>$}' rule, knowledge of property values may be required to select the corresponding object from the frame. This means it would be helpful to train the model's understanding of object properties before relations. Selecting the training data for object properties is, however, non-trivial. Chapter~\ref{chapter:trained} discusses one possible solution to this problem. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. None of the questions require any sort of external knowledge (other than the ability to count).
 
-Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in each video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively. Appendix (TODO create appendix for example videos and QA pairs) contains a number of example images and QA pairs from the dataset.
+Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in each video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively. Appendix TODO contains a number of example images and QA pairs from the dataset.
 
 
 \section{Specification}
 
 % Outline a formal specificiation and why it is necessary/helpful.
 
-Unlike end-to-end neural network models, hybrid models require knowledge that has been extracted from a video to be made explicit. For example, if a neural model is shown a video and asked for the colour of the octopus, it will first extract features from the video and then encode the video into a vector. This vector is combined with the encoding of the question, before a final section of the model produces either a short, free-form sentence or a probability distribution over possible answers. Relevant information from the video, including the colour of the octopus, is implicitly included in the video encoding. Hybrid models, however, usually require that this information is symbolic so that logical reasoning can be employed to find an answer to the question. For this reason it is necessary to define a specification of the video environment, which outlines the set concepts which the model must learn in order to accurately answer the questions. This specification can also provide a way to inject background knowledge about the environment into the model.
+Unlike end-to-end neural network models, hybrid models require knowledge that has been extracted from a video to be made explicit. For example, if a neural model is shown a video and asked for the colour of the octopus, it will first extract features from the video and then encode the video into a vector. This vector is combined with the encoding of the question, before a final section of the model produces either a short, free-form sentence or a probability distribution over possible answers. Relevant information from the video, including the colour of the octopus, is implicitly included in the vector encoding of the video. Hybrid models, however, usually require that this information is symbolic so that logical reasoning can be employed to find an answer to the question. For this reason it is necessary to define a specification of the video environment, which outlines the set of concepts which the model must learn in order to accurately answer the questions. This specification can also provide a way to inject background knowledge about the environment into the model.
 
 Each environment specification must contain the following information:
 \begin{enumerate}
@@ -254,7 +256,7 @@ Although it has been described in detail already, Equation~\ref{eqn:env-spec} pr
   \end{split}
 \end{equation}
 
-As alluded to already, an environment specification, like the one shown in Equation~\ref{eqn:env-spec}, requires that objects, properties, relations, actions and effects are all discrete, and does not allow the modelling of continuous variables. For many environments this requirement would be debilitating to any model attempting to learn the the environment's underlying rules. This may have to be treated as a trade-off for using hybrid models (Chapter~\ref{chapter:conclusion} discusses trade-offs further). On the other hand, this is one of the first pieces of work which explores the use of hybrid models in VideoQA tasks; future work may be able to overcome this problem.
+As alluded to already, an environment specification, like the one shown in Equation~\ref{eqn:env-spec}, requires that objects, properties, relations, actions and effects are all discrete. Continuous variables could be modelled by discretising, but this may lead to lower accuracy and a large number of possible values. This may have to be treated as a trade-off for using hybrid models. On the other hand, this is one of the first pieces of work which explores the use of hybrid models in VideoQA tasks; future work may be able to overcome this problem.
 
 
 \end{document}
