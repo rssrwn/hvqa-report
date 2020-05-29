@@ -7,7 +7,7 @@
 \chapter{Dataset}
 \label{chapter:dataset}
 
-Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name `OceanQA'. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements\footnotemark, for the following reasons:
+Before discussing the implementation of our solution to the VideoQA task, it is important to outline the data that is used to train and evaluate the model. Rather than using one of the datasets outlined in Chapter~\ref{chapter:related}, we opted to create a new VideoQA dataset, which we name `OceanQA'. While it would have been preferable to use an existing dataset (and an existing implementation as a baseline) to allow a fair comparison, none of the existing datasets suited the project requirements\footnotemark, for the following two reasons:
 \begin{enumerate}
   \item Most of the existing VideoQA datasets use videos from real-world environments, where objects and events are usually more complex than computer-generated environments. Training models to work with real-world data therefore requires significant computational resources and can take days or even weeks. Given the time and resource limitations that exist for this project, it was sensible to avoid these datasets. More generally, creating a dataset gives greater flexibility over the size and complexity of the data; if faster training is required, we can simply create smaller images or use fewer objects in each video.
 
@@ -65,9 +65,11 @@ Figure~\ref{fig:dataset-objects} shows an example of each of the four possible c
   \label{fig:dataset-objects}
 \end{figure}
 
-The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. Object positions are always given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right. The dataset does not consider any relations with an arity higher than two.
+Objects in each frame are always enclosed by a rectangular box. Object positions are given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right\footnote{The $y$ (vertical) direction is downward increasing.}.
 
-\begin{algorithm}[b]
+The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. The dataset does not consider any relations with an arity higher than two.
+
+\begin{algorithm}[h]
   \caption{Determine whether one object is close to another}
   \label{algo:close_to}
   \begin{algorithmic}[1]
@@ -91,11 +93,9 @@ Other than object properties and relations between objects, which encode visual 
 
 We choose to split events into two disjoint sets: actions and effects. Actions can be thought of as motions that an object can make to alter its position or rotation. We consider three such actions: move, rotate clockwise and rotate anticlockwise. Rotations have the intuitive effect on an object's rotation. Move causes the object to move 15 pixels in the direction of its rotation. For example, an object at position $(20, 100, 30, 110)$ with a `right-facing' rotation will be at position $(35, 100, 45, 110)$ after a move action.
 
-Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above the octopus takes the colour of the rock. The octopus then continues to keep this new colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, when a bag is eaten the octopus also disappears, this does not occur with fish. Examples of all events can be found in Appendix TODO.
+Effects, on the other hand, are direct consequences of actions. Effects always alter an object's state (its class, position, rotation and colour). The dataset contains three effects: change colour, eat a fish and eat a bag. The octopus is the only object which can change colour, and this only occurs when the octopus is close to a rock. As described above, the octopus takes the colour of the rock. The octopus then continues to keep this new colour, even after moving away from the rock. Figure~\ref{fig:dataset-frames} shows a snippet from a video where an octopus moves close to a rock and changes colour. A fish or bag is eaten when an octopus moves close, this causes the fish or bag to disappear. However, unlike a fish, when a bag is eaten the octopus also disappears. Examples of all events can be found in Appendix TODO.
 
-To create a video, we first create an initial frame by randomly sampling the number of each object from a set of uniform distributions: $\mathcal{U}(5, 8)$ for fish, $\mathcal{U}(2, 3)$ for bags and $\mathcal{U}(3, 4)$ for rocks, where $\mathcal{U}(l, u)$ refers to a discrete uniform distribution with lower and upper bounds $l$ and $u$, respectively. Where colours and rotations need to be chosen for objects, these are sampled uniformly from the set of colours and/or rotations that are possible for that type of object.
-
-To create the rest of the video, actions for the octopus are randomly sampled for each timestep, we then work out which effects have occurred in each frame and, finally, the properties of each object are updated accordingly. The octopus has a $0.1$ probability of choosing to rotate at each timestep. However, if the octopus chooses to move but moving would cause the octopus to be outside the frame, the octopus will rotate instead. Clockwise and anticlockwise rotations are sampled uniformly.
+To create a video, we first create an initial frame by randomly sampling the number of each object from a set of uniform distributions: $\mathcal{U}(5, 8)$ for fish, $\mathcal{U}(2, 3)$ for bags and $\mathcal{U}(3, 4)$ for rocks, where $\mathcal{U}(l, u)$ refers to a discrete uniform distribution with lower and upper bounds $l$ and $u$, respectively. Where colours and rotations need to be chosen for objects, these are sampled uniformly from the set of colours and/or rotations that are possible for that type of object. To create the rest of the video, actions for the octopus are randomly sampled for each timestep. We then work out which effects have occurred in each frame and update the properties of each object accordingly. The octopus has a $0.1$ probability of choosing to rotate at each timestep. However, if the octopus chooses to move but moving would cause the octopus to be outside the frame, the octopus will rotate instead. Clockwise and anticlockwise rotations are sampled uniformly.
 
 \begin{figure}[t]
   \begin{subfigure}{0.32\textwidth}
@@ -119,7 +119,9 @@ To create the rest of the video, actions for the octopus are randomly sampled fo
 
 \section{Questions and Answers}
 
-As well as videos, VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions are usually the only form of direct supervison given to a VideoQA model, and, unlike other supervised learning datasets, VideoQA datasets can contain lots of sparsely labelled data. For example, our dataset can contain at most 31 octopus actions per video, but only a small number of these may be `labelled' by QA pairs. Properties of objects are even more sparsely labelled, since there can be as many as 512 object instances in a single video, but perhaps only a single QA pair. For this reason, VideoQA tasks can resemble `semi-supervised' tasks, where a model is given partially labelled data, but asked to produce all labels.
+As well as videos, VideoQA datasets must also contain question-answer pairs (QA pairs). Answers to questions `label' part of the video. For example, if a question asks the model to find the event which occurs between two frames, the answer to that question labels the event. However, any event not associated with a QA pair is unlabelled. The shortage of labels is not specific to events; there can be as many as 512 object instances in a single video, but perhaps only a single QA pair will label an object with a property value. Relations between objects face the same problem. For this reason, VideoQA datasets, unlike many other supervised learning datasets, can contain a lot of sparsely labelled data. On one hand, this may be beneficial to the model, since it only needs to understand the parts of the video which are mentioned in the questions, but, on the other, it can hinder the training of the model, since there is less data than would otherwise be available. Chapter~\ref{chapter:trained} offers one solution to this problem.
+
+% In this sense, VideoQA tasks can resemble `semi-supervised' tasks, where a model is given partially labelled data, but asked to label most, if not all, of the data.
 
 The OceanQA dataset contains ten QA pairs per video, sampled randomly from seven question-types. The remainder of this section introduces each question type separately, along with a grammar for each question and answer presented in extended Backus-Naur form (EBNF). Since Natural Language Processing (NLP) is not the focus of this project, we choose to use a small, discrete set of structured question templates, which allow the model to easily extract relevant symbolic information from the questions. Allowing free-form natural langauge questions creates additional complexity and uncertainty for the model, which we felt would distract from the core focus on hybrid machine learning for VideoQA. Generating these free-form questions can also be very time and resource intensive. A further discussion on possible future work on hybrid models for VideoQA tasks which use free-form questions and answers is contained in Chapter~\ref{chapter:conclusion}.
 
@@ -142,9 +144,7 @@ Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects,
   \end{split}
 \end{equation}
 
-As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five questions require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values.
-
-The full set of question and answer templates is as follows:
+As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five question types require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values. The full set of question and answer templates is as follows:
 
 \begin{enumerate}
   \item Property questions are designed to test a model's understanding of object properties. In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the training data, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
@@ -155,7 +155,7 @@ The full set of question and answer templates is as follows:
     \end{split}
   \end{equation}
 
-  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer. The answer is `yes' for roughly $16\%$ of these questions in the training data. This imbalance reflects the lack of instances of binary relations between objects, since we only model the `close' relation. The grammar for these questions and answers is as follows:
+  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer. The answer is `yes' for roughly $16\%$ of these questions in the training data. This imbalance reflects the lack of instances of binary relations between objects, since we only model the `close' relation. Objects are selected randomly from a random frame of the video. The grammar for these questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_2$>$} & ::= \text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame idx$>$}?} \\
@@ -187,7 +187,7 @@ The full set of question and answer templates is as follows:
     \end{split}
   \end{equation}
 
-  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find the event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. The model can assume that there is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
+  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find the event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. There is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_6$>$} & ::= \text{What does the octopus do \textit{$<$positive\_int$>$} times?} \\
@@ -215,7 +215,14 @@ The full set of question and answer templates is as follows:
 
 Property, relation and action questions are intended to be used to train and test the model's understanding of object properties, binary relations between objects and actions between two consecutive frames, respectively. Since the property and relation questions contain the `\textit{$<$object$>$}' rule, knowledge of property values may be required to select the corresponding object from the frame. This means it would be helpful to train the model's understanding of object properties before relations. Selecting the training data for object properties is, however, non-trivial. Chapter~\ref{chapter:trained} discusses one possible solution to this problem. The final four question types are included to diversify the data the model can be trained on and to evaluate how well the model can combine its understanding of object properties, relations and events. None of the questions require any sort of external knowledge (other than the ability to count).
 
-Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the dataset. Since there are ten questions in each video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively. Appendix TODO contains a number of example images and QA pairs from the dataset.
+Questions are generated independently for each video, and questions are sampled uniformly from the seven question templates given above. This leads to an approximately uniform distribution of question types in the datase, as shown in Figure~\ref{fig:q_types}. Since there are ten questions in each video the training, validation and testing datasets contain $10000$, $2000$ and $2000$ questions, respectively. Appendix TODO contains a number of example images and QA pairs from the dataset.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{question_type_dist.png}
+  \caption{The number of QA pairs in the training data for each question type.}
+  \label{fig:q_types}
+\end{figure}
 
 
 \section{Specification}
