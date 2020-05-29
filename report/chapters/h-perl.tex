@@ -157,11 +157,27 @@ The parsing of all other question types is done in the exactly same way. For the
 
 \subsection{Object Detector}
 
-The object detection component uses the Faster R-CNN algorithm~\cite{cnn-uses:faster-r-cnn}, as described in Chapter~\ref{chapter:background}. Faster R-CNN was chosen over YOLO~\cite{yolo} as it has been shown to be more accurate~\cite{cnn-uses:yolo-v3}. YOLO's main advantage or Faster R-CNN is its speed~\cite{cnn-uses:yolo-v3}. However, since the video frames are fairly small and simple, and since VideoQA is not a real-time task, speed is not the highest priority.
+Chapter~\ref{chapter:background} describes two object detection algorithms: Faster R-CNN and YOLO. Faster R-CNN has been shown to be the more accurate of the two~\cite{cnn-uses:yolo-v3}. YOLO's key advantage, however, is its speed; it has been shown to be able to process 5 times more frames per second than Faster R-CNN on the Pascal VOC dataset~\cite{yolo}. However, since OceanQA frames are fairly small and simple, and since we don't need real-time performance for VideoQA tasks, we prefer accuracy over speed and therefore choose Faster R-CNN over YOLO for the object detection component.
 
-The object detection network use a pre-built Faster R-CNN model from the \textit{Torchvision}\footnote{Available at: https://github.com/pytorch/vision} library. A custom built, three-layer convolutional network is added to the front of this model to extract features from the input, these features are then passed to the Faster R-CNN model. The full detection model is trained on the `hardcoded' OceanQA dataset (where every object in every frame is fully labelled), using Faster R-CNN's multi-task loss function~\cite{cnn-uses:faster-r-cnn}. The \textit{PyCOCOTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library is used to implement the core training functionality.
+The object detection network uses a pre-built Faster R-CNN model from the \textit{Torchvision}\footnote{Available at: https://github.com/pytorch/vision} library. The network is trained on the full-data OceanQA dataset (where every object in every frame is fully labelled, as outlined in Chapter~\ref{chapter:dataset}), using Faster R-CNN's multi-task loss function~\cite{cnn-uses:faster-r-cnn}. The \textit{PyCOCOTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library is used to implement the core training functionality.
 
-% TODO explain feature extractor arch
+As is standard in Faster R-CNN implementations, we provide the detection model with a feature extraction network. This network's role is to extract features from the input frames and pass these to the pre-built detection network. We provide a three-layer convolutional network, described in Table~\ref{table:object-detection-layers}, with randomly initialised weights. These weights, along with the weights of the detection network, are updated as the whole model is trained.
+
+\begin{center}
+\begin{threeparttable}
+  \begin{tabular}{ |l|c c c c c| }
+    \hline
+    \textbf{Layer} & \textbf{In Channels} & \textbf{Out Channels} & \textbf{Kernel Size} & \textbf{Stride} & \textbf{Padding} \\
+    \hline
+    Conv1 & 3   & 32   & 3x3  & 1  & 1 \\
+    Conv2 & 32  & 64   & 3x3  & 2  & 1 \\
+    Conv3 & 64  & 128  & 3x3  & 2  & 1 \\
+    \hline
+  \end{tabular}
+  \caption{Specification of the feature extraction network. Batch normalisation is applied between layers Conv1 and Conv2, and between layers Conv2 and Conv3.}
+  \label{table:object-detection-layers}
+\end{threeparttable}
+\end{center}
 
 
 \subsection{Object Tracker}
