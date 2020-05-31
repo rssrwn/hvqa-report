@@ -184,6 +184,33 @@ The full details of the object detector's performance are given in Chapter~\ref{
 
 \subsection{Object Tracker}
 
+The object tracker's task is to assign every object in the video with an identifier. Ideally, an object is assigned the same identifier throughout the video, however, errors in the object detection can make this difficult. The tracker is given a video containing a list of frames, with each frame containing a set of detected objects.
+
+We implement a simple object tracker which assigns integer identifiers, starting from zero, to each object in the initial frame of the video. The tracker then inductively applies an algorithm (discussed below) which attempts to match objects in the previous frame (we call these previous objects), which have been assigned an identifier, with objects in the next frame (next objects), which are unidentified. An object, $obj1$, matches with another object, $obj2$, if the following two conditions are met:
+\begin{enumerate}
+  \item $obj1$ and $obj2$ have the same class.
+  \item The Euclidean distance between the top left corner of $obj1$ and the top left corner of $obj2$ is no more than 30 pixels.
+\end{enumerate}
+Both the distance metric and the maximum distance value are considered hyperparameters of the tracking component. Many other values for these hyperparameters would work equally well with the OceanQA dataset, and if these values weren't known in advance, they could be found fairly easily through a combination of analysis of the dataset (the maximum distance must be at least 15 pixels) and trial-and-error.
+
+After assigning identifiers to objects in the initial frame, the tracker iteratively applies the following algorithm to each subsequent frame:
+\begin{enumerate}
+  \item Each object in the new frame votes for the object in the previous frame which matches with it best.
+
+  \item Each previous object collates all of the new objects which have voted for it and chooses the new object with which it best matches.
+
+  \item If a previous object does not get any votes, it is because there are no new objects which consider this object their best match. We therefore assume the previous object has disappeared. Each disappeared object is added to a \textit{hidden objects} list, so that if the object reappeared in a subsequent frame the same identifier could be assigned.
+
+  \item Each remaining previous object is now matched with a single new object. The new object is assigned the identifier of the previous object it is matched with.
+
+  \item Some new objects - namely the which were rejected by a previous object in favour of another new object - remain unidentified. Since all previous objects have either passed on their identifier or disappeared, these remaining objects must be new. For each of these new objects, if it cannot be matched with an object in the \textit{hidden objects} list, a previously unused identifier is created and assigned to the object, otherwise the object is assigned its best match in the \textit{hidden objects} list.
+
+  \item Each object in the \textit{hidden objects} list can only stay for a maximum of five frames from when they are added (although this duration is also considered a hyperparameter and could therefore be altered). The final step of the algorithm is to remove from this list any hidden object which has overstayed its welcome.
+\end{enumerate}
+
+% This simple, heuristic-based tracker 
+
+
 \subsection{QA System}
 
 
