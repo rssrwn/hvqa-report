@@ -208,7 +208,7 @@ After assigning identifiers to objects in the initial frame, the tracker iterati
   \item Each object in the \textit{hidden objects} list can only stay for a maximum of five frames from when they are added (although this duration is also considered a hyperparameter and could therefore be altered). The final step of the algorithm is to remove from this list any hidden object which has overstayed its welcome.
 \end{enumerate}
 
-% This simple, heuristic-based tracker 
+This simple, heuristic-based tracker works well for simple, well-defined environments such as OceanQA. In fact, Chapter~\ref{chapter:evaluation} shows that the tracker can achieve perfect performance, assuming the object detection is completely accurate. However, this tracker may perform poorly in more complex environments, such as real-world VideoQA datasets. Other, more advanced object tracking algorithms may fare better, however. The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. Since the H-PERL architecture is completely modular, our tracking algorithm could simply be swapped out for a more advanced alternative when the environment required it. 
 
 
 \subsection{QA System}
