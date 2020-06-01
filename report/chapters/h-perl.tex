@@ -152,7 +152,7 @@ Take the question ``What does the octopus do immediately after rotating clockwis
 \end{equation}
 Note that the action noun `rotating clockwise' has been converted to the verb form, as given in the environment specification. In addition, the occurrence, `second', is converted to a number, which is simpler for the QA system to work with. These conversions are all hand-engineered, as opposed to learnt.
 
-The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which is guaranteed to be octopus in all four of these question types.
+The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown in this discussion. The discussion on the QA system in Section~\ref{subsection:qa-system} does, however, describe the parsing in detail. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which is guaranteed to be octopus in all four of these question types.
 
 
 \subsection{Object Detector}
@@ -212,6 +212,7 @@ This simple, heuristic-based tracker works well for simple, well-defined environ
 
 
 \subsection{QA System}
+\label{subsection:qa-system}
 
 As shown in Section~\ref{section:h-perl-model}, the information extracted from the video by the core components of the H-PERL architecture is stored symbolically. The role of the QA system is then, given these symbolic features and a set of parsed questions and their respective types, to find an answer to each question.
 
@@ -223,19 +224,19 @@ Before describing the ASP rule templates, we provide the following definition of
   holds(class(\textit{$<$class$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}), [ holds(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}) ]
 \end{equation}
 
-The object descriptor shown in~\ref{eqn:asp_obj} are used in the body of the ASP rule templates and allows the QA system to find an object with class \textit{$<$class$>$}, identifier \textit{$<$id$>$}, and, optionally, with property \textit{$<$property$>$} taking value \textit{$<$property\_value$>$}, in frame \textit{$<$frame\_idx$>$}. We refer to the object descriptor in~\ref{eqn:asp_obj} as:
+The object descriptor shown in~\ref{eqn:asp_obj} is used in the body of the ASP rule templates and allows the QA system to find an object with class \textit{$<$class$>$}, identifier \textit{$<$id$>$}, and, optionally, with property \textit{$<$property$>$} taking value \textit{$<$value$>$}, in frame \textit{$<$frame$>$}. We refer to the object descriptor in~\ref{eqn:asp_obj} as:
 $$\textit{$<$asp\_obj($<$class$>$, $<$id$>$, $<$property$>$, $<$value$>$, $<$frame$>$)$>$}$$
 Where the `arguments' to \textit{asp\_obj} are given as concrete values. If \textit{$<$property$>$} or \textit{$<$value$>$} are \textit{Null} then the property predicate is not used. The following are examples of this construction:
 \begin{equation}
   \begin{split}
     \textit{$<$asp\_obj(}\text{octopus, Id, Null, Null, I+1}\textit{)$>$} & = holds(class(octopus, Id), I+1) \\
-    \textit{$<$asp\_obj(}\text{fish, Id1, colour, blue, I+1}\textit{)$>$} & = holds(class(fish, Id1), I), holds(colour(blue, Id1), I)
+    \textit{$<$asp\_obj(}\text{fish, Id1, colour, blue, I}\textit{)$>$} & = holds(class(fish, Id1), I), holds(colour(blue, Id1), I)
   \end{split}
 \end{equation}
 
 The ASP rule templates for each question type are described as follows:
 \begin{enumerate}
-  \item For property questions
+  \item Property questions
   % answer({{q_idx}}, {prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).
 \end{enumerate}
 
