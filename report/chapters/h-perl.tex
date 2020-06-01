@@ -184,7 +184,7 @@ The full details of the object detector's performance are given in Chapter~\ref{
 
 \subsection{Object Tracker}
 
-The object tracker's task is to assign every object in the video with an identifier. Ideally, an object is assigned the same identifier throughout the video, however, errors in the object detection can make this difficult. The tracker is given a video containing a list of frames, with each frame containing a set of detected objects.
+The object tracker's task is to assign every object in the video with an identifier. Ideally, an object is assigned the same identifier throughout the video, however, errors in the object detection can make this difficult. The tracker is given a video containing a list of frames, with each frame containing a set of detected objects (each object contains just a class and a position at this stage).
 
 We implement a simple object tracker which assigns integer identifiers, starting from zero, to each object in the initial frame of the video. The tracker then inductively applies an algorithm (discussed below) which attempts to match objects in the previous frame (we call these previous objects), which have been assigned an identifier, with objects in the next frame (next objects), which are unidentified. An object, $obj1$, matches with another object, $obj2$, if the following two conditions are met:
 \begin{enumerate}
@@ -203,15 +203,24 @@ After assigning identifiers to objects in the initial frame, the tracker iterati
 
   \item Each remaining previous object is now matched with a single new object. The new object is assigned the identifier of the previous object it is matched with.
 
-  \item Some new objects - namely the which were rejected by a previous object in favour of another new object - remain unidentified. Since all previous objects have either passed on their identifier or disappeared, these remaining objects must be new. For each of these new objects, if it cannot be matched with an object in the \textit{hidden objects} list, a previously unused identifier is created and assigned to the object, otherwise the object is assigned its best match in the \textit{hidden objects} list.
+  \item Some new objects - namely those which were rejected by a previous object in favour of another new object - remain unidentified. Since all previous objects have either passed on their identifier or disappeared, these remaining objects must be new. For each of these new objects, if it cannot be matched with an object in the \textit{hidden objects} list, a previously unused identifier is created and assigned to the object, otherwise the object is assigned its best match in the \textit{hidden objects} list.
 
   \item Each object in the \textit{hidden objects} list can only stay for a maximum of five frames from when they are added (although this duration is also considered a hyperparameter and could therefore be altered). The final step of the algorithm is to remove from this list any hidden object which has overstayed its welcome.
 \end{enumerate}
 
-This simple, heuristic-based tracker works well for simple, well-defined environments such as OceanQA. In fact, Chapter~\ref{chapter:evaluation} shows that the tracker can achieve perfect performance, assuming the object detection is completely accurate. However, this tracker may perform poorly in more complex environments, such as real-world VideoQA datasets. Other, more advanced object tracking algorithms may fare better, however. The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. Since the H-PERL architecture is completely modular, our tracking algorithm could simply be swapped out for a more advanced alternative when the environment required it. 
+This simple, heuristic-based tracker works well for simple, well-defined environments such as OceanQA. In fact, Chapter~\ref{chapter:evaluation} shows that the tracker can achieve perfect performance, assuming the object detection is completely accurate. However, this tracker may perform poorly in more complex environments, such as real-world VideoQA datasets. Other, more advanced object tracking algorithms may fare better, however. The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. Since the H-PERL architecture is completely modular, our tracking algorithm could simply be swapped out for a more advanced alternative when the environment required it.
 
 
 \subsection{QA System}
+
+As shown in Section~\ref{section:h-perl-model}, the information extracted from the video by the core components of the H-PERL architecture is stored symbolically. The role of the QA system is then, given these symbolic features and a set of parsed questions and their respective types, to find an answer to each question.
+
+Since the features are stored as ASP predicates, a simple implementation of this component is to construct a set of ASP rules, one for each question type, and use these rules to find the questions' answers. To construct these rules we use a set of templates, one for each question type. After a question has been parsed, we fill in the question's corresponding template using information extracted by the question parsing component.
+
+The ASP rule templates for each question type are as follows:
+\begin{enumerate}
+  \item
+\end{enumerate}
 
 
 
