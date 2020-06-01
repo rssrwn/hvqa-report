@@ -217,9 +217,26 @@ As shown in Section~\ref{section:h-perl-model}, the information extracted from t
 
 Since the features are stored as ASP predicates, a simple implementation of this component is to construct a set of ASP rules, one for each question type, and use these rules to find the questions' answers. To construct these rules we use a set of templates, one for each question type. After a question has been parsed, we fill in the question's corresponding template using information extracted by the question parsing component.
 
-The ASP rule templates for each question type are as follows:
+Before describing the ASP rule templates, we provide the following definition of an ASP object descriptor:
+\begin{equation}
+  \label{eqn:asp_obj}
+  holds(class(\textit{$<$class$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}), [ holds(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}) ]
+\end{equation}
+
+The object descriptor shown in~\ref{eqn:asp_obj} are used in the body of the ASP rule templates and allows the QA system to find an object with class \textit{$<$class$>$}, identifier \textit{$<$id$>$}, and, optionally, with property \textit{$<$property$>$} taking value \textit{$<$property\_value$>$}, in frame \textit{$<$frame\_idx$>$}. We refer to the object descriptor in~\ref{eqn:asp_obj} as:
+$$\textit{$<$asp\_obj($<$class$>$, $<$id$>$, $<$property$>$, $<$value$>$, $<$frame$>$)$>$}$$
+Where the `arguments' to \textit{asp\_obj} are given as concrete values. If \textit{$<$property$>$} or \textit{$<$value$>$} are \textit{Null} then the property predicate is not used. The following are examples of this construction:
+\begin{equation}
+  \begin{split}
+    \textit{$<$asp\_obj(}\text{octopus, Id, Null, Null, I+1}\textit{)$>$} & = holds(class(octopus, Id), I+1) \\
+    \textit{$<$asp\_obj(}\text{fish, Id1, colour, blue, I+1}\textit{)$>$} & = holds(class(fish, Id1), I), holds(colour(blue, Id1), I)
+  \end{split}
+\end{equation}
+
+The ASP rule templates for each question type are described as follows:
 \begin{enumerate}
-  \item
+  \item For property questions
+  % answer({{q_idx}}, {prop}, V) :- {asp_obj}, holds({prop}(V, Id), {frame_idx}).
 \end{enumerate}
 
 
