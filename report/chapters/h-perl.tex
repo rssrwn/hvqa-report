@@ -323,7 +323,7 @@ In the following, we show, firstly, the question template (as already outlined i
 
   \item Finally, state transition questions have the following template:
   $$\text{What does the octopus do immediately after \textit{$<$event\_noun$>$} [for the \textit{$<$nth$>$} time]?}$$
-  After \textit{$<$event\_noun$>$} is converted to event form, which we denote \textit{$<$event$>$}, and the string \textit{$<$nth$>$} is converted to a number, denoted \textit{$<$occ$>$}, the ASP rule can be constructed as follows:
+  After \textit{$<$event\_noun$>$} is converted to event form, which we denote \textit{$<$event$>$}, and the string \textit{$<$nth$>$} is converted to a number, denoted \textit{$<$occ$>$} (this is simply 1 if the occurrence string is omitted), the ASP rule can be constructed as follows:
   \begin{equation}
     \label{eqn:state-transition}
     \begin{split}
@@ -335,6 +335,8 @@ In the following, we show, firstly, the question template (as already outlined i
   \end{equation}
   In Rule~\ref{eqn:state-transition} the type predicate, $action$, is used to ensure that the answer is an action, as opposed to an effect. Once the answer has been found, the answer string is given as the value of the $Action$ variable.
 \end{enumerate}
+
+Hardcoding the question-answering rules does, of course, bring a number of disadvantages; namely that the entire component must be rewritten for every new environment, and that the rules may be very complex and time consuming to write. It also introduces potential for human bias or errors in the rules, meaning that the ASP rules may not work as well as intended. However, although it is not part of this project, there is a possibility of learning these rules using Inductive Logic Programming (ILP). This would allow the component to be considerably more versatile and potentially more accurate. Chapter~\ref{chapter:conclusion} discusses this idea further.
 
 
 
