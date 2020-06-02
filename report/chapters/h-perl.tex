@@ -232,6 +232,13 @@ Before describing the ASP rule templates, we provide a definition of an ASP obje
 If \textit{$<$object$>$} does not contain a property value, the property predicate in~\ref{eqn:asp_obj} is omitted. In order to simplify the ASP rule templates, which follow, we use the following \textsc{AspObj} function, which constructs the set of predicates shown in~\ref{eqn:asp_obj} to be used in the body of ASP rules:
 $$\textsc{AspObj}(\textit{$<$object$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$})$$
 
+We also outline a number of ASP helper rules whose head predicates are used in the body of the question-answering rules. For brevity the full helper rules are not shown, however, the descriptions of the head predicates are as follows:
+\begin{enumerate}
+  \item Changed.
+  \item event\_count.
+  \item event\_occurrence
+\end{enumerate}
+
 In the following, we show, firstly, the question template (as already outlined in Chapter~\ref{chapter:dataset}), secondly, how the ASP rule is constucted from the information in the parsed question and, finally, how the answer string is generated from the $answer$ predicate, for each type of question:
 \begin{enumerate}
   \item Property questions have the following template:
@@ -258,6 +265,14 @@ In the following, we show, firstly, the question template (as already outlined i
     \end{split}
   \end{equation}
   The answer string is then either yes or no, depending on the result contained in the $answer$ predicate.
+
+  \item Action questions have the following form:
+  $$\text{Which action occurred immediately after frame \textit{$<$frame$>$}?}$$
+  We create one of the following ASP rules for each action, including the `nothing' action:
+  \begin{equation}
+    \begin{split}
+    \end{split}
+  \end{equation}
 \end{enumerate}
 
 
