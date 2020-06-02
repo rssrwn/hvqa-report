@@ -235,18 +235,29 @@ $$\textsc{AspObj}(\textit{$<$object$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$}
 In the following, we show, firstly, the question template (as already outlined in Chapter~\ref{chapter:dataset}), secondly, how the ASP rule is constucted from the information in the parsed question and, finally, how the answer string is generated from the $answer$ predicate, for each type of question:
 \begin{enumerate}
   \item Property questions have the following template:
-  $$\text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?}$$
-
+  $$\text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame$>$}?}$$
   Following question parsing, the ASP rule for question number \textit{$<$question$>$} is constructed as follows:
   \begin{equation}
     \begin{split}
-      answer(\textit{$<$question$>$}, \textit{$<$property$>$}, Value) \text{ :- } & \textsc{AspObj}(\textit{$<$object$>$}, Id, \textit{$<$frame\_idx$>$}), \\
-      & obs(\textit{$<$property$>$}(Value, Id), \textit{$<$frame\_idx$>$}).
+      answer(\textit{$<$question$>$}, \textit{$<$property$>$}, Value) \text{ :- } & \textsc{AspObj}(\textit{$<$object$>$}, Id, \textit{$<$frame$>$}), \\
+      & obs(\textit{$<$property$>$}(Value, Id), \textit{$<$frame$>$}).
     \end{split}
   \end{equation}
-   TODO how to construct answer string
+  Then the answer string is simply the \textit{value} argument to the $answer$ predicate.
 
-  \item Relations questions ...
+  \item Relation questions have the following template:
+  $$\text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame$>$}?}$$
+  The ASP rule for answer these questions is generated as follows:
+  \begin{equation}
+    \begin{split}
+      related(\textit{$<$question$>$}) \text{ :- } & holds(\textit{$<$relation$>$}(Id1, Id2), \textit{$<$frame$>$}), \\
+      & \textsc{AspObj}(\textit{$<$object$>$}, Id1, \textit{$<$frame$>$}), \\
+      & \textsc{AspObj}(\textit{$<$object$>$}, Id2, \textit{$<$frame$>$}). \\
+      answer(\textit{$<$question$>$}, yes) \text{ :- } & related(\textit{$<$question$>$}). \\
+      answer(\textit{$<$question$>$}, no) \text{ :- } & not \text{ } related(\textit{$<$question$>$}). \\
+    \end{split}
+  \end{equation}
+  The answer string is then either yes or no, depending on the result contained in the $answer$ predicate.
 \end{enumerate}
 
 
