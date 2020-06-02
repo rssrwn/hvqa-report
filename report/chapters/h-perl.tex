@@ -265,7 +265,7 @@ In the following, we show, firstly, the question template (as already outlined i
 
   \item Relation questions have the following template:
   $$\text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame$>$}?}$$
-  The ASP rule for answer these questions is generated as follows:
+  The ASP rule for answering these questions is generated as follows:
   \begin{equation}
     \begin{split}
       related(\textit{$<$question$>$}) \text{ :- } & holds(\textit{$<$relation$>$}(Id1, Id2), \textit{$<$frame$>$}), \\
@@ -321,6 +321,19 @@ In the following, we show, firstly, the question template (as already outlined i
   \end{equation}
   The answer string is given as the value of the $Event$ variable.
 
+  \item Finally, state transition questions have the following template:
+  $$\text{What does the octopus do immediately after \textit{$<$event\_noun$>$} [for the \textit{$<$nth$>$} time]?}$$
+  After \textit{$<$event\_noun$>$} is converted to event form, which we denote \textit{$<$event$>$}, and the string \textit{$<$nth$>$} is converted to a number, denoted \textit{$<$occ$>$}, the ASP rule can be constructed as follows:
+  \begin{equation}
+    \label{eqn:state-transition}
+    \begin{split}
+      answer(\textit{$<$question$>$}, Action) \text{ :- } & action(Action), \\
+      & occurs\_event(Action, Id, Frame+1), \\
+      & event\_occurrence(\textit{$<$event$>$}, Id, Frame, \textit{$<$occ$>$}), \\
+      & \textsc{AspObj}(\text{octopus}, Id, Frame).
+    \end{split}
+  \end{equation}
+  In Rule~\ref{eqn:state-transition} the type predicate, $action$, is used to ensure that the answer is an action, as opposed to an effect. Once the answer has been found, the answer string is given as the value of the $Action$ variable.
 \end{enumerate}
 
 
