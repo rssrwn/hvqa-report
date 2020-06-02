@@ -310,6 +310,17 @@ In the following, we show, firstly, the question template (as already outlined i
   \end{equation}
   In Rule~\ref{eqn:repetition-count} a `catch-all' frame number is supplied to the \textsc{AspObj} function since we don't care which frames the octopus is in; we simply need to fetch its identifier. The answer string is then simply the value of $Num$.
 
+  \item Repeating action questions take the following form:
+  $$\text{What does the octopus do \textit{$<$num$>$} times?}$$
+  The ASP rule for these questions is constructed as follows:
+  \begin{equation}
+    \begin{split}
+      answer(\textit{$<$question$>$}, Event) \text{ :- } & event\_count(Event, Id, \textit{$<$num$>$}), \\
+      & \textsc{AspObj}(\text{octopus}, Id, \_).
+    \end{split}
+  \end{equation}
+  The answer string is given as the value of the $Event$ variable.
+
 \end{enumerate}
 
 
