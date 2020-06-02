@@ -241,9 +241,11 @@ $$\textsc{AspObj}(\textit{$<$object$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$}
 
 We also outline a number of ASP helper rules whose head predicates are used in the body of the question-answering rules. For brevity the full helper rules are not shown, however, the descriptions of the head predicates are as follows:
 \begin{enumerate}
-  \item Changed.
-  \item event\_count.
-  \item event\_occurrence
+  \item If $changed(\textit{$<$property$>$}, \textit{$<$before$>$}, \textit{$<$after$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$})$ is true, then the property \textit{$<$property$>$} of the object with identifer \textit{$<$id$>$} takes value \textit{$<$before$>$} in frame \textit{$<$frame$>$} and value \textit{$<$after$>$} in frame \textit{$<$frame$>$}+1.
+
+  \item The $event\_count(\textit{$<$event$>$}, \textit{$<$id$>$}, \textit{$<$num$>$})$ predicate means that \textit{$<$num$>$} is the number of times an object with identifer \textit{$<$id$>$} causes event \textit{$<$event$>$}.
+
+  \item If $event\_occurrence(\textit{$<$event$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$}, \textit{$<$num$>$})$ is true, then \textit{$<$num$>$} is the number of times an object with identifer \textit{$<$id$>$} causes event \textit{$<$event$>$} during or before frame \textit{$<$frame$>$}.
 \end{enumerate}
 
 In the following, we show, firstly, the question template (as already outlined in Chapter~\ref{chapter:dataset}), secondly, how the ASP rule is constucted from the information in the parsed question and, finally, how the answer string is generated from the $answer$ predicate, for each type of question:
@@ -275,10 +277,9 @@ In the following, we show, firstly, the question template (as already outlined i
 
   \item Action questions have the following form:
   $$\text{Which action occurred immediately after frame \textit{$<$frame$>$}?}$$
-  We create one of the following ASP rules for each action, including the `nothing' action:
+  We create an ASP rule for each action, including the `nothing' action. The outline of each rule is as follows:
   \begin{equation}
-    \begin{split}
-    \end{split}
+    answer(\textit{$<$question$>$}, \textit{$<$action$>$}) \text{ :- } occurs(\textit{$<$action$>$}(Id), \textit{$<$frame$>$}).
   \end{equation}
 \end{enumerate}
 
