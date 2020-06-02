@@ -216,9 +216,12 @@ This simple, heuristic-based tracker works well for simple, well-defined environ
 
 As shown in Section~\ref{section:h-perl-model}, the information extracted from the video by the core components of the H-PERL architecture is stored symbolically. The role of the QA system is then, given these symbolic features and a set of parsed questions and their respective types, to find an answer to each question.
 
-Since the features are stored as ASP predicates, a simple implementation of this component is to construct a set of ASP rules, one for each question type, and use these rules to find the questions' answers. To construct these rules we use a set of templates, one for each question type. After a question has been parsed, we fill in the question's corresponding template using information extracted by the question parsing component.
+Since the features are stored as ASP predicates, a simple implementation of this component is to construct a set of ASP rules for each question type, and use these rules to find the questions' answers. To construct these rules we use a set of templates, one for each question type. After a question has been parsed, we fill in the question's corresponding template using information extracted by the question parsing component.
 
-Since there are ten questions for each video, the QA system can save time by answering all ten questions in the same ASP program. To do this a set of ASP question-answering rules is generated for each question. Each set of rules contains at least one rule with an $answer$ predicate in the head. This predicate stores the answer to the question along with the question number.
+Since there are ten questions for each video, the QA system can save time by answering all ten questions in the same ASP program. To do this a set of ASP question-answering rules is generated for each question. Each set of rules contains at least one rule with an $answer$ predicate in the head. The answer predicate contains at least two arguments; the first of these is the question number, and any remaining arguments store the answer to the question. For example, the following is the answer predicate for property questions:
+$$answer(\textit{$<$question$>$}, \textit{$<$property$>$}, \textit{$<$value$>$})$$
+
+After the ASP program has been run, the answer predicates are collated. If there are multiple answers for a single question, a single answer is chosen at random. After this, hardcoded rules generate an answer string using the arguments of the $answer$ predicate, for each question. These answer strings are considered the output of the H-PERL model, and are therefore compared against the expected answer string when evaluating a model's performance.
 
 Before describing the ASP rule templates, we provide a definition of an ASP object descriptor. This discriptor is generated using information extracted from the \textit{$<$object$>$} part of the question. As a reminder, the \textit{$<$object$>$} grammar rule contains information on an object's class and, optionally, a property value. For example, `silver fish', `upward-facing rock' and `octopus' are all valid instances of the \textit{$<$object$>$} EBNF rule. The ASP object descriptor is a set of predicates used in the body of a rule which locate the object mentioned in the question. For object identifier \textit{$<$id$>$}, frame \textit{$<$frame$>$} and an instance of \textit{$<$object$>$} with class \textit{$<$class$>$} and property value \textit{$<$value$>$}, the ASP object descriptor is as follows:
 \begin{equation}
@@ -226,10 +229,10 @@ Before describing the ASP rule templates, we provide a definition of an ASP obje
   obs(class(\textit{$<$class$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}), [ obs(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}) ]
 \end{equation}
 
-If \textit{$<$object$>$} does not contain a property value, the property predicate in~\ref{eqn:asp_obj} is omitted. In order to simplify the ASP rule templates, which follow, we denote the predicates in~\ref{eqn:asp_obj} as:
+If \textit{$<$object$>$} does not contain a property value, the property predicate in~\ref{eqn:asp_obj} is omitted. In order to simplify the ASP rule templates, which follow, we use the following \textsc{AspObj} function, which constructs the set of predicates shown in~\ref{eqn:asp_obj} to be used in the body of ASP rules:
 $$\textsc{AspObj}(\textit{$<$object$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$})$$
 
-In the following, we show how the ASP rule is constructed using the information from the parsed question, for each question type:
+In the following, we show, firstly, the question template (as already outlined in Chapter~\ref{chapter:dataset}), secondly, how the ASP rule is constucted from the information in the parsed question and, finally, how the answer string is generated from the $answer$ predicate, for each type of question:
 \begin{enumerate}
   \item Property questions have the following template:
   $$\text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?}$$
@@ -241,6 +244,7 @@ In the following, we show how the ASP rule is constructed using the information 
       & obs(\textit{$<$property$>$}(Value, Id), \textit{$<$frame\_idx$>$}).
     \end{split}
   \end{equation}
+   TODO how to construct answer string
 
   \item Relations questions ...
 \end{enumerate}
