@@ -163,7 +163,7 @@ The object detection network uses a pre-built Faster R-CNN model from the \texti
 
 As is standard in Faster R-CNN implementations, we provide the detection model with a feature extraction network. This network's role is to extract features from the input frames and pass these to the pre-built detection network. We provide a three-layer convolutional network, described in Table~\ref{table:object-detection-layers}, with randomly initialised weights. These weights, along with the weights of the detection network, are updated as the whole model is trained.
 
-The full details of the object detector's performance are given in Chapter~\ref{chapter:evaluation}
+An example visualisation of the detector's output is shown in Figure~\ref{fig:detection-example}. The full details of the object detector's performance are given in Chapter~\ref{chapter:evaluation}.
 
 \begin{center}
 \begin{threeparttable}
@@ -180,6 +180,13 @@ The full details of the object detector's performance are given in Chapter~\ref{
   \label{table:object-detection-layers}
 \end{threeparttable}
 \end{center}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{detection-example.png}
+  \caption{A visualisation of the output of the detector on an example frame.}
+  \label{fig:detection-example}
+\end{figure}
 
 
 \subsection{Object Tracker}
