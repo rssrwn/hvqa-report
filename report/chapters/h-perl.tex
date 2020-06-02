@@ -257,11 +257,11 @@ In the following, we show, firstly, the question template (as already outlined i
   Following question parsing, the ASP rule for question number \textit{$<$question$>$} is constructed as follows:
   \begin{equation}
     \begin{split}
-      answer(\textit{$<$question$>$}, \textit{$<$property$>$}, Value) \text{ :- } & \textsc{AspObj}(\textit{$<$object$>$}, Id, \textit{$<$frame$>$}), \\
-      & obs(\textit{$<$property$>$}(Value, Id), \textit{$<$frame$>$}).
+      answer(\textit{$<$question$>$}, \textit{$<$property$>$}, Val) \text{ :- } & \textsc{AspObj}(\textit{$<$object$>$}, Id, \textit{$<$frame$>$}), \\
+      & obs(\textit{$<$property$>$}(Val, Id), \textit{$<$frame$>$}).
     \end{split}
   \end{equation}
-  Then the answer string is simply the $Value$ argument to the $answer$ predicate.
+  Then the answer string is simply the $Val$ argument to the $answer$ predicate.
 
   \item Relation questions have the following template:
   $$\text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame$>$}?}$$
@@ -297,6 +297,18 @@ In the following, we show, firstly, the question template (as already outlined i
   \end{equation}
   The answer string is then constructed as follows:
   $$\text{Its $Prop$ changed from $Before$ to $After$}$$
+
+  \item Repetition count questions resemble the following template:
+  $$\text{How many times does the octopus \textit{$<$event$>$}?}$$
+  The ASP rule for a repetition count question with question number \textit{$<$question$>$} is as follows:
+  \begin{equation}
+    \label{eqn:repetition-count}
+    \begin{split}
+      answer(\textit{$<$question$>$}, Num) \text{ :- } & event\_count(\textit{$<$event$>$}, Id, Num), \\
+      & \textsc{AspObj}(\text{octopus}, Id, \_).
+    \end{split}
+  \end{equation}
+  In Rule~\ref{eqn:repetition-count} a `catch-all' frame number is supplied to the \textsc{AspObj} function since we don't care which frames the octopus is in; we simply need to fetch its identifier. The answer string is then simply the value of $Num$.
 
 \end{enumerate}
 
