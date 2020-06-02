@@ -246,6 +246,8 @@ We also outline a number of ASP helper rules whose head predicates are used in t
   \item The $event\_count(\textit{$<$event$>$}, \textit{$<$id$>$}, \textit{$<$num$>$})$ predicate means that \textit{$<$num$>$} is the number of times an object with identifer \textit{$<$id$>$} causes event \textit{$<$event$>$}.
 
   \item If $event\_occurrence(\textit{$<$event$>$}, \textit{$<$id$>$}, \textit{$<$frame$>$}, \textit{$<$num$>$})$ is true, then \textit{$<$num$>$} is the number of times an object with identifer \textit{$<$id$>$} causes event \textit{$<$event$>$} during or before frame \textit{$<$frame$>$}.
+
+  \item The $exists(\textit{$<$id$>$}, \textit{$<$frame$>$})$ predicate means that the object with identifier \textit{$<$id$>$} exists in frame \textit{$<$frame$>$}.
 \end{enumerate}
 
 In the following, we show, firstly, the question template (as already outlined in Chapter~\ref{chapter:dataset}), secondly, how the ASP rule is constucted from the information in the parsed question and, finally, how the answer string is generated from the $answer$ predicate, for each type of question:
@@ -259,7 +261,7 @@ In the following, we show, firstly, the question template (as already outlined i
       & obs(\textit{$<$property$>$}(Value, Id), \textit{$<$frame$>$}).
     \end{split}
   \end{equation}
-  Then the answer string is simply the \textit{value} argument to the $answer$ predicate.
+  Then the answer string is simply the $Value$ argument to the $answer$ predicate.
 
   \item Relation questions have the following template:
   $$\text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame$>$}?}$$
@@ -281,7 +283,20 @@ In the following, we show, firstly, the question template (as already outlined i
   \begin{equation}
     answer(\textit{$<$question$>$}, \textit{$<$action$>$}) \text{ :- } occurs(\textit{$<$action$>$}(Id), \textit{$<$frame$>$}).
   \end{equation}
-  The answer string is the value of \textit{$<$action$>$}.
+  The answer string is then simply the value of \textit{$<$action$>$}.
+
+  \item Changed-property questions take the following form:
+  $$\text{What happened to the octopus immediately after \textit{$<$frame$>$?}}$$
+  The ASP rule for answering this question is as follows:
+  \begin{equation}
+    \begin{split}
+      answer(\textit{$<$question$>$}, Prop, Before, After) \text{ :- } & changed(Prop, Before, After, Id, \textit{$<$frame$>$}), \\
+      & exists(Id, \textit{$<$frame$>$}+1), \\
+      & \textsc{AspObj}(\text{octopus}, Id, \textit{$<$frame$>$}).
+    \end{split}
+  \end{equation}
+  The answer string is then constructed as follows:
+  $$\text{Its $Prop$ changed from $Before$ to $After$}$$
 
 \end{enumerate}
 
