@@ -273,7 +273,7 @@ In the following, we show, firstly, the question template (as already outlined i
       answer(\textit{$<$question$>$}, no) \text{ :- } & not \text{ } related(\textit{$<$question$>$}). \\
     \end{split}
   \end{equation}
-  The answer string is then either yes or no, depending on the result contained in the $answer$ predicate.
+  The yes or no answer string is then taken from the $answer$ predicate.
 
   \item Action questions have the following form:
   $$\text{Which action occurred immediately after frame \textit{$<$frame$>$}?}$$
@@ -281,6 +281,8 @@ In the following, we show, firstly, the question template (as already outlined i
   \begin{equation}
     answer(\textit{$<$question$>$}, \textit{$<$action$>$}) \text{ :- } occurs(\textit{$<$action$>$}(Id), \textit{$<$frame$>$}).
   \end{equation}
+  The answer string is the value of \textit{$<$action$>$}.
+
 \end{enumerate}
 
 
