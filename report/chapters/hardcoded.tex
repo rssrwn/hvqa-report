@@ -18,9 +18,9 @@ As mentioned in Chapter~\ref{chapter:h-perl}, the role of the properties compone
 
 Since the object image is a 3D tensor\footnote{Height, width and RGB colour channels make up the three dimensions} of raw pixel values, a convolutional neural network is an excellent candidate for the implementation of the properties component. Other computer vision techniques for machine learning such as decision trees, random forests and SVMs require thousands of manually engineered filters to be applied to the image, whereas convolutional networks can learn a much smaller set of filters based on the training data.
 
-Figure~\ref{fig:prop-network} shows the architecture of the properties network. The first part of this network encodes the object image into a 1024 dimenional latent vector using a series of convolutional and fully-connected layers. A set of fully-connected layers, one for each property, each take the vector encoding of the object and produce a vector of  real numbers. The size of each vector is equal to the number of possible values that property can take. The final output of the network is a set of probability distributions, one for each property, over the set of possible values that property can take.
+Figure~\ref{fig:prop-network} shows the architecture of the properties network. The first part of this network encodes the object image into a 1024 dimenional latent vector using a series of convolutional and fully-connected layers. A set of fully-connected layers, one for each property, each take the vector encoding of the object and produce a vector of  real numbers. The size of each vector is equal to the number of possible values that property can take.
 
-As is standard in a multiclass classification problem, the softmax function is applied to each set of property values in order to construct the probability distribution. The softmax function guarantees that the elements of a vector sum to one and that each element is greater than or equal to zero, hence softmax creates a discrete probability distribution. The softmax function for a vector $\mathbf{z} \in \mathbb{R}^K$ is as follows:
+The final output of the network is a set of probability distributions, one for each property, over the set of possible values that property can take. As is standard in a multiclass classification problem, the softmax function is applied to each set of property values in order to construct the probability distribution. The softmax function guarantees that the elements of a vector sum to one and that each element is greater than or equal to zero, hence softmax creates a discrete probability distribution. The softmax function for a vector $\mathbf{z} \in \mathbb{R}^K$ is as follows:
 \begin{equation}
   \sigma(\mathbf{z})_i = \frac{e^{z_i}}{\sum_{j=1}^{K} e^{z_j}} \text{ for } i = 1,...,K
 \end{equation}
@@ -32,7 +32,12 @@ As is standard in a multiclass classification problem, the softmax function is a
   \label{fig:prop-network}
 \end{figure}
 
-The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we simply collate all of the objects in the dataset, resize each object to 32x32 pixels and train the network using batches of 256 objects with a learning rate of 0.001 for 2 epochs.
+The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we collate all of the objects and their properties in the dataset, resize each object to 32x32 pixels, convert each property into a one-hot encoded vector and train the network using batches of 256 objects with a learning rate of 0.001 for 2. The cross-entropy loss is calculated for each property and these are summed to give an overall loss. The cross-entropy loss between a predicted probability distribution vector $\mathbf{p} \in \mathbb{R}^K$ and a one-hot encoded classification vector $\mathbf{y} \in \mathbb{R}^K$, where $K$ is the number of classes, is as follows:
+\begin{equation}
+  - \sum_{c=1}^{K} y_c \text{ log}(p_c)
+\end{equation}
+
+When the H-PERL model is being evaluated each object in the video is applied to the network (batched together for efficiency) and a set of probability distributions is produced. For each object, the property value for a particular property is given by the most probable element of the vector.
 
 
 \section{Relations}
