@@ -82,11 +82,10 @@ The first component in the H-PERL pipeline, the object detector, takes a raw vid
 
 Once the symbolic features have been extracted from the input, each of the components in the architecture need an agreed upon way of representing the information. This symbolic representation is as follows:
 \begin{itemize}
-  \item For an object with identifier \textit{$<$id$>$} in frame \textit{$<$frame$>$}, the object's properties, rotation and class (all referred to as $\textit{$<$property$>$}$), each with value $\textit{$<$value$>$}$, are represented as follows:
+  \item For an object with identifier \textit{$<$id$>$} in frame \textit{$<$frame$>$}, the object's properties, rotation and class (all referred to as $\textit{$<$property$>$}$), each with value\footnotemark $\textit{$<$value$>$}$, are represented as follows:
   \begin{equation}
     \text{obs}(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$})
   \end{equation}
-  As described in Chapter~\ref{chapter:dataset}, the value of an object's rotation is given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right.
 
   \item For two objects in frame \textit{$<$frame$>$}, with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, a binary relation, \textit{$<$relation$>$}, between the objects is represented as follows:
   \begin{equation}
@@ -94,10 +93,13 @@ Once the symbolic features have been extracted from the input, each of the compo
   \end{equation}
 
   \item An event which occurs immediately after frame \textit{$<$frame$>$}, due to an object with identifier \textit{$<$id$>$}, is represented by one of the following rules, depending on whether the event was an action or effect:
-  \begin{equation}
-    \text{occurs\_action}(\textit{$<$action$>$}(\textit{$<$id$>$}), \textit{$<$frame$>$})
-  \end{equation}
+  \begin{gather}
+    \text{occurs\_action}(\textit{$<$action$>$}(\textit{$<$id$>$}), \textit{$<$frame$>$}) \\
+    \text{occurs\_effect}(\textit{$<$effect$>$}(\textit{$<$id$>$}), \textit{$<$frame$>$})
+  \end{gather}
 \end{itemize}
+
+\footnotetext{As described in Chapter~\ref{chapter:dataset}, the value of an object's position is given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right.}
 
 Using these representations an entire video can be encoded into a logic program. The final component in the pipeline, the QA system, takes as input a video encoding and a set of parsed questions, and constructs a set of ASP rules which are used, along with the video encoding, to find an answer to the question.
 
@@ -106,7 +108,7 @@ Using these representations an entire video can be encoded into a logic program.
 
 To give a complete view of what is needed to construct an H-PERL model, we outline the minimum set of requirements and a number of assumptions. Each instance of an H-PERL model may require additional constraints to be applied on top of these. The set of requirements is as follows:
 \begin{enumerate}
-  \item A set of pre-made, non-core components (question parser, object detector and QA system).
+  \item A set of pre-made, non-core components.
 
   \item A VideoQA dataset, where each element is of the form: $$\langle \text{video}, \{ \langle \text{question}, \text{answer}, \text{question type} \rangle \} \rangle$$
 
@@ -133,7 +135,7 @@ As well as drawbacks, the H-PERL architecture does also provide a number of adva
 \section{Common Components}
 \label{section:common-components}
 
-The two models, one hardcoded and one trained, which are outlined in subsequent chapters, contain a number of common components. Before describing the implementation of these models, we first outline the details of the components common to both. These components include the non-core components, which the H-PERL pipeline assumes are pre-made, as well as the object tracker, which uses the a similar algorithm for both the hardcoded and trained models.
+The two models, one hardcoded and one trained, which are outlined in subsequent chapters, contain a number of common components. Before describing the implementation of these models, we first outline the details of the components common to both. These components include the non-core components, which the H-PERL pipeline assumes are pre-made, as well as the object tracker, which uses a similar algorithm for both the hardcoded and trained models.
 
 
 \subsection{Question Parser}
@@ -308,7 +310,7 @@ In the following, we show, firstly, the question template (as already outlined i
       & \textsc{AspObj}(\text{octopus}, Id, \_).
     \end{split}
   \end{equation}
-  In Rule~\ref{eqn:repetition-count} a `catch-all' frame number is supplied to the \textsc{AspObj} function since we don't care which frames the octopus is in; we simply need to fetch its identifier. The answer string is then simply the value of $Num$.
+  In Rule~\ref{eqn:repetition-count} an anonymous frame number variable is supplied to the \textsc{AspObj} function since we don't care which frames the octopus is in; we simply need to fetch its identifier. The answer string is then simply the value of $Num$.
 
   \item Repeating action questions take the following form:
   $$\text{What does the octopus do \textit{$<$num$>$} times?}$$
@@ -333,10 +335,10 @@ In the following, we show, firstly, the question template (as already outlined i
       & \textsc{AspObj}(\text{octopus}, Id, Frame).
     \end{split}
   \end{equation}
-  In Rule~\ref{eqn:state-transition} the type predicate, $action$, is used to ensure that the answer is an action, as opposed to an effect. Once the answer has been found, the answer string is given as the value of the $Action$ variable.
+  In Rule~\ref{eqn:state-transition} the type predicate, $action$, is used to ensure that the answer is an action. If this predicate is omitted from the body the answer may incorrectly be given as an effect. Once the answer has been found, the answer string is given as the value of the $Action$ variable.
 \end{enumerate}
 
-Hardcoding the question-answering rules does, of course, bring a number of disadvantages; namely that the entire component must be rewritten for every new environment, and that the rules may be very complex and time consuming to write. It also introduces potential for human bias or errors in the rules, meaning that the ASP rules may not work as well as intended. However, although it is not part of this project, there is a possibility of learning these rules using Inductive Logic Programming (ILP). This would allow the component to be considerably more versatile and potentially more accurate. Chapter~\ref{chapter:conclusion} discusses this idea further.
+Hardcoding the question-answering rules does, of course, bring a number of disadvantages; namely that the entire component must be rewritten for every new environment, and that the rules may be very complex and time consuming to write. It also introduces potential for human bias or errors in the rules, meaning that the ASP rules may not work as well as intended. However, although it is not part of this project, there is a possibility of learning these rules using Inductive Logic Programming. This would allow the component to be considerably more versatile and potentially more accurate. Chapter~\ref{chapter:conclusion} discusses this idea further.
 
 
 
