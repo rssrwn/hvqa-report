@@ -28,7 +28,7 @@ The final output of the network is a set of probability distributions, one for e
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{prop-network}
-  \caption{Architecture of the properties component neural network. An object is encoded into a latent vector, before a set of fully-connected layers produce a set of probability distributions over the property values. FM stands for feature maps.}
+  \caption{Architecture of the properties component neural network. An object is encoded into a latent vector, before a set of fully-connected layers produce a set of probability distributions over the property values. Batch normalisation is applied between convolutional layers. FM stands for feature maps.}
   \label{fig:prop-network}
 \end{figure}
 
@@ -44,7 +44,13 @@ When the H-PERL model is being evaluated each object in the video is applied to 
 
 The job of the relations component is to list all instances of relevant binary relations between objects in each frame of the video. Since there is only one relevant binary relation in the OceanQA dataset, the job of this component is simply to list the instances of the \textit{close} relation.
 
-The relations component of the hardcoded model contains a hand-written algorithm which determines whether two objects are close or not. For a given video, this algorithm is applied to every pair of objects in every frame of the video in order to list all instances of the relation. The algorithm for determining the closeness of two objects is given in Algorithm~\ref{algo:close}, and is described textually below. The object arguments of this algorithm are given in symbolic form, rather than as raw pixel matrices. This means the algorithm is heavily reliant on accurate information from the object detector. Although the closeness algorithm doesn't make use of the property component's extracted features, other algorithms for determining binary relations may require these.
+The relations component of the hardcoded model contains a hand-written algorithm which determines whether two objects are close or not. For a given video, this algorithm is applied to every pair of objects in every frame of the video in order to list all instances of the relation. The object arguments of the closeness algorithm are given in symbolic form, rather than as raw pixel matrices. This means the algorithm is heavily reliant on accurate information from the object detector - the position tuple in particular. Although the closeness algorithm doesn't make use of the property component's extracted features, other algorithms for determining binary relations may require these.
+
+The algorithm for determining the closeness of two objects is, in fact, identical to the algorithm used when constructing the dataset. This procedure was discussed alongside techniques used to create the dataset and is shown in Algorithm~\ref{algo:close_to}.
+
+Clearly, since the algorithm used to construct the dataset and the algorithm used to find the relations between objects are exactly the same, the relations component achieves perfect accuracy provided the object detection is exactly correct. Although this may seem like cheating, since in general it is not possible to know the underlying rules of the dataset, we reiterate that the hardcoded model is not a solution to VideoQA tasks in general, but rather is specific to the OceanQA dataset, and can be used for comparisons with other models.
+
+Another consideration 
 
 
 \section{Events}
