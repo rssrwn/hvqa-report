@@ -85,12 +85,12 @@ We encode the domain-independent knowledge as follows:
   \end{equation}
 \end{itemize}
 
-Finally, in order to make use of system description encoding we would include information on which events occured, using the $occurs(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
+Finally, in order to make use of the system description encoding we would include information on which events occured, using the $occurs(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
 
 \vspace{1cm}
 {\large \textbf{Briefcase Example}}
 
-We now consider a simple, example domain: a briefcase with two clasps (from~\cite{krr-asp-book}). There is a single action, toggle, which moves a given clasp into the up position if it is down, and vice-versa. If both clasp are up the briefcase is open, otherwise, it is closed.
+We now consider a simple example domain: a briefcase with two clasps (from~\cite{krr-asp-book}). There is a single action, toggle, which moves a given clasp into the up position if it is down, and vice-versa. If both clasp are up the briefcase is open, otherwise, it is closed.
 
 The signature of the domain consists of sort clasp, which can take value $1$ or $2$, inertial fluent $up(C)$, defined fluent $open$ and action $toggle(C)$, where $C$ is one of the clasps.
 
