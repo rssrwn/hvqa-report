@@ -128,6 +128,19 @@ The domain independent rules for the OceanQA environment as as outlined in Appen
   -holds(F, 0) \text{ :- } fluent(inertial, F), not \text{ } holds(F, 0).
 \end{equation}
 
+This rule ensures that the initial state of the system is complete for inertial fluents - all inertial fluents are either true or false. While this isn't a requirement for $\mathcal{AL}$ systems, it simplifies the rest of the model since there is no uncertainty about the system's state.
+
+Finally, we outline the domain dependent $\mathcal{AL}$ statements for the all three actions in OceanQA environment:
+\begin{itemize}
+  \item The \textit{move} action causes the object to move 15 pixels in the direction of rotation. This means that, in frame $i+1$, the object is no longer in the position it was in during frame $i$. We use a Python function, $new\_pos$, in the ASP program to calculate the object's next position. This function is called using the $@$ symbol. The $\mathcal{AL}$ statements for the move action are the following:
+  \begin{gather*}
+    move(Id) \textbf{ causes } position(@new\_pos(P, R), Id) \textbf{ if } position(P, Id), rotation(R, Id) \\
+    move(Id) \textbf{ causes } -position(position(P, Id)) \textbf{ if } position(P, Id)
+  \end{gather*}
+
+  \item 
+\end{itemize}
+
 
 \subsection{Effects}
 
