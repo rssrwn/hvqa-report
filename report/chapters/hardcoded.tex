@@ -138,7 +138,7 @@ Finally, we outline the domain dependent $\mathcal{AL}$ statements for the Ocean
 
 The use of the $exists(\textit{$<$id$>$})$ fluent is an intuitive way of encoding the knowledge that when an object disappears it no longer exists, and, if an object does not exist, it cannot participate in any actions. Without this predicate, encoding knowledge like this would be tricky because the $disappear(\textit{$<$id$>$})$ fluent appears (at most) once during the video.
 
-In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in order to model effects. Effects are defined by ASP rules with a combination of actions and $\mathcal{AL}$ fluents in the body.
+In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in order to model effects. Effects are defined by ASP rules with a combination of actions and $\mathcal{AL}$ fluents in the body. These rules can mostly be considered to observe the $\mathcal{AL}$ model, rather than affect it. However, an exception is made for the rules which update the octopus' colour.
 
 \begin{figure}
   \centering
@@ -158,7 +158,7 @@ In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in ord
   \label{fig:eat-fish}
 \end{figure}
 
-Firsly, for the \textit{eat a fish} (an example of which is shown in Figure~\ref{fig:eat-fish}) and \textit{eat a bag} effects, the following ASP rules are used:
+Firstly, for the \textit{eat a fish} (an example of which is shown in Figure~\ref{fig:eat-fish}) and \textit{eat a bag} effects, the following ASP rules are used:
 \begin{equation}
   \begin{split}
     occurs\_effect(eat\_a\_fish(Octo), I) \text{ :- } & occurs\_action(move(Octo), I), \\
@@ -176,11 +176,25 @@ Firsly, for the \textit{eat a fish} (an example of which is shown in Figure~\ref
   \end{split}
 \end{equation}
 
-% We also need to ensure the octopus' colour is updated when it comes close to rock. In the following $\mathcal{AL}$ statements we use a helper predicate
-% \begin{gather*}
-%   move(Id) \textbf{ causes } colour(New, Id) \textbf{ if } colour(Old, Id), change_colour(Old, New, Id) \\
-%   move(Id) \textbf{ causes } \neg colour(Old, Id) \textbf{ if } colour(Old, Id), change_colour(Old, New, Id)
-% \end{gather*}
+We also need to ensure the octopus' colour is updated when it comes close to rock. To do this we use the following helper predicate:
+\begin{equation}
+  \begin{split}
+    change\_colour(Old, New, Id, I-1) \text{ :- } & holds(class(octopus, Id), I), \\
+    & holds(close(Id, IdRock), I), \\
+    & holds(colour(Old, Id), I-1), \\
+    & holds(class(rock, IdRock), I), \\
+    & holds(colour(New, IdRock), I), \\
+    & Old \text{ } != New, step(I-1).
+  \end{split}
+\end{equation}
+
+Finally, the octopus' colour is updated using the follwing rules:
+\begin{gather}
+  holds(colour(New, Id), I+1) \text{ :- } change\_colour(Old, New, Id, I). \label{eqn:update-colour} \\
+  \neg holds(colour(Old, Id), I+1) \text{ :- } change\_colour(Old, New, Id, I). \label{eqn:neg-update-colour}
+\end{gather}
+
+Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathcal{AL}$ state, despite not being generated from $\mathcal{AL}$ statements. There are other $\mathcal{AL}$ models for the OceanQA environment (not discussed here) which do not suffer from the same problem. However, these models can be more complex, which leads to higher probability of human error. Instead we prefer to make a slight adaption to the $\mathcal{AL}$ rules in order to allow a simpler model to be defined.
 
 
 \subsection{Action Optimisation}
