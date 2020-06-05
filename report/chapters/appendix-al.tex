@@ -35,7 +35,7 @@ We encode the $\mathcal{AL}$ statements as follows:
 
   \item For every causal law, $a$ \textbf{causes} $l$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
   \begin{equation}
-    h(l, I+1) \text{ :- } h(p_0, I),..., h(p_m, I), occurs(a, I), I < n.
+    h(l, I+1) \text{ :- } h(p_0, I),..., h(p_m, I), occurs\_action(a, I), I < n.
   \end{equation}
 
   \item For every state constraint, $l$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
@@ -45,7 +45,7 @@ We encode the $\mathcal{AL}$ statements as follows:
 
   \item For every executability condition, \textbf{impossible} $a_0,...,a_k$ \textbf{if} $p_0,...,p_m$ $\Pi(SD)$ contains
   \begin{equation}
-    \neg occurs(a_0, I) ; ... ; \neg occurs(a_k, I) \text{ :- } h(p_0, I),..., h(p_m, I).
+    \neg occurs\_action(a_0, I) ; ... ; \neg occurs\_action(a_k, I) \text{ :- } h(p_0, I),..., h(p_m, I).
     \label{eqn:exec-cond-asp}
   \end{equation}
 \end{itemize}
@@ -82,11 +82,11 @@ We encode the domain-independent knowledge as follows:
 
   \item The CWA for actions states that actions that are not known to occur are assumed to not occur.
   \begin{equation}
-    \neg occurs(A, I) \text{ :- } action(A), step(I), not \text{ } occurs(A, I).
+    \neg occurs\_action(A, I) \text{ :- } action(A), step(I), not \text{ } occurs\_action(A, I).
   \end{equation}
 \end{itemize}
 
-Finally, in order to make use of the system description encoding we would include information on which events occured, using the $occurs(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
+Finally, in order to make use of the system description encoding we would include information on which events occured, using the $occurs\_action(A, I)$ predicate, and information on the different states of the system using $holds(F, I)$ and $\neg holds(F, I)$.
 
 \vspace{1cm}
 {\large \textbf{Briefcase Example}}
@@ -121,11 +121,11 @@ action(toggle(C)) :- clasp(C).
 
 \begin{verbatim}
 % Domain dependent rules
-holds(up(C), I+1) :- occurs(toggle(C), I),
+holds(up(C), I+1) :- occurs_action(toggle(C), I),
                      -holds(up(C), I),
                      I<n.
 
--holds(up(C), I+1) :- occurs(toggle(C), I),
+-holds(up(C), I+1) :- occurs_action(toggle(C), I),
                       holds(up(C), I),
                       I<n.
 
@@ -147,8 +147,8 @@ holds(F, I+1) :- fluent(inertial, F),
 -holds(F, I) :- fluent(defined, F), step(I),
                 not holds(F, I).
 
--occurs(A, I) :- action(A), step(I),
-                 not occurs(A, I).
+-occurs_action(A, I) :- action(A), step(I),
+                        not occurs_action(A, I).
 \end{verbatim}
 
 In a similar fashion to system description schemas, ASP programs allow variables. ASP solvers will first ground the program by computing the the \textit{relevant grounding} - the set of ground rules which could be used by the program. The relevant grounding can be infinite so care needs to taken to ensure that it can be computed.
