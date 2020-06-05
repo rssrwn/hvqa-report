@@ -97,37 +97,53 @@ Firstly, we outline the types involved in the $\mathcal{AL}$ system description,
 
   \item The close relation, which is written in ASP as $close(Id1, Id2)$ when an object with identifier $Id1$ is close to an object with identifier $Id2$, is considered a \textit{defined fluent}. Although they are modelled as defined fluents, their thruthiness cannot altered by the events component, since relation classification is handled by the relations component. Therefore, these fluents are copied directly across from the observed data into the $\mathcal{AL}$ model.
 
+  \item We add a further defined fluent, which also comes directly from the observed information. This fluent is called $disappear(\textit{$<$id$>$})$, and, naturally, means that an object with identifier \textit{$<$id$>$} disappears immediately after the current timestep.
+
   \item Actions are, of course, modelled by the \textit{action} type. The action itself takes a single argument - the object's identifier. In ASP each action is written as $\textit{$<$action$>$}(\textit{$<$id$>$})$.
 \end{itemize}
 
 The domain independent rules for the OceanQA environment are as outlined in Appendix~\ref{appendix-al}, with the following addition:
 \begin{equation}
-  -holds(F, 0) \text{ :- } fluent(inertial, F), not \text{ } holds(F, 0).
+  \neg holds(F, 0) \text{ :- } fluent(inertial, F), not \text{ } holds(F, 0).
 \end{equation}
 
 This rule ensures that the initial state of the system is complete for inertial fluents - all inertial fluents are either true or false. While this isn't a requirement for $\mathcal{AL}$ systems, it simplifies the rest of the model since there is no uncertainty about the system's state.
 
-Finally, we outline the domain dependent $\mathcal{AL}$ statements for the actions in the OceanQA environment:
+Finally, we outline the domain dependent $\mathcal{AL}$ statements for the OceanQA environment:
 \begin{itemize}
-  \item The \textit{move} action causes the object to move 15 pixels in the direction of rotation. This means that, in frame $i+1$, the object is no longer in the position it was in during frame $i$. We use a Python function, $new\_pos$, in the ASP program to calculate the object's next position. This function is called using the $@$ symbol. The $\mathcal{AL}$ statements for the move action are the following:
+  \item The \textit{move} action causes the object to move 15 pixels in the direction of rotation. This means that, in frame $i+1$, the object is no longer in the position it was in during frame $i$. We use a Python function, $new\_pos$, in the ASP program to calculate the object's next position. This function is called using the $@$ symbol. The $\mathcal{AL}$ \textit{causal laws} for the move action are the following:
   \begin{gather*}
     move(Id) \textbf{ causes } position(@new\_pos(P, R), Id) \textbf{ if } position(P, Id), rotation(R, Id) \\
-    move(Id) \textbf{ causes } -position(position(P, Id)) \textbf{ if } position(P, Id)
+    move(Id) \textbf{ causes } \neg position(position(P, Id)) \textbf{ if } position(P, Id)
   \end{gather*}
 
-  \item $\mathcal{AL}$ statements follow the same pattern for both rotation actions. The Python function, $new\_rot$, is used to calculate the new rotation for the object, it takes the previous rotation and the type of rotation as arguments. In the following $\mathcal{AL}$ statements \textit{$<$d$>$} is used to refer to the direction of rotation:
+  \item $\mathcal{AL}$ causal laws follow the same pattern for both rotation actions. The Python function, $new\_rot$, is used to calculate the new rotation for the object, it takes the previous rotation and the type of rotation as arguments. In the following $\mathcal{AL}$ causal laws \textit{$<$d$>$} is used to refer to the direction of rotation:
   \begin{gather*}
     rotate\_\textit{$<$d$>$}(Id) \textbf{ causes } rotation(@new\_rot(R, rotate\_\textit{$<$d$>$}) \textbf{ if } rotation(R, Id) \\
-    rotate\_\textit{$<$d$>$}(Id) \textbf{ causes } -rotation(R, Id) \textbf{ if } rotation(R, Id)
+    rotate\_\textit{$<$d$>$}(Id) \textbf{ causes } \neg rotation(R, Id) \textbf{ if } rotation(R, Id)
+  \end{gather*}
+
+  \item In order to ensure that objects are modelled as non-existent after they have disappeared, the following causal law is added:
+  \begin{equation*}
+    move(Id) \textbf{ causes } \neg exists(Id) \textbf{ if } exists(Id), disappear(Id)
+  \end{equation*}
+
+  \item Finally, the following \textit{executability conditions} are added to reduce the size of the search space for the optimiser:
+  \begin{gather*}
+    \textbf{impossible } move(Id) \textbf{ if } \neg exists(Id) \\
+    \textbf{impossible } rotate\_clockwise(Id) \textbf{ if } \neg exists(Id) \\
+    \textbf{impossible } rotate\_anticlockwise(Id) \textbf{ if } \neg exists(Id)
   \end{gather*}
 \end{itemize}
 
 Effects are defined using ASP rules with a combination of actions, observed features and $\mathcal{AL}$ model features in the body. These rules are not strictly part of the $\mathcal{AL}$ model, however, as shown below, some of the $\mathcal{AL}$ fluents are updated using effects.
 
+In the following we break from $\mathcal{AL}$ orthodoxy in order to model effects. Effects are defined by ASP rules with a combination of actions and $\mathcal{AL}$ model features in the body.
+
 % We also need to ensure the octopus' colour is updated when it comes close to rock. In the following $\mathcal{AL}$ statements we use a helper predicate
 % \begin{gather*}
 %   move(Id) \textbf{ causes } colour(New, Id) \textbf{ if } colour(Old, Id), change_colour(Old, New, Id) \\
-%   move(Id) \textbf{ causes } -colour(Old, Id) \textbf{ if } colour(Old, Id), change_colour(Old, New, Id)
+%   move(Id) \textbf{ causes } \neg colour(Old, Id) \textbf{ if } colour(Old, Id), change_colour(Old, New, Id)
 % \end{gather*}
 
 
