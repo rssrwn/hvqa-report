@@ -199,6 +199,17 @@ Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathca
 
 \subsection{Action Optimisation}
 
+As we have seen, the $\mathcal{AL}$ model uses the $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ predicate to store its information, but the observed data uses $obs(\textit{$<$f$>$}, \textit{$<$i$>$})$. This distinction is by design; it separates the information (particularly that which is modelled by inertial fluents) in the two data models. However, we need some way of comparing the two models in order to optimise the action combination.
+
+Firstly, in order to ensure that both data models start with the same information, the fluents for the initial frame in the observed data are copied over to the $\mathcal{AL}$ model. Secondly, the ASP optimisation program generates all possible action combinations and applies each combination to the $\mathcal{AL}$ model to find the set of actions which best fits the observed data. These sets of action can be generated in ASP using the following choice rule:
+\begin{equation}
+  occurs\_action(A, I) : action(A) \text{ :- } step(I+1), I >= 0.
+\end{equation}
+
+
+
+
+
 
 \section{Error Correction}
 
