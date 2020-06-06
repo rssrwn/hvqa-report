@@ -232,10 +232,20 @@ All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model 
 \end{figure}
 
 
-% TODO talk about speed and ASPs use of branch-and-bound
-
-
 \section{Error Correction}
+
+As we have already discussed, hardcoded models or components come with a number of drawbacks: they can be very complex to write; they have to be re-written for each new environment; and they may introduce human error or bias. However, manually engineered models also come with a key advantage: if the component has a deep understanding of the environment, it can attempt to correct errors in the input, or `de-noise' the data that it is given.
+
+The hardcoded H-PERL model presented here attempt to correct only a single type of error - namely, an error in the object detection which leads to uncertainty in the object tracking. An example of a mistake made by the object detector is shown in Figure~\ref{fig:detector-error}. The uncertainty in the object tracker is due to the detector wrongly detecting two of the same type of object very close to each other; if there is only one of that type of object in the previous frame, the tracker is then unsure about which of the new objects should be assigned the previous object's identifier.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.6\textwidth]{detection-error.png}
+  \caption{TODO}
+  \label{fig:detector-error}
+\end{figure}
+
+To combat this we, firstly, allow the tracker to assign multiple identifiers to one object and one identifier to multiple objects.
 
 
 
