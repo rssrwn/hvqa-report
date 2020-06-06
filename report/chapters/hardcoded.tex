@@ -92,7 +92,7 @@ As mentioned above, the optimal set of actions is found by comparing the observe
 
 Firstly, we outline the types involved in the $\mathcal{AL}$ system description, which are as follows:
 \begin{itemize}
-  \item Properties, including class and position, are modelled as \textit{inertial fluents} - their values can change as a direct result of the actions taken. Notice, however, that the number of possible position values is very large - $256^4$, hence, rather than allowing all possible values, we only include values that have been observed in the video, all other values are not modelled. This applied to all properties, class and position fluents.
+  \item Properties, including class and position, are modelled as \textit{inertial fluents} - their values can change as a direct result of the actions taken. Notice, however, that the number of possible position values is very large - $256^4$, hence, rather than allowing all possible values, we only include values that have been observed in the video, all other values are not modelled. This applies to all properties, class and position fluents.
 
   \item An additional inertial fluent, $exists(\textit{$<$id$>$})$, is also required. Intuitively, it means that an object with identifier \textit{$<$id$>$} is present in the current timestep.
 
@@ -195,19 +195,19 @@ Finally, the octopus' colour is updated using the follwing rules:
   \neg holds(colour(Old, Id), I+1) \text{ :- } change\_colour(Old, New, Id, I). \label{eqn:neg-update-colour}
 \end{gather}
 
-Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathcal{AL}$ state, despite not being generated from $\mathcal{AL}$ statements. There are other $\mathcal{AL}$ models for the OceanQA environment (not discussed here) which do not suffer from the same problem. However, these models can be more complex, which leads to higher probability of human error. Instead we prefer to make a slight adaption to the $\mathcal{AL}$ rules in order to allow a simpler model to be defined.
+Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathcal{AL}$ state, despite not being generated from $\mathcal{AL}$ statements. There are other $\mathcal{AL}$ models for the OceanQA environment (not discussed here) which do not suffer from the same problem. However, these models can be more complex, which leads to a higher probability of human error. Instead we prefer to make a slight adaption to the $\mathcal{AL}$ rules in order to allow a simpler model to be defined.
 
 
 \subsection{Action Optimisation}
 
-As we have seen, the $\mathcal{AL}$ model uses the $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ predicate to store its information, but the observed data uses $obs(\textit{$<$f$>$}, \textit{$<$i$>$})$. This distinction is by design; it separates the information (particularly that which is modelled by inertial fluents) in the two data models. However, we need some way of comparing the two models in order to optimise the action combination.
+As we have seen, the $\mathcal{AL}$ model uses the $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ predicate to store its information, but the observed data uses $obs(\textit{$<$f$>$}, \textit{$<$i$>$})$. This distinction is by design; it separates the information (particularly that which is modelled by inertial fluents) in the two data models. However, we need some way of comparing the two models in order to find the optimal action combination.
 
 Firstly, in order to ensure that both data models start with the same information, the fluents for the initial frame in the observed data are copied over to the $\mathcal{AL}$ model. Secondly, the ASP optimisation program generates all possible action combinations and applies each combination to the $\mathcal{AL}$ model to generate the data expected from that particular set of actions. These sets of action can be generated in ASP using the following choice rule:
 \begin{equation}
   occurs\_action(A, I) : action(A) \text{ :- } step(I+1), I >= 0.
 \end{equation}
 
-Finally, in order to give each set of actions a score, the expected data is compared with the observed data and the number of mismatched fluents is counted. In ASP a \textit{weak constraint} can be used to assign a cost to an answer set and the ASP optimiser searches for the answer set with the lowest cost. We use the following two weak constraints to optimise the action search:
+Finally, in order to give each set of actions a score, the expected data is compared with the observed data and the number of mismatched fluents is counted. In ASP a \textit{weak constraint} can be used to assign a cost to an answer set, the ASP optimiser then searches for the answer set with the lowest cost. We use the following two weak constraints to optimise the action search:
 \begin{gather}
   \text{:$\sim$ } \neg obs(exists(Id), I), holds(exists(Id), I). [1@1, exists(Id), I] \label{eqn:exists-opt} \\
   \text{:$\sim$ } obs(F, I), \neg holds(F, I). [1@2, F, I] \label{eqn:fluent-opt}
@@ -228,7 +228,7 @@ All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model 
 \begin{figure}[h!]
   \centering
   \includegraphics[width=0.6\textwidth]{branch-and-bound}
-  \caption{Part of an example action search tree. Each action is given as pair of $(action\_name, timestep)$. Red crosses and dashed lines show pruned branches.}
+  \caption{Part of an example action search tree. Each action is given as a pair of $(action\_name, timestep)$. Red crosses and dashed lines show pruned branches.}
   \label{fig:branch-and-bound}
 \end{figure}
 
