@@ -220,9 +220,17 @@ The following two hard constraints are also applied to ensure that basic rules o
   \text{:- } \neg obs(class(octopus, Id), I), \neg occurs\_action(nothing(Id), I). \label{eqn:occurs-nothing-opt2}
 \end{gather}
 
-The use of a hard rather than weak constraints in Rules~\ref{eqn:occurs-nothing-opt1} and~\ref{eqn:occurs-nothing-opt2} improves the speed of the ASP optimisation. However, the weak constraints in Rules~\ref{eqn:exists-opt} and~\ref{eqn:fluent-opt} are necessary since the program must be able to deal with noisy data. If hard constraints were used instead any noise in the data could rule out all possible answer sets.
+The use of hard rather than weak constraints in Rules~\ref{eqn:occurs-nothing-opt1} and~\ref{eqn:occurs-nothing-opt2} improves the speed of the ASP optimisation. However, the weak constraints in Rules~\ref{eqn:exists-opt} and~\ref{eqn:fluent-opt} are necessary since the program must be able to deal with noisy data. If hard constraints were used instead any noise in the data could rule out all possible answer sets.
 
-All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. While it may not always be able to find the optimal, it tries to minimise the difference between the observed data and the expected data.
+All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. Speed is a genuine concern for this optimisation; the ASP program has to evaluate $4^{32}$ action combinations, which could take a very long time. The ASP optimiser, however, uses optimisation strategies which can decrease the total search time. These algorithms include an ASP-specific extension of the branch-and-bound algorithm~\cite{asp:branch-and-bound}, which allows the optimiser to prune branches of the search tree if the branch is provably sub-optimal. Part of an example search tree for the action optimisation is shown in Figure~\ref{fig:branch-and-bound}. For most videos in the evlauation dataset, the ASP optimisation is able to run in under 5 seconds, however, if the observed data was noisier, we would expect that the algorithm would have to explore many more answer sets, which could take significantly longer.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=0.6\textwidth]{branch-and-bound}
+  \caption{Part of an example action search tree. Each action is given as pair of $(action\_name, timestep)$. Red crosses and dashed lines show pruned branches.}
+  \label{fig:branch-and-bound}
+\end{figure}
+
 
 % TODO talk about speed and ASPs use of branch-and-bound
 
