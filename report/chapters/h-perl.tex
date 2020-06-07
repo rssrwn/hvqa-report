@@ -8,10 +8,10 @@
 \chaptermark{H-PERL}
 \label{chapter:h-perl}
 
-We outline a novel paradigm for solving the VideoQA problem. This approach merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this approach: The Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-model} outlines the structure of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of a number of H-PERL components which are common to all models presented in the subsequent chapters.
+We outline a novel paradigm for solving the VideoQA problem. This approach merges deep learning and logic-based machine learning and inference methods in an attempt to learn the concepts required to answer the questions. We name this approach: The Hybrid Property, Event and Relation Learner (H-PERL). Section~\ref{section:h-perl-model} outlines the architecture of an H-PERL model, while Section~\ref{section:common-components} discusses the implementation of the H-PERL components which are common to all models presented in the subsequent chapters.
 
 
-\section{H-PERL Approach}
+\section{H-PERL Models}
 \label{section:h-perl-model}
 
 % Introduce Hybrid VideoQA Model architecture. Talk about how this model models an environment using objects, properties, relations, actions and events. (show generic architecture diagram)
@@ -21,12 +21,12 @@ H-PERL is a generic, pipelined architecture for VideoQA tasks. The pipeline is c
 
 \subsection{Architecture}
 
-The H-PERL architecture assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events (which occur due to an object) between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However, for many VideoQA datasets, particularly those set in the real-world, this assumption may not be suitable. For example, extracting some objects from a video may be non-trivial (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, H-PERL is not capable of modelling relations between objects with an arity larger than 2.
+The H-PERL architecture assumes that all of the information in an environment which is required to answer the questions can be modeled using: objects; binary relations between objects; and events (which occur due to an object) between two consecutive frames in the video. For many environments, simple environments (like our OceanQA dataset) in particular, this assumption holds. However, for many VideoQA datasets, particularly those set in the real-world, this assumption may not be suitable. For example, extracting some objects from a video may be non-trivial (as in the case of abstract nouns), and yet information on these objects may still be required to answer the questions. Additionally, H-PERL does not consider relations between objects with an arity larger than 2.
 
 \begin{figure}
   \centering
   \includegraphics[width=\textwidth]{h-perl-pipeline}
-  \caption{An overview of the H-PERL architecture for VideoQA. Green, red and blue shading indicates components which work to extract features at different levels of abstraction. Grey shading indicates the `core' components of the architecture.}
+  \caption{An overview of the H-PERL architecture for VideoQA. Green, red and blue shading indicate components which extract features at different levels of abstraction. Grey shading indicates the `core' components of the architecture.}
   \label{fig:h-perl-pipeline}
 \end{figure}
 
@@ -73,8 +73,7 @@ At a high level, then, the H-PERL approach consists of three main stages:
   \item Task-specific output generation
 \end{enumerate}
 
-These stages are similar to some approaches used in VQA tasks~\cite{attention-vqa, stacked-attention-vqa}, where the model's attention is firstly restricted to specific parts of the input (in this case objects), before features are extracted from the input and an output is generated. However, unlike other approaches, H-PERL does not dynamically update the model's attention based on the input question. Another key difference between H-PERL and other question-answering approaches is that extracted features are stored symbolically. This gives the observer a better understanding of what the model is learning and allows the injection of background or commonsense knowledge directly into the model.
-
+These stages are similar to some approaches used in VQA tasks~\cite{attention-vqa, stacked-attention-vqa}, where the model's attention is firstly restricted to specific parts of the input (in this case objects), before features are extracted from the input and an output is generated. However, unlike other approaches, H-PERL does not dynamically update the model's attention based on the input question. One fundamental property of our approach which differentiates H-PERL from other question-answering models is that, in H-PERL, extracted features are stored symbolically. Symbolic features give the observer a better understanding of what the model is learning and allows the injection of background or commonsense knowledge directly into the model.
 
 \subsection{Information Representation}
 
@@ -154,7 +153,7 @@ Take the question ``What does the octopus do immediately after rotating clockwis
 \end{equation}
 Note that the action noun `rotating clockwise' has been converted to the verb form, as given in the environment specification. In addition, the occurrence, `second', is converted to a number, which is simpler for the QA system to work with. These conversions are all hand-engineered, as opposed to learnt.
 
-The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown in this discussion. The discussion on the QA system in Section~\ref{subsection:qa-system} does, however, give more detail. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which is guaranteed to be octopus in all four of these question types.
+The parsing of all other question types is done in the exactly same way. For the sake of brevity these are not shown in this discussion. The discussion on the QA system in Section~\ref{subsection:qa-system} does, however, give more detail. As a general rule, the information extracted from the questions is the parts of the question templates which are contained in $<>$ brackets. For question types 4, 5, 6 and 7 the parser must also extract the \textit{object} keyword, which is guaranteed to be octopus in all four of these question types, since it is the only object which can perform actions.
 
 
 \subsection{Object Detector}
@@ -232,7 +231,7 @@ $$answer(\textit{$<$question$>$}, \textit{$<$property$>$}, \textit{$<$value$>$})
 
 After the ASP program has been run, the answer predicates are collated. If there are multiple answers for a single question, a single answer is chosen at random. After this, hardcoded rules generate an answer string using the arguments of the $answer$ predicate, for each question. These answer strings are considered the output of the H-PERL model, and are therefore compared against the expected answer string when evaluating a model's performance.
 
-Before describing the ASP rule templates, we provide a definition of an ASP object descriptor. This discriptor is generated using information extracted from the \textit{$<$object$>$} part of the question. As a reminder, the \textit{$<$object$>$} grammar rule contains information on an object's class and, optionally, a property value. For example, `silver fish', `upward-facing rock' and `octopus' are all valid instances of the \textit{$<$object$>$} EBNF rule. The ASP object descriptor is a set of predicates used in the body of a rule which locate the object mentioned in the question. For object identifier \textit{$<$id$>$}, frame \textit{$<$frame$>$} and an instance of \textit{$<$object$>$} with class \textit{$<$class$>$} and property value \textit{$<$value$>$}, the ASP object descriptor is as follows:
+Before describing the ASP rule templates, we provide a definition of an ASP object descriptor. This descriptor is generated using information extracted from the \textit{$<$object$>$} part of the question. As a reminder, the \textit{$<$object$>$} grammar rule contains information on an object's class and, optionally, a property value. For example, `silver fish', `upward-facing rock' and `octopus' are all valid instances of the \textit{$<$object$>$} EBNF rule. The ASP object descriptor is a set of predicates used in the body of a rule which locate the object mentioned in the question. For object identifier \textit{$<$id$>$}, frame \textit{$<$frame$>$} and an instance of \textit{$<$object$>$} with class \textit{$<$class$>$} and property value \textit{$<$value$>$}, the ASP object descriptor is as follows:
 \begin{equation}
   \label{eqn:asp_obj}
   obs(class(\textit{$<$class$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}), [ obs(\textit{$<$property$>$}(\textit{$<$value$>$}, \textit{$<$id$>$}), \textit{$<$frame$>$}) ]
