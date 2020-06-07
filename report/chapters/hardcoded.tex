@@ -177,7 +177,7 @@ Firstly, for the \textit{eat a fish} (an example of which is shown in Figure~\re
   \end{split}
 \end{equation}
 
-We also need to ensure the octopus' colour is updated when it comes close to rock. To do this we use the following helper predicate:
+We also need to ensure the octopus' colour is updated when it comes close to rock, and that we keep track of any \textit{change colour} effects that occur. To do this we, firstly, use the following helper predicate:
 \begin{equation}
   \begin{split}
     change\_colour(Old, New, Id, I-1) \text{ :- } & holds(class(octopus, Id), I), \\
@@ -185,8 +185,14 @@ We also need to ensure the octopus' colour is updated when it comes close to roc
     & holds(colour(Old, Id), I-1), \\
     & holds(class(rock, IdRock), I), \\
     & holds(colour(New, IdRock), I), \\
-    & Old \text{ } != New, step(I-1).
+    & Old \text{ } != New, \\
+    & step(I-1).
   \end{split}
+\end{equation}
+
+We also add the following ASP rule for the \textit{change colour} effect:
+\begin{equation}
+  occurs\_effect(change\_colour(Octo), I) \text{ :- } change\_colour(Old, New, Octo, I).
 \end{equation}
 
 Finally, the octopus' colour is updated using the follwing rules:
@@ -223,14 +229,14 @@ The following two hard constraints are also applied to ensure that basic rules o
 
 The use of hard rather than weak constraints in Rules~\ref{eqn:occurs-nothing-opt1} and~\ref{eqn:occurs-nothing-opt2} improves the speed of the ASP optimisation. However, the weak constraints in Rules~\ref{eqn:exists-opt} and~\ref{eqn:fluent-opt} are necessary since the program must be able to deal with noisy data. If hard constraints were used instead any noise in the data could rule out all possible answer sets.
 
-All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. Speed is a genuine concern for this optimisation; the ASP program has to evaluate $4^{32}$ action combinations, which could take a very long time. The ASP optimiser, however, uses optimisation strategies which can decrease the total search time. These algorithms include an ASP-specific extension of the branch-and-bound algorithm~\cite{asp:branch-and-bound}, which allows the optimiser to prune branches of the search tree if the branch is provably sub-optimal. Part of an example search tree for the action optimisation is shown in Figure~\ref{fig:branch-and-bound}. For most videos in the evlauation dataset, the ASP optimisation is able to run in under 5 seconds, however, if the observed data was noisier, we would expect that the algorithm would have to explore many more answer sets, which could take significantly longer.
-
-\begin{figure}[h!]
+\begin{figure}[t]
   \centering
   \includegraphics[width=0.6\textwidth]{branch-and-bound}
   \caption{Part of an example action search tree. Each action is given as a pair of $(action\_name, timestep)$. Red crosses and dashed lines show pruned branches.}
   \label{fig:branch-and-bound}
 \end{figure}
+
+All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. Speed is a genuine concern for this optimisation; the ASP program has to evaluate $4^{32}$ action combinations, which could take a very long time. The ASP optimiser, however, uses optimisation strategies which can decrease the total search time. These algorithms include an ASP-specific extension of the branch-and-bound algorithm~\cite{asp:branch-and-bound}, which allows the optimiser to prune branches of the search tree if the branch is provably sub-optimal. Part of an example search tree for the action optimisation is shown in Figure~\ref{fig:branch-and-bound}. For most videos in the evaluation dataset, the ASP optimisation is able to run in under 5 seconds, however, when the observed data is noisier, the algorithm has to explore many more answer sets, which takes significantly longer. This is discussed further in Chapter~\ref{chapter:evaluation}.
 
 
 \section{Error Correction}
@@ -243,7 +249,7 @@ To combat this, we allow the tracker to assign the same identifier to multiple o
 \begin{enumerate}
   \item The object tracker works in the same way as before, except when multiple objects want to be assigned the same identifier. Unlike before, the tracker now assigns the identifier to all objects involved.
 
-  \item For each frame, we keep track of the both identifiers and the set of objects which are competing for each identifier.
+  \item For each frame, we keep track of the identifiers and the set of objects which are competing for each identifier.
 
   \item The ASP input in the event detection component is updated to include a choice rule which creates a set of object-identifier assignments. For each assignment, one of the competing objects is assigned the identifier and all others are assigned new, unused identifiers.
 
@@ -254,7 +260,7 @@ To combat this, we allow the tracker to assign the same identifier to multiple o
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.8\textwidth]{detection-error.png}
+  \includegraphics[width=0.6\textwidth]{detection-error.png}
   \caption{An example of an error in the object detection. Two purple octopuses are detected in this frame. This leads to competion for the identifier of the `real' octopus.}
   \label{fig:detector-error}
 \end{figure}

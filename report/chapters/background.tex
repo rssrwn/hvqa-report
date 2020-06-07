@@ -7,7 +7,7 @@
 \chapter{Background}
 \label{chapter:background}
 
-This chapter introduces some technical background which will likely be required as part of the project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
+This chapter introduces some technical background relevent to this project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
 
 \section{Deep Learning}
 
@@ -88,7 +88,7 @@ Each object detector model will output a confidence score for each object classi
   \caption{Precision-recall curves and definition of intersection over union}
 \end{figure}
 
-For object detection tasks, where a bounding box is produced to estimate an object's position, metrics which measure the accuracy of the detection are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (although estimates of this value are usually used and there a number of slightly different definitions). In order to assess how well a model localises an object in an image, the Interesection over Union (IoU) is calculated between the ground-truth bounding box and the box produced by the model. The IoU between object A and object B is defined as the area of intersection between A and B divided by the area of union between A and B. Figure~\ref{fig:iou} gives a visualisation of IoU. Each IoU threshold will produce its own precision-recall curve.
+For object detection tasks, where a bounding box is produced to estimate an object's position, metrics which measure the accuracy of the detection are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (although estimates of this value are usually used and there a number of slightly different definitions). In order to assess how well a model localises an object in an image, the \textit{Intersection over Union} (IoU) is calculated between the ground-truth bounding box and the box produced by the model. The IoU between object A and object B is defined as the area of intersection between A and B divided by the area of union between A and B. Figure~\ref{fig:iou} gives a visualisation of IoU. Each IoU threshold will produce its own precision-recall curve. We use Average Precision with a number of IoU thresholds to evaluate our trained object detector in Chapter~\ref{chapter:evaluation}.
 
 
 % \subsection{Multiple Object Tracking}
@@ -124,7 +124,7 @@ The following templates are some of the possible forms of rules in an ASP progra
 \noindent
 {\footnotesize Where $a$ and each $b_i$ and $c_i$ are atoms in first-order logic, $l$ and $u$ are integers.} \\
 
-The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved. Each rule requires that when the body is satisfied - that is, when every member of the body is satisfied - the head must be satisfied. Rule~\ref{asp-rule:choice} is known as a \textit{choice rule}. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. The bounds can be left off, in which case they take default values of $0$ and the size of the choice set, respectively. Finally, rule~\ref{asp-rule:constraint} is known as a \textit{constraint}. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets.
+The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved to be true in an answer set. Each rule requires that when the body is satisfied - that is, when every member of the body is in an answer set - the head must be in the answer set. Rule~\ref{asp-rule:choice} is known as a \textit{choice rule}. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. The bounds can be left off, in which case they take default values of $0$ and the size of the choice set, respectively. Finally, rule~\ref{asp-rule:constraint} is known as a \textit{constraint}. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets that satisfy its body.
 
 As well as negation as failure, ASP also has a notion of `strong negation'. The strong negation of an atom $p$ is written $\neg p$. Strong negation can be thought of as classical negation, although it does not always have the same properties. In practice, ASP solvers implement strong negation by treating $\neg p$ as an additional atom, and enforce that no answer set can contain both $p$ and $\neg p$.
 
@@ -134,7 +134,7 @@ As well as negation as failure, ASP also has a notion of `strong negation'. The 
   \begin{array}{l}
     p \text{ :- } a. \\
     \{a;b\} \text{ :- } f. \\
-    \text{:- } d. \\
+    \text{:- } b. \\
     f.
   \end{array}
   \right\}
