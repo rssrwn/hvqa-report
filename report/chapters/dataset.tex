@@ -67,7 +67,7 @@ Figure~\ref{fig:dataset-objects} shows an example of each of the four possible c
 
 Objects in each frame are always enclosed by a rectangular box. Object positions are given as $(x1, y1, x2, y2)$, where $(x1, y1)$ is the top left corner of the object, and $(x2, y2)$ is the bottom right\footnote{The $y$ (vertical) direction is downward increasing.}.
 
-The dataset models a single binary relation between objects, `close to'. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The `close to' relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. The dataset does not consider any relations with an arity higher than two.
+The dataset models a single binary relation between objects, \textit{close to}. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B. The \textit{close} relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. The dataset does not consider any relations with an arity higher than two.
 
 \begin{algorithm}[h]
   \caption{Determine whether one object is close to another}
@@ -145,7 +145,7 @@ Equation~\ref{eqn:spec-grammar} formalises the grammar of the dataset's objects,
 As mentioned above there are seven question types. The first two of these are VQA questions, which only require the model to look at a single frame of the video. The remaining five question types require the model to reason across frames. We adapt the repetition count, repeating action and state transition questions from~\cite{dataset:tgif-qa} (discussed in Chapter~\ref{chapter:related}) to the OceanQA environment. We also add two further video-specific questions: questions about actions between two frames and questions about changing property values. The full set of question and answer templates is as follows:
 
 \begin{enumerate}
-  \item Property questions are designed to test a model's understanding of object properties. In the training data $41\%$ of the questions ask about colour, while $59\%$ ask about rotation. All property values are represented in the training data, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
+  \item Property questions are designed to test a model's understanding of object properties. In the training data $62\%$ of the questions ask about colour, while $38\%$ ask about rotation. All property values are represented in the training data, but not uniformly; some property values are very scarce. This reflects the underlying scarcity of objects with particular property values in the dataset; green octopuses, for example, are quite rare, while silver fish are very common. The EBNF grammar for property questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_1$>$} & ::= \text{What \textit{$<$property$>$} was the \textit{$<$object$>$} in frame \textit{$<$frame\_idx$>$}?} \\
@@ -153,7 +153,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer. The answer is `yes' for roughly $16\%$ of these questions in the training data. This imbalance reflects the lack of instances of binary relations between objects, since we only model the `close' relation. Objects are selected randomly from a random frame of the video. The grammar for these questions and answers is as follows:
+  \item Relation questions test a model's understanding of binary relations between objects. These questions only require a yes-or-no answer. The answer is `yes' for roughly $15\%$ of these questions in the training data. This imbalance reflects the lack of instances of binary relations between objects, since we only model the \textit{close} relation. Objects are selected randomly from a random frame of the video. The grammar for these questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_2$>$} & ::= \text{Was the \textit{$<$object$>$} \textit{$<$relation$>$} to the \textit{$<$object$>$} in frame \textit{$<$frame idx$>$}?} \\
@@ -161,7 +161,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Action questions ask which action occurred between two frames of a video. `Move' actions account for around $45\%$ of answers to these questions, while `rotate clockwise' and `rotate anticlockwise' account for approximately $27.5\%$ of questions each. The answer to these questions will never be `nothing'. The grammar for action questions and answers is as follows:
+  \item Action questions ask which action occurred between two frames of a video. `Move' actions account for around $44\%$ of answers to these questions, while `rotate clockwise' and `rotate anticlockwise' account for approximately $28\%$ of questions each. The answer to these questions will never be `nothing'. The grammar for action questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_3$>$} & ::= \text{Which action occurred immediately after frame \textit{$<$frame\_idx$>$}?} \\
@@ -169,7 +169,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Changed-property questions require the model to reason about how a property of the octopus changes from one frame to the next. The dataset guarantees that only a single (explicit) property changes immediately after \textit{$<$frame\_idx$>$}. Approximately $78\%$ of these questions ask about the colour of the octopus, while the remaining $22\%$ ask about the rotation. The grammar is as follows:
+  \item Changed-property questions require the model to reason about how a property of the octopus changes from one frame to the next. The dataset guarantees that only a single (explicit) property changes immediately after \textit{$<$frame\_idx$>$}. Approximately $79\%$ of these questions ask about the colour of the octopus, while the remaining $21\%$ ask about the rotation. The grammar is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_4$>$} & ::= \text{What happened to the octopus immediately after \textit{$<$frame\_idx$>$?}} \\
@@ -185,7 +185,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find the event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $86\%$ of questions are about actions, while the remaining $14\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. There is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
+  \item Repeating action questions are similar to repetition count questions, but instead of asking the model for a number they ask the model to find the event which occurs a given number of times. Events cannot be sampled uniformly since, in a given video, multiple events may have the same count. Approximately $84\%$ of questions are about actions, while the remaining $16\%$ refer to effects. This imbalance is again due to the underlying scarcity of particular events in the dataset. There is a unique answer to every question. The grammar for repeating action questions and answers is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_6$>$} & ::= \text{What does the octopus do \textit{$<$positive\_int$>$} times?} \\
@@ -194,7 +194,7 @@ As mentioned above there are seven question types. The first two of these are VQ
     \end{split}
   \end{equation}
 
-  \item State transition questions ask the model to find the action that occurs after a given event. $78\%$ of the answers to these questions refer to the `move' action, while `rotate clockwise' and `rotate anticlockwise' are the answers to $11\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
+  \item State transition questions ask the model to find the action that occurs after a given event. $75\%$ of the answers to these questions refer to the \textit{move} action, while \textit{rotate clockwise} and \textit{rotate anticlockwise} are the answers to $12.5\%$ of the questions each. In addition to asking the model to reason temporally about actions and events, these questions also require the model to understand which instance of an event is the `nth' occurrence. The `nth time' section of the grammar is unused if there is only one occurence of the event in the video. The grammar is as follows:
   \begin{equation}
     \begin{split}
       \textit{$<$q\_type\_7$>$} & ::= \begin{multlined}[t]
