@@ -239,13 +239,6 @@ As we have already discussed, hardcoded models or components come with a number 
 
 The hardcoded H-PERL model presented here attempts to correct only a single type of error - namely, an error in the object detection which leads to uncertainty in the object tracking. An example of a mistake made by the object detector is shown in Figure~\ref{fig:detector-error}. The uncertainty in the object tracker is due to the detector wrongly detecting two objects of the same type very close to each other; if there is only one of that type of object in the previous frame, the tracker will be unsure about which of the new objects should be assigned the previous object's identifier.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=0.6\textwidth]{detection-error.png}
-  \caption{An example of an error in the object detection. Two purple octopuses are detected in this frame. This leads to competion for the identifier of the `real' octopus.}
-  \label{fig:detector-error}
-\end{figure}
-
 To combat this, we allow the tracker to assign the same identifier to multiple objects and then, during the event detection phase, the search space is extended to include searching over which object should be assigned the identifier. The algorithm can be outlined in more detail as follows:
 \begin{enumerate}
   \item The object tracker works in the same way as before, except when multiple objects want to be assigned the same identifier. Unlike before, the tracker now assigns the identifier to all objects involved.
@@ -255,7 +248,16 @@ To combat this, we allow the tracker to assign the same identifier to multiple o
   \item The ASP input in the event detection component is updated to include a choice rule which creates a set of object-identifier assignments. For each assignment, one of the competing objects is assigned the identifier and all others are assigned new, unused identifiers.
 
   \item Each assignment is evaluated using the optimisation outlined in Section~\ref{section:hardcoded-events} and the optimal assignment is chosen. In essence, this means that the object-identifier assignment which leads to the fewest differences between the data in the $\mathcal{AL}$ model and the observed data is chosen. Intuitively, this reflects the assumption that the assignment with the fewest mistakes is the one most likely to maximise the number of questions answered correctly.
+
+  \item Finally, the chosen objects are assigned their respective identifiers, while the other objects are assigned new, unused identifiers. As mentioned in Chapter~\ref{chapter:h-perl}, this is the only occasion where a component of an H-PERL model can overwrite previously extracted information.
 \end{enumerate}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.8\textwidth]{detection-error.png}
+  \caption{An example of an error in the object detection. Two purple octopuses are detected in this frame. This leads to competion for the identifier of the `real' octopus.}
+  \label{fig:detector-error}
+\end{figure}
 
 This algorithm for correcting errors is only possible when a model of the dataset's environment is known. Hence, the hardcoded model is the only model outlined in this report which is capable of error correction.
 
