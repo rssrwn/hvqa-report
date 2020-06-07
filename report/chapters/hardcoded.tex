@@ -28,11 +28,11 @@ The final output of the network is a set of probability distributions, one for e
 \begin{figure}[t]
   \centering
   \includegraphics[width=\textwidth]{prop-network}
-  \caption{Architecture of the properties component neural network. An object is encoded into a latent vector, before a set of fully-connected layers produce a set of probability distributions over the property values. Batch normalisation is applied between convolutional layers. FM stands for feature maps.}
+  \caption{Architecture of the properties component neural network. An object is encoded into a latent vector, before a set of fully-connected layers produce a set of probability distributions over the property values. Batch normalisation is applied between convolutional layers. FM is a set of feature maps, the size of each feature map is given as the tuple (\textit{height}, \textit{width}, \textit{number of feature maps}).}
   \label{fig:prop-network}
 \end{figure}
 
-The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we collate all of the objects and their properties in the dataset, resize each object to 32x32 pixels, convert each property into a one-hot encoded vector and train the network using batches of 256 objects with a learning rate of 0.001 for 2. The cross-entropy loss is calculated for each property and these are summed to give an overall loss. The cross-entropy loss between a predicted probability distribution vector $\mathbf{p} \in \mathbb{R}^K$ and a one-hot encoded classification vector $\mathbf{y} \in \mathbb{R}^K$, where $K$ is the number of classes, is as follows:
+The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we collate all of the objects and their properties in the dataset, resize each object to 32x32 pixels, convert each property into a one-hot encoded vector and train the network using batches of 256 objects with a learning rate of 0.001 for 2 epochs. The cross-entropy loss is calculated for each property and these are summed to give an overall loss. The cross-entropy loss between a predicted probability distribution vector $\mathbf{p} \in \mathbb{R}^K$ and a one-hot encoded classification vector $\mathbf{y} \in \mathbb{R}^K$, where $K$ is the number of classes, is as follows:
 \begin{equation}
   H(\mathbf{p}, \mathbf{y}) = - \sum_{c=1}^{K} y_c \text{ log}(p_c)
 \end{equation}
@@ -96,7 +96,7 @@ Firstly, we outline the types involved in the $\mathcal{AL}$ system description,
 
   \item An additional inertial fluent, $exists(\textit{$<$id$>$})$, is also required. Intuitively, it means that an object with identifier \textit{$<$id$>$} is present in the current timestep.
 
-  \item The close relation, which is written in ASP as $close(Id1, Id2)$ when an object with identifier $Id1$ is close to an object with identifier $Id2$, is considered a \textit{defined fluent}. Although they are modelled as defined fluents, their thruthiness cannot altered by the events component, since relation classification is handled by the relations component. Therefore, these fluents are copied directly across from the observed data into the $\mathcal{AL}$ model.
+  \item The close relation, which is written in ASP as $close(Id1, Id2)$ when an object with identifier $Id1$ is close to an object with identifier $Id2$, is considered a \textit{defined fluent}. Although they are modelled as defined fluents, their thruthiness cannot be altered by the events component, since relation classification is handled by the relations component. Therefore, these fluents are copied directly across from the observed data into the $\mathcal{AL}$ model.
 
   \item We add a further defined fluent, which also comes directly from the observed information. This fluent is called $disappear(\textit{$<$id$>$})$, and, naturally, means that an object with identifier \textit{$<$id$>$} disappears immediately after the current timestep.
 
