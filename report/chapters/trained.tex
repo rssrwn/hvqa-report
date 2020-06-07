@@ -11,6 +11,21 @@
 % TODO add this to property extractor discussion
 % However, since the \textbf{object} rule in the grammar may contain a property value, knowledge of object properties may be required to work out which object a question is referring to, creating a `chicken-and-egg' problem. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish (with unique rotations) in frame 12, one would need knowledge of object properties in order to select a image of a fish to train with. A model would need to be capable of overcoming this problem if it is to make full use of the dataset.
 
+In contrast to the hardcoded model, the trained H-PERL model does not use manually engineered relations or events components, and must therefore rely on using components which can be trained. The trained model also uses the QA-data version of the OceanQA dataset, rather than the full-data version which the hardcoded model was able to use to train its properties component. This means that the trained model needs to rely on the data contained in QA pairs alone to train its components.
+
+As with the hardcoded model, full performance evaluation details of the trained model and some of its components can be found in Chapter~\ref{chapter:evaluation}.
+
+
+\section{Properties}
+
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This causes a major problem when collating the training data for the properties component; the model needs a trained property extractor in order to find the images to train the property extractor with.
+
+
+\section{Relations}
+
+
+\section{Events}
+
 
 
 \end{document}
