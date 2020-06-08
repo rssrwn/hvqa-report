@@ -17,7 +17,23 @@ As with the hardcoded model, full performance evaluation details of the trained 
 
 As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This causes a major problem when collating the training data for the properties component; the model needs a trained property extractor in order to find the images to train the property extractor with.
 
-In order to overcome this problem
+In this section we propose a solution to overcome this problem which utilises semi-supervised learning in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
+
+The algorithm for finding these labels consists of the following high-level steps, which are described in further detail below:
+\begin{enumerate}
+  \item An autoencoder neural network is trained to extract a latent vector from each object image.
+  \item Each object image in the training data is encoded into a vector using the autoencoder, and, for each object class, the object vectors corresponding to that class are clustered.
+  \item For each object class, a number of objects in that class
+\end{enumerate}
+
+The first step of the algorithm for finding these labels involves training an autoencoder neural network to extract a 16-dimensional latent vector from each object image. This network is trained in an unsupervised manner using a sample of the objects detected by the object detector in the training data, where each object class is equally represented in the sample. The architecture of the network is shown in Figure~\ref{fig:ae-arch}. The network is trained with a learning rate of $0.001$ for 5 epochs.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{ae-arch}
+  \caption{An illustration of the autoencoder architecture. Although not shown here, the network contains batch normalisation layers between each pair of convolution layers. FM stands for feature maps, and the dimensions of each feature maps are given as $(\textit{height}, \textit{width}, \textit{number of feature maps})$.}
+  \label{fig:ae-arch}
+\end{figure}
 
 
 % Train the properties component in _ steps:
