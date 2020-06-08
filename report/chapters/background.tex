@@ -7,7 +7,7 @@
 \chapter{Background}
 \label{chapter:background}
 
-This chapter introduces some technical background relevent to this project. It includes an introduction to neural networks and CNNs, a comparison of some existing object tracking and object detection algorithms and a discussion on knowledge representation and reasoning and symbolic rule learning.
+This chapter introduces some technical background relevent to this project. It includes an introduction to neural networks and CNNs, a comparison of some existing object detection algorithms and a discussion on Knowledge Representation and Reasoning and symbolic rule learning.
 
 \section{Deep Learning}
 
@@ -24,11 +24,11 @@ CNNs contain three types of layers: convolution, pooling and fully connected. Un
   \label{fig:example-cnn}
 \end{figure}
 
-CNNs have proven to be adept at a number of tasks involving images, including image classification~\cite{cnn-uses:classification} and object detection~\cite{cnn-uses:yolo-v3, cnn-uses:faster-r-cnn}. We explore these further in Section~\ref{section:image-proc}.
-
 
 \section{Image Processing}
 \label{section:image-proc}
+
+Convolutional networks have proven to be adept at a number of tasks involving images, including image classification~\cite{cnn-uses:classification} and object detection~\cite{cnn-uses:yolo-v3, cnn-uses:faster-r-cnn}. This section explores the object detection task, as well as metrics for both tasks, further. Object detection forms an important component of the Hybrid VideoQA approach which we outline in Chapter~\ref{chapter:h-perl}.
 
 \subsection{Object Detection}
 
@@ -91,25 +91,10 @@ Each object detector model will output a confidence score for each object classi
 For object detection tasks, where a bounding box is produced to estimate an object's position, metrics which measure the accuracy of the detection are required. One very common metric is the Average Precision (AP), which is roughly defined as the area under the precision-recall curve (although estimates of this value are usually used and there a number of slightly different definitions). In order to assess how well a model localises an object in an image, the \textit{Intersection over Union} (IoU) is calculated between the ground-truth bounding box and the box produced by the model. The IoU between object A and object B is defined as the area of intersection between A and B divided by the area of union between A and B. Figure~\ref{fig:iou} gives a visualisation of IoU. Each IoU threshold will produce its own precision-recall curve. We use Average Precision with a number of IoU thresholds to evaluate our trained object detector in Chapter~\ref{chapter:evaluation}.
 
 
-% \subsection{Multiple Object Tracking}
-%
-% Multiple Object Tracking (MOT) is a computer vision task that aims to identify and track objects from a sequence of images without any prior knowledge about the appearance or number of targets~\cite{obj-tracking-survey}. Most object tracking methods share a very similar pipeline~\cite{obj-tracking-survey}, as follows:
-% \begin{itemize}
-%   \item \textbf{Detection}. Each input frame is analysed to identify objects.
-%
-%   \item \textbf{Feature Extraction}. Algorithms extract appearance, motion and/or interaction features from objects.
-%
-%   \item \textbf{Affinity Computation}. Features are used to compute a similarity score between objects.
-%
-%   \item \textbf{Association}. Similarity scores are used to associate detections and compute the object trajectories.
-% \end{itemize}
-%
-% The Simple Online and Realtime Tracking (SORT)~\cite{sort-obj-tracking} algorithm is one of the best performers~\cite{obj-tracking-survey}. It makes use of Faster R-CNN for object detection, the Kalman filter~\cite{kalman-filter} framework for predicting object motion, IoU as a similarity function and the Hungarian algorithm~\cite{hungarian-algo} for association. Whereas SORT attempts to track objects using motion prediction, other algorithms focus on extracting features from objects and using these to match objects in successor frames. Commonly used features include Histogram of Orientated Gradients (HOG)~\cite{hog-features}, Scale Invariant Feature Transform (SIFT)~\cite{sift} and Speeded-Up Robust Features (SURF)~\cite{surf}. More recent methods tend to use features extracted directly from a CNN.
-
-
 \section{Knowledge Representation and Reasoning}
+\chaptermark{KRR}
 
-Knowledge representation and reasoning is concerned with how intelligent agents store and manipulate their knowledge. In this section we discuss Answer Set Programming, a logic programming framework, action languages, which can be used to define the behaviour of a system, and methods for learning logical rules.
+Knowledge Representation and Reasoning (KRR) is concerned with how intelligent agents store and manipulate their knowledge. In this section we discuss: Answer Set Programming, a logic programming framework; the action language $\mathcal{AL}$, which can be used to model the behaviour of a dynamic system; and methods for learning logical rules.
 
 \subsection{Answer Set Programming}
 
@@ -117,14 +102,18 @@ Answer Set Programming (ASP) is a form of declarative logic programming that can
 
 The following templates are some of the possible forms of rules in an ASP program:
 \begin{align}
-  a \text{ :- }& b_1, ..., b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:normal}\\
-  l \{c_1;...;c_n\} u \text{ :- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:choice}\\
-  \text{:- }& b_1,...,b_k, not \text{ } b_{k+1}, ..., not \text{ } b_m. \label{asp-rule:constraint}
+  a \text{ :- }& b_1, ..., b_k. \label{asp-rule:normal}\\
+  l \{c_1;...;c_n\} u \text{ :- }& b_1,...,b_k. \label{asp-rule:choice}\\
+  \text{:- }& b_1,...,b_k. \label{asp-rule:constraint}
 \end{align}
-\noindent
-{\footnotesize Where $a$ and each $b_i$ and $c_i$ are atoms in first-order logic, $l$ and $u$ are integers.} \\
 
-The left hand side of the rule is known as the head, and the right hand side is known as the body. The $not$ in the rule body stands for negation-as-failure, which means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved to be true in an answer set. Each rule requires that when the body is satisfied - that is, when every member of the body is in an answer set - the head must be in the answer set. Rule~\ref{asp-rule:choice} is known as a \textit{choice rule}. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. The bounds can be left off, in which case they take default values of $0$ and the size of the choice set, respectively. Finally, rule~\ref{asp-rule:constraint} is known as a \textit{constraint}. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets that satisfy its body.
+Each $b_i$ and $c_i$, as well as $a$, in the above equations is known as a \textit{literal}. Literals are defined as being either a first-order logic atom, $a$, or its negation, $not$ $a$. The $not$ in the rule body stands for negation-as-failure, and means that $not$ $b_i$ will be satisfied when $b_i$ cannot be proved to be true in an answer set.
+
+The left hand side of an ASP rule is known as the head, and the right hand side is known as the body. Each rule requires that when the body is satisfied - that is, when every member of the body is in an answer set - the head must be in the answer set.
+
+Rule~\ref{asp-rule:choice} is known as a \textit{choice rule}. The bounds of a choice rule ($l$ and $u$ in Rule~\ref{asp-rule:choice}) must be integers. The head of a choice rule can be satisfied by any subset, $S$, of the atoms inside the brackets, provided $l \leq |S| \leq u$; in effect, a choice rule creates possible answer sets. The bounds can be left off, in which case they take default values of $0$ and the size of the choice set, respectively.
+
+Finally, rule~\ref{asp-rule:constraint} is known as a \textit{constraint}. The body of a constraint must not be satisfied; intuitively, a constraint rules out answer sets that satisfy its body.
 
 As well as negation as failure, ASP also has a notion of `strong negation'. The strong negation of an atom $p$ is written $\neg p$. Strong negation can be thought of as classical negation, although it does not always have the same properties. In practice, ASP solvers implement strong negation by treating $\neg p$ as an additional atom, and enforce that no answer set can contain both $p$ and $\neg p$.
 
@@ -138,9 +127,18 @@ As well as negation as failure, ASP also has a notion of `strong negation'. The 
     f.
   \end{array}
   \right\}
+  \label{eqn:asp-example}
 \end{align}
 
-As an example, the two answer sets of the above program, $P$, are $\{ f, a, p \}$ and $\{ f \}$. The final rule of the program is known as a \textit{fact}. Facts must be in all answer sets.
+As an example, the two answer sets of the program, $P$, outlined in~\ref{eqn:asp-example}, are $\{ f, a, p \}$ and $\{ f \}$. The final rule of the program is known as a \textit{fact}. Facts must be true in all answer sets.
+
+As well as finding the set of answer sets of a logic program, the ASP language can also be used to create a preference ordering between answer sets. The ASP solver is then capable of finding the most preferred answer set. Preferences are assigned to answer sets using weak constaints. The format of a weak constraint in ASP is as follows:
+\begin{equation}
+  \text{:$\sim$ } b_1,...,b_n.[w@p, t_1,...,t_m]
+  \label{asp-rule:weak-constraint}
+\end{equation}
+
+In Rule~\ref{asp-rule:weak-constraint} each $b_i$ is a literal, each $t_i$ is a term (combinations of function symbols, variables and constants), $w$ is an integer weight and $p$ is an integer priority level. When ASP optimises a weak constraint it firstly assigns each answer set with one cost accumulator for each priority level. When the body of a weak constraint is satisfied by an answer set, the constraint's term tuple $(t_1,...,t_m)$ is added to a set, and, if the term tuple was not already in the set, the weight is added to the cost accumulator for the given priority. ASP chooses the optimal answer set by minimising the cost at the highest priority level. If multiple answer sets are considered optimal ASP optimises the next highest priority level. It continues to optimise until either only one answer set remains or there are no further priority levels to optimise, at this point the optimal answer sets are returned.
 
 \subsection{The Action Language $\mathcal{AL}$}
 
