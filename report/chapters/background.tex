@@ -142,27 +142,47 @@ In Rule~\ref{asp-rule:weak-constraint} each $b_i$ is a literal, each $t_i$ is a 
 
 \subsection{The Action Language $\mathcal{AL}$}
 
-Action languages are formal models for describing the behaviour of dynamic systems. In this section we present the version of $\mathcal{AL}$ given in~\cite{krr-asp-book}. $\mathcal{AL}$'s signature contains three special sorts: \textit{statics}, \textit{fluents} and \textit{actions}. Fluents are partitioned into two sorts: \textit{inertial} and \textit{defined}. Statics and fluents are both referred to as `domain properties'. A `domain literal' is a domain property or its negation. Statements in $\mathcal{AL}$ can be of the following form:
-\begin{gather}
-  a \textbf{ causes } l_{in} \textbf{ if } p_0,...,p_m \label{al:causal} \\
-  l \textbf{ if } p_0,...,p_m \label{al:constraint} \\
-  \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
-\end{gather}
-\noindent
-{\footnotesize Where:
-\vspace{-0.5em}
-\renewcommand{\labelitemi}{$\textendash$}
+Action languages are formal models for describing the behaviour of dynamic systems. In this section we present the version of $\mathcal{AL}$ given in~\cite{krr-asp-book}. $\mathcal{AL}$'s signature contains three special sorts: \textit{statics}, \textit{fluents} and \textit{actions}. Fluents are partitioned into two sorts: \textit{inertial} and \textit{defined}. Inertial fluents are subject to the law of inertia, which means their value stays the same unless it is changed (directly or indirectly) by an action. Defined fluents are not subject to the inertia axiom and cannot be caused by an action; instead they must be defined in terms of other fluents. Statics and fluents are both referred to as `domain properties'. A `domain literal' is a domain property or its negation.
+
+$\mathcal{AL}$ models a system by a \textit{transition diagram} - a directed graph whose nodes correspond to possible states of the system and whose arcs, which are labelled by actions, correspond to possible transitions between states. The following three types of $\mathcal{AL}$ statements are used to describe the transitions of an $\mathcal{AL}$ model:
 \begin{itemize}
-  \setlength\itemsep{-0.2em}
-  \item $a$ is an action
-  \item $l$ and $p_0,...,p_m$ are domain literals
-  \item $l_{in}$ is a literal formed by an inertial fluent
-\end{itemize}}
+  \item \textit{Causal Laws}, which say that an action $a$, executed in a state satisfying domain literals $p_1,...,p_m$, causes fluent $f$ to become true in the next state of the system, take the following form:
+  \begin{equation}
+    a \textbf{ causes } l_{in} \textbf{ if } p_1,...,p_m \label{al:causal}
+  \end{equation}
+
+  \item \textit{State Constraints} say that every state which satisfies domain literals $p_1,...,p_m$ must also satisfy $f$, and take the following form:
+  \begin{equation}
+    l \textbf{ if } p_1,...,p_m \label{al:constraint}
+  \end{equation}
+
+  \item Finally, \textit{Executability Conditions} make it impossible to execute actions $a_1,...,a_k$ simultaneously in a state which satisfies the domain literals $p_1,...,p_m$. These conditions take the following form:
+  \begin{equation}
+    \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
+  \end{equation}
+\end{itemize}
+
+%
+% \begin{gather}
+%   a \textbf{ causes } l_{in} \textbf{ if } p_0,...,p_m \label{al:causal} \\
+%   l \textbf{ if } p_0,...,p_m \label{al:constraint} \\
+%   \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
+% \end{gather}
 % \noindent
-% {\footnotesize Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent.} \\
+% % {\footnotesize Where:
+% % \vspace{-0.5em}
+% % \renewcommand{\labelitemi}{$\textendash$}
+% % \begin{itemize}
+% %   \setlength\itemsep{-0.2em}
+% %   \item $a$ is an action
+% %   \item $l$ and $p_0,...,p_m$ are domain literals
+% %   \item $l_{in}$ is a literal formed by an inertial fluent
+% % \end{itemize}}
+%
+% \noindent
+% {\footnotesize \textit{Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent.}} \\
 
-Statement~\ref{al:causal} is known as a \textit{causal law}, \ref{al:constraint} as a \textit{state constraint} and \ref{al:exec} as an \textit{executability condition}. A collection of $\mathcal{AL}$ statements is known as a `system decription'. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of `domain-independent' axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}.
-
+A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in 
 \subsection{Symbolic Rule Learning}
 
 Inductive Logic Programming~\cite{ilp-intro} (ILP) is a field of symbolic AI research concerned with learning symbolic rules which, when combined with background knowledge, entail a set of positive examples and do not entail any negative examples. ILASP~\cite{ilasp-system} (Inductive Learning of Answer Set Programs) is an ILP framework for learning ASP programs.
@@ -176,7 +196,7 @@ Given an $ILP_{LAS}$ task, $T$, ILASP finds an hypothesis (an ASP program), $H$,
   \item $\forall e^- \in E^- \text{ } \nexists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^-$
 \end{enumerate}
 \noindent
-{\footnotesize Where $AS(P)$ refers to the answer sets of a program $P$.} \\
+\textit{Where $AS(P)$ refers to the answer sets of a program $P$.}
 
 Later versions of ILASP are capable of solving more complex tasks, including learning weak constraints~\cite{ilasp-wc} (a method for specifying preferences in ASP), learning from context dependent examples~\cite{ilasp-cde} and learning from noisy examples~\cite{ilasp-noisy}.
 
