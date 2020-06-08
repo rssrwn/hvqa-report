@@ -96,7 +96,7 @@ Firstly, we outline the types involved in the $\mathcal{AL}$ system description,
 
   \item An additional inertial fluent, $exists(\textit{$<$id$>$})$, is also required. Intuitively, it means that an object with identifier \textit{$<$id$>$} is present in the current timestep.
 
-  \item The close relation, which is written in ASP as $close(Id1, Id2)$ when an object with identifier $Id1$ is close to an object with identifier $Id2$, is considered a \textit{defined fluent}. Although they are modelled as defined fluents, their thruthiness cannot be altered by the events component, since relation classification is handled by the relations component. Therefore, these fluents are copied directly across from the observed data into the $\mathcal{AL}$ model.
+  \item The close relation, which is written in ASP as $close(\mathit{Id1}, \mathit{Id2})$ when an object with identifier $\mathit{Id1}$ is close to an object with identifier $\mathit{Id2}$, is considered a \textit{defined fluent}. Although they are modelled as defined fluents, their thruthiness cannot be altered by the events component, since relation classification is handled by the relations component. Therefore, these fluents are copied directly across from the observed data into the $\mathcal{AL}$ model.
 
   \item We add a further defined fluent, which also comes directly from the observed information. This fluent is called $disappear(\textit{$<$id$>$})$, and, naturally, means that an object with identifier \textit{$<$id$>$} disappears immediately after the current timestep.
 
@@ -108,38 +108,42 @@ The domain independent rules for the OceanQA environment are as outlined in Appe
   \neg holds(F, 0) \text{ :- } fluent(inertial, F), not \text{ } holds(F, 0).
 \end{equation}
 
-This rule ensures that the initial state of the system is complete for inertial fluents - all inertial fluents are either true or false. While this isn't a requirement for $\mathcal{AL}$ systems, it simplifies the rest of the model since there is no uncertainty about the system's state.
+This rule ensures that the initial state of the system is complete for inertial fluents - all inertial fluents are either true or false. With this rule in the program there is no uncertainty about the system's initial state.
 
-Finally, we outline the domain dependent $\mathcal{AL}$ statements for the OceanQA environment:
+% While this isn't a requirement for $\mathcal{AL}$ systems, it simplifies the rest of the model since there is no uncertainty about the system's state.
+
+Finally, we outline the domain dependent $\mathcal{AL}$ statements for the system:
 \begin{itemize}
   \item The \textit{move} action causes the object to move 15 pixels in the direction of rotation. This means that, in frame $i+1$, the object is no longer in the position it was in during frame $i$. We use a Python function, $new\_pos$, in the ASP program to calculate the object's next position. This function is called using the $@$ symbol. The $\mathcal{AL}$ \textit{causal laws} for the move action are the following:
   \begin{gather*}
-    move(Id) \textbf{ causes } position(@new\_pos(P, R), Id) \textbf{ if } position(P, Id), rotation(R, Id) \\
-    move(Id) \textbf{ causes } \neg position(position(P, Id)) \textbf{ if } position(P, Id)
+    move(\mathit{Id}) \textbf{ causes } position(@new\_pos(P, R), \mathit{Id}) \textbf{ if } position(P, \mathit{Id}), rotation(R, \mathit{Id}) \\
+    move(\mathit{Id}) \textbf{ causes } \neg position(position(P, \mathit{Id})) \textbf{ if } position(P, \mathit{Id})
   \end{gather*}
 
   \item $\mathcal{AL}$ causal laws follow the same pattern for both rotation actions. The Python function, $new\_rot$, is used to calculate the new rotation for the object, it takes the previous rotation and the type of rotation as arguments. In the following $\mathcal{AL}$ causal laws \textit{$<$d$>$} is used to refer to the direction of rotation:
   \begin{gather*}
-    rotate\_\textit{$<$d$>$}(Id) \textbf{ causes } rotation(@new\_rot(R, rotate\_\textit{$<$d$>$}) \textbf{ if } rotation(R, Id) \\
-    rotate\_\textit{$<$d$>$}(Id) \textbf{ causes } \neg rotation(R, Id) \textbf{ if } rotation(R, Id)
+    rotate\_\textit{$<$d$>$}(\mathit{Id}) \textbf{ causes } rotation(@new\_rot(R, rotate\_\textit{$<$d$>$}) \textbf{ if } rotation(R, \mathit{Id}) \\
+    rotate\_\textit{$<$d$>$}(\mathit{Id}) \textbf{ causes } \neg rotation(R, \mathit{Id}) \textbf{ if } rotation(R, \mathit{Id})
   \end{gather*}
 
   \item In order to ensure that objects are modelled as non-existent after they have disappeared, the following causal law is added:
   \begin{equation*}
-    move(Id) \textbf{ causes } \neg exists(Id) \textbf{ if } exists(Id), disappear(Id)
+    move(\mathit{Id}) \textbf{ causes } \neg exists(\mathit{Id}) \textbf{ if } exists(\mathit{Id}), disappear(\mathit{Id})
   \end{equation*}
 
   \item Finally, the following \textit{executability conditions} are added to reduce the size of the search space for the optimiser:
   \begin{gather*}
-    \textbf{impossible } move(Id) \textbf{ if } \neg exists(Id) \\
-    \textbf{impossible } rotate\_clockwise(Id) \textbf{ if } \neg exists(Id) \\
-    \textbf{impossible } rotate\_anticlockwise(Id) \textbf{ if } \neg exists(Id)
+    \textbf{impossible } move(\mathit{Id}) \textbf{ if } \neg exists(\mathit{Id}) \\
+    \textbf{impossible } rotate\_clockwise(\mathit{Id}) \textbf{ if } \neg exists(\mathit{Id}) \\
+    \textbf{impossible } rotate\_anticlockwise(\mathit{Id}) \textbf{ if } \neg exists(\mathit{Id})
   \end{gather*}
 \end{itemize}
 
 The use of the $exists(\textit{$<$id$>$})$ fluent is an intuitive way of encoding the knowledge that when an object disappears it no longer exists, and, if an object does not exist, it cannot participate in any actions. Without this predicate, encoding knowledge like this would be tricky because the $disappear(\textit{$<$id$>$})$ fluent appears (at most) once during the video.
 
-In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in order to model effects. Effects are defined by ASP rules with a combination of actions and $\mathcal{AL}$ fluents in the body. These rules can mostly be considered to observe the $\mathcal{AL}$ model, rather than affect it. However, an exception is made for the rules which update the octopus' colour.
+In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in order to model effects. While it is possible to create a strict $\mathcal{AL}$ model of the entire OceanQA environment, a significant simplication can be achieved by cutting a few corners.
+
+Effects can be considered to be similar to defined fluents in $\mathcal{AL}$, since, like defined fluents, they are triggered by some system state being true. Normally, for a defined fluent $f$ to be true at step $i$, a definition is given in terms of the system's state at step $i$, $\sigma_i$. However, the definitions for some effects require the entire transition $(\sigma_{i-1}, a_{i-1}, \sigma_i)$, where $a_{i-1}$ is the action which occurs at step $i-1$, to be given. For this reason we present effects using ASP rules with a combination of actions and $\mathcal{AL}$ fluents in the body. These rules can mostly be considered to compliment the $\mathcal{AL}$ model, rather than affect it. However, an exception is made for the rules which update the octopus' colour.
 
 \begin{figure}
   \centering
@@ -162,15 +166,14 @@ In the remainder of this section we diverge from $\mathcal{AL}$ orthodoxy in ord
 Firstly, for the \textit{eat a fish} (an example of which is shown in Figure~\ref{fig:eat-fish}) and \textit{eat a bag} effects, the following ASP rules are used:
 \begin{equation}
   \begin{split}
-    occurs\_effect(eat\_a\_fish(Octo), I) \text{ :- } & occurs\_action(move(Octo), I), \\
+    occurs\_\mathit{effect}(eat\_a\_fish(Octo), I) \text{ :- } & occurs\_action(move(Octo), I), \\
     & holds(class(fish, Fish), I), \\
     & holds(disappear(Fish), I).
   \end{split}
 \end{equation}
-
 \begin{equation}
   \begin{split}
-    occurs\_effect(eat\_a\_bag(Octo), I) \text{ :- } & occurs\_action(move(Octo), I), \\
+    occurs\_\mathit{effect}(eat\_a\_bag(Octo), I) \text{ :- } & occurs\_action(move(Octo), I), \\
     & holds(class(bag, Bag), I), \\
     & holds(disappear(Bag), I), \\
     & holds(disappear(Octo), I).
@@ -192,7 +195,7 @@ We also need to ensure the octopus' colour is updated when it comes close to roc
 
 We also add the following ASP rule for the \textit{change colour} effect:
 \begin{equation}
-  occurs\_effect(change\_colour(Octo), I) \text{ :- } change\_colour(Old, New, Octo, I).
+  occurs\_\mathit{effect}(change\_colour(Octo), I) \text{ :- } change\_colour(Old, New, Octo, I).
 \end{equation}
 
 Finally, the octopus' colour is updated using the follwing rules:
@@ -201,19 +204,19 @@ Finally, the octopus' colour is updated using the follwing rules:
   \neg holds(colour(Old, Id), I+1) \text{ :- } change\_colour(Old, New, Id, I). \label{eqn:neg-update-colour}
 \end{gather}
 
-Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathcal{AL}$ state, despite not being generated from $\mathcal{AL}$ statements. There are other $\mathcal{AL}$ models for the OceanQA environment (not discussed here) which do not suffer from the same problem. However, these models can be more complex, which leads to a higher probability of human error. Instead we prefer to make a slight adaption to the $\mathcal{AL}$ rules in order to allow a simpler model to be defined.
+Rules~\ref{eqn:update-colour} and~\ref{eqn:neg-update-colour} alter the $\mathcal{AL}$ state, despite not being generated from $\mathcal{AL}$ statements. While this is not strictly speaking a true $\mathcal{AL}$ model, as mentioned above it is much simpler than the alternative.
 
 
 \subsection{Action Optimisation}
 
 As we have seen, the $\mathcal{AL}$ model uses the $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ predicate to store its information, but the observed data uses $obs(\textit{$<$f$>$}, \textit{$<$i$>$})$. This distinction is by design; it separates the information (particularly that which is modelled by inertial fluents) in the two data models. However, we need some way of comparing the two models in order to find the optimal action combination.
 
-Firstly, in order to ensure that both data models start with the same information, the fluents for the initial frame in the observed data are copied over to the $\mathcal{AL}$ model. Secondly, the ASP optimisation program generates all possible action combinations and applies each combination to the $\mathcal{AL}$ model to generate the data expected from that particular set of actions. These sets of action can be generated in ASP using the following choice rule:
+Firstly, in order to ensure that both data models start with the same information, the fluents for the initial frame in the observed data are copied over to the $\mathcal{AL}$ model. Secondly, the ASP optimisation program generates all possible action combinations and applies each combination to the $\mathcal{AL}$ model to generate the data expected from that particular set of actions. These sets of action can be generated in ASP using the following rule:
 \begin{equation}
   occurs\_action(A, I) : action(A) \text{ :- } step(I+1), I >= 0.
 \end{equation}
 
-Finally, in order to give each set of actions a score, the expected data is compared with the observed data and the number of mismatched fluents is counted. In ASP a \textit{weak constraint} can be used to assign a cost to an answer set, the ASP optimiser then searches for the answer set with the lowest cost. We use the following two weak constraints to optimise the action search:
+Finally, in order to give each set of actions a score, the expected data is compared with the observed data and the number of mismatched fluents is counted. In ASP a \textit{weak constraint} can be used to assign a cost to an answer set. As explained in Chapter~\ref{chapter:background}, the ASP optimiser then searches for the answer set with the lowest cost. We use the following two weak constraints to optimise the action search:
 \begin{gather}
   \text{:$\sim$ } \neg obs(exists(Id), I), holds(exists(Id), I). [1@1, exists(Id), I] \label{eqn:exists-opt} \\
   \text{:$\sim$ } obs(F, I), \neg holds(F, I). [1@2, F, I] \label{eqn:fluent-opt}
@@ -227,16 +230,11 @@ The following two hard constraints are also applied to ensure that basic rules o
   \text{:- } \neg obs(class(octopus, Id), I), \neg occurs\_action(nothing(Id), I). \label{eqn:occurs-nothing-opt2}
 \end{gather}
 
+Rule~\ref{eqn:occurs-nothing-opt1} rules out any answer sets where, for any frame in the video, the octopus exists and participates in the \textit{nothing} action. In a similar fashion, Rule~\ref{eqn:occurs-nothing-opt2} rules out any answer sets where the octopus does not exist in a frame, but still carries out an action other than \textit{nothing}.
+
 The use of hard rather than weak constraints in Rules~\ref{eqn:occurs-nothing-opt1} and~\ref{eqn:occurs-nothing-opt2} improves the speed of the ASP optimisation. However, the weak constraints in Rules~\ref{eqn:exists-opt} and~\ref{eqn:fluent-opt} are necessary since the program must be able to deal with noisy data. If hard constraints were used instead any noise in the data could rule out all possible answer sets.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.6\textwidth]{branch-and-bound}
-  \caption{Part of an example action search tree. Each action is given as a pair of $(action\_name, timestep)$. Red crosses and dashed lines show pruned branches.}
-  \label{fig:branch-and-bound}
-\end{figure}
-
-All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. Speed is a genuine concern for this optimisation; the ASP program has to evaluate $4^{32}$ action combinations, which could take a very long time. The ASP optimiser, however, uses optimisation strategies which can decrease the total search time. These algorithms include an ASP-specific extension of the branch-and-bound algorithm~\cite{asp:branch-and-bound}, which allows the optimiser to prune branches of the search tree if the branch is provably sub-optimal. Part of an example search tree for the action optimisation is shown in Figure~\ref{fig:branch-and-bound}. For most videos in the evaluation dataset, the ASP optimisation is able to run in under 5 seconds, however, when the observed data is noisier, the algorithm has to explore many more answer sets, which takes significantly longer. This is discussed further in Chapter~\ref{chapter:evaluation}.
+All of the above rules, as well as the ASP encoding of the $\mathcal{AL}$ model and the observed data, are run in a single ASP program which attempts to find the optimal set of actions for the video. Speed is a genuine concern for this optimisation; the ASP program has to evaluate $4^{32}$ action combinations, which could take a very long time. The ASP optimiser, however, uses optimisation strategies which can decrease the total search time. These algorithms include an ASP-specific extension of the branch-and-bound algorithm~\cite{asp:branch-and-bound}, which allows the optimiser to prune branches of the search tree if the branch is provably sub-optimal. For most videos in the evaluation dataset, the ASP optimisation is able to run in under 5 seconds. However, when the observed data is noisier, the algorithm has to explore many more answer sets, which takes significantly longer. This effect can be seen in Chapter~\ref{chapter:evaluation} when additional noise is added to the output of the object detector.
 
 
 \section{Error Correction}

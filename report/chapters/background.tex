@@ -162,27 +162,7 @@ $\mathcal{AL}$ models a system by a \textit{transition diagram} - a directed gra
   \end{equation}
 \end{itemize}
 
-%
-% \begin{gather}
-%   a \textbf{ causes } l_{in} \textbf{ if } p_0,...,p_m \label{al:causal} \\
-%   l \textbf{ if } p_0,...,p_m \label{al:constraint} \\
-%   \textbf{impossible } a_0,...,a_k \textbf{ if } p_0,...,p_m \label{al:exec}
-% \end{gather}
-% \noindent
-% % {\footnotesize Where:
-% % \vspace{-0.5em}
-% % \renewcommand{\labelitemi}{$\textendash$}
-% % \begin{itemize}
-% %   \setlength\itemsep{-0.2em}
-% %   \item $a$ is an action
-% %   \item $l$ and $p_0,...,p_m$ are domain literals
-% %   \item $l_{in}$ is a literal formed by an inertial fluent
-% % \end{itemize}}
-%
-% \noindent
-% {\footnotesize \textit{Where $a$ is an action, $l$ and $p_0,...,p_m$ are domain literals and $l_{in}$ is a literal formed by an inertial fluent.}} \\
-
-A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in 
+A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in
 \subsection{Symbolic Rule Learning}
 
 Inductive Logic Programming~\cite{ilp-intro} (ILP) is a field of symbolic AI research concerned with learning symbolic rules which, when combined with background knowledge, entail a set of positive examples and do not entail any negative examples. ILASP~\cite{ilasp-system} (Inductive Learning of Answer Set Programs) is an ILP framework for learning ASP programs.
