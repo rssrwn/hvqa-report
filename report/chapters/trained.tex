@@ -15,13 +15,11 @@ As with the hardcoded model, full performance evaluation details of the trained 
 
 \section{Properties}
 
-As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This causes a major problem when collating the training data for the properties component; the model needs a trained property extractor in order to find the images to train the property extractor with.
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
 
 In this section we propose a solution to overcome this problem which utilises semi-supervised learning, in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
 
-The first step of the algorithm for finding these labels involves training an autoencoder neural network to extract a 16-dimensional latent vector from each object image. This network is trained in an unsupervised manner using a sample of 40000 of the objects detected by the object detector in the training data, where each object type is equally represented in the sample. The architecture of the network is shown in Figure~\ref{fig:ae-arch}. Each object image is resized to 16x16 pixels and the network is trained with a learning rate of $0.001$ for 5 epochs.
-
-% TODO find nicer way of 16x16
+The first step of the algorithm for finding these labels involves training an autoencoder neural network to extract a 16-dimensional latent vector from each object image. This network is trained in an unsupervised manner using a sample of 40,000 of the objects detected by the object detector in the training data, where each object type is equally represented in the sample. The architecture of the network is shown in Figure~\ref{fig:ae-arch}. Each object image is resized to 16$\mathsf{x}$16 pixels and the network is trained with a learning rate of $0.001$ for 5 epochs.
 
 \begin{figure}
   \centering
@@ -30,7 +28,7 @@ The first step of the algorithm for finding these labels involves training an au
   \label{fig:ae-arch}
 \end{figure}
 
-The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects in groups based on their class. The component then proceeds to apply the following high-level algorithm, which is described in further detail below, to each object type, $t_i$, individually:
+The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects in groups based on their class. The component then proceeds to apply the following three high-level steps, which are described in further detail below, to each object type, $t_i$, individually:
 \begin{enumerate}
   \item The vectors of the objects with type $t_i$ are clustered and each cluster is assigned an integer identifier, $c_i$.
   \item The QA pairs will label a number of the objects in the training data with some or all of their property values. ASP can be used to find a mapping from each $c_i$ to a set of property-value pairs.
@@ -39,13 +37,47 @@ The autoencoder allows the component to work with the latent vectors of objects 
 
 As mentioned above, when the property value labels have been found for all objects of all types, the property component can be trained using the same method as the hardcoded model, discussed in Chapter~\ref{chapter:hardcoded}.
 
+An analysis of the full-data version of the OceanQA dataset (where objects come fully labelled with their properties) shows that the information encoded in the latent vector of each object separates objects into distinct groups based on their properties. This makes clustering a strong candidate for explicitly separating the objects into distinct groups. The Principle Component Analysis (PCA) projection of the latent vectors for octopus and fish into 2-dimensions is shown in Figure~\ref{fig:latents}.
 
-% Train the properties component in _ steps:
-% 1. Train an autoencoder to encode object images
-% 2. Cluster the latent space separately for each class (the number of clusters is an estimate based on QA)
-% 3. Find the optimal property values for each cluster, for each class using ASP
-% 4. Label the full training dataset using: AE, cluster centres and label->property mapping
-% 5. Train the property component as if the full dataset was given (ie. same as train_from_hardcoded)
+Clustering of the object latent vectors is done using the \textit{Agglomerative Clustering} algorithm implemented by the \textit{SciKitLearn}\footnote{Available at https://scikit-learn.org/stable/modules/clustering.html} library. While many other clustering algorithms are available, Agglomerative Clustering was found to work efficiently with a large number of samples. Unlike some other clustering algorithms, however, Agglomerative Clustering requires that the number of clusters to be produced is known beforehand.
+
+% As mentioned in Chapter~\ref{chapter:dataset}, only a small number of object images are `labelled' by a QA pair. In some cases, however, objects are labelled by two
+
+\begin{figure}[t]
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{octopus-latents-rotation.png}
+    \caption{Latent space of octopus rotations.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{fish-latents-rotation.png}
+    \caption{Latent space of fish rotations.}
+  \end{subfigure}
+  \caption{2-dimensional representation of the latent space of octopus and fish images. The colours show different rotation values. Note, these property values come from the full-data version of the OceanQA dataset, not from clustering.}
+  \label{fig:latents}
+\end{figure}
+
+In order to calculate the number of clusters required for each class, we analyse the number of property values that are linked with that class in the QA pairs. For example, fish only take a single colour, silver, and so only this colour will be mentioned in the property questions that ask about fish. Additionally, fish can take four rotations, and so we expect that all four of these rotations will be mentioned in the questions. In total this gives us four possible property value combinations for fish. We repeat this process for all four object types and list the results in Table~\ref{table:property-combinations}.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |c|c c c| }
+    \hline
+    \textbf{Object Type} & \textbf{\#Colours} & \textbf{\#Rotations} & \textbf{\#Clusters} \\
+    \hline
+    Octopus & 5 & 4 & 20 \\
+    Fish    & 1 & 4 & 4 \\
+    Bag     & 1 & 4 & 4 \\
+    Rock    & 4 & 1 & 4 \\
+    \hline
+  \end{tabular}
+  \caption{Estimates of the number of clusters required for each class, based on the number of colour and rotation values found in the property questions.}
+  \label{table:property-combinations}
+\end{table}
+
+In theory, it is possible that this method of calculating the number of clusters required may underestimate, since not all property values may be mentioned in the QA pairs. In practice, however, this makes little difference because if a particular property value is not represented in the QA pairs, it is likely to be very rare in the videos and in the evaluation questions.
 
 
 \section{Relations}
