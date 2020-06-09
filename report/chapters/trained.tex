@@ -15,11 +15,11 @@ As with the hardcoded model, full performance evaluation details of the trained 
 
 \section{Properties}
 
-As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This creates a `chicken-and-egg' problem when collecting the training data; the model needs a trained property extractor in order to find the images to train the property extractor with. This means the training data cannot be collated in the same way as the hardcoded model.
 
-In this section we propose a solution to overcome this problem which utilises semi-supervised learning, in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
+In this section we propose a solution to overcome this problem which utilises semi-supervised learning in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
 
-The first step of the algorithm for finding these labels involves training an autoencoder neural network to extract a 16-dimensional latent vector from each object image. This network is trained in an unsupervised manner using a sample of 40,000 of the objects detected by the object detector in the training data, where each object type is equally represented in the sample. The architecture of the network is shown in Figure~\ref{fig:ae-arch}. Each object image is resized to 16$\mathsf{x}$16 pixels and the network is trained with a learning rate of $0.001$ for 5 epochs.
+The first step of the algorithm for finding these labels involves training an autoencoder neural network to extract a 16-dimensional latent vector from each object image. This network is trained in an unsupervised manner using a sample of 40,000 of the objects detected by the object detector in the training data, where each object type is equally represented in the sample. The architecture of the network is shown in Figure~\ref{fig:ae-arch}. Each object image is resized to 16$\mathsf{x}$16 pixels and the network is trained with a learning rate of $0.001$ for 5 epochs with a mean-absolute error (MAE) loss function.
 
 \begin{figure}
   \centering
@@ -28,14 +28,18 @@ The first step of the algorithm for finding these labels involves training an au
   \label{fig:ae-arch}
 \end{figure}
 
-The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects in groups based on their class. The component then proceeds to apply the following three high-level steps, which are described in further detail below, to each object type, $t_i$, individually:
+The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects in groups based on their class. The component then proceeds to individually apply the following three high-level steps, which are described in further detail in the sections below, to each object type, $t_i$:
 \begin{enumerate}
-  \item The vectors of the objects with type $t_i$ are clustered and each cluster is assigned an integer identifier, $c_i$.
-  \item The QA pairs will label a number of the objects in the training data with some or all of their property values. ASP can be used to find a mapping from each $c_i$ to a set of property-value pairs.
-  \item Once this mapping is known, all of the objects of type $t_i$ in the training data can be labelled. The algorithm for finding these labels is outlined below.
+  \item The objects with type $t_i$ are clustered using their latent encoding and each cluster is assigned an integer identifier, $c_j$. More detail on the clustering is outlined in Section~\ref{subsection:trained-clustering}.
+  \item The QA pairs will label a number of the objects in the training data with some or all of their property values. ASP can be used to find a mapping from each $c_j$ to a set of property-value pairs. The ASP program used to conduct this mapping is described in Section~\ref{subsection:trained-mapping-optimisaton}.
+  \item Once this mapping is known, all of the objects of type $t_i$ in the training data can be labelled. The algorithm for finding these labels is outlined in Section~\ref{subsection:trained-data-labelling}.
 \end{enumerate}
 
 As mentioned above, when the property value labels have been found for all objects of all types, the property component can be trained using the same method as the hardcoded model, discussed in Chapter~\ref{chapter:hardcoded}.
+
+
+\subsection{Clustering}
+\label{subsection:trained-clustering}
 
 An analysis of the full-data version of the OceanQA dataset (where objects come fully labelled with their properties) shows that the information encoded in the latent vector of each object separates objects into distinct groups based on their properties. This makes clustering a strong candidate for explicitly separating the objects into distinct groups. The Principle Component Analysis (PCA) projection of the latent vectors for octopus and fish into 2-dimensions is shown in Figure~\ref{fig:latents}.
 
@@ -57,8 +61,6 @@ Clustering of the object latent vectors is done using the \textit{Agglomerative 
   \label{fig:latents}
 \end{figure}
 
-In order to calculate the number of clusters required for each class, we analyse the number of property values that are linked with that class in the QA pairs. For example, fish only take a single colour, silver, and so only this colour will be mentioned in the property questions that ask about fish. Additionally, fish can take four rotations, and so we expect that all four of these rotations will be mentioned in the questions. In total this gives us four possible property value combinations for fish. We repeat this process for all four object types and list the results in Table~\ref{table:property-combinations}.
-
 \begin{table}[h!]
   \centering
   \begin{tabular}{ |c|c c c| }
@@ -75,26 +77,34 @@ In order to calculate the number of clusters required for each class, we analyse
   \label{table:property-combinations}
 \end{table}
 
+In order to calculate the number of clusters required for each class, we analyse the number of property values that are linked with that class in the QA pairs. For example, fish only take a single colour, silver, and so only this colour will be mentioned in the property questions that ask about fish. Additionally, fish can take four rotations, and so we expect that all four of these rotations will be mentioned in the questions. In total this gives us four possible property value combinations for fish. We repeat this process for all four object types and list the results in Table~\ref{table:property-combinations}.
+
 In theory, it is possible that this method of calculating the number of clusters required may underestimate, since not all property values may be mentioned in the QA pairs. In practice, however, this makes little difference because if a particular property value is not represented in the QA pairs it is likely to be very rare in the videos and in the evaluation questions.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\textwidth]{octopus-clusters.png}
+  \includegraphics[width=0.75\textwidth]{octopus-clusters.png}
   \caption{Output of the Agglomerative Clustering algorithm for the octopus images.}
   \label{fig:octopus-clusters}
 \end{figure}
 
-Figure~\ref{octopus-clusters} shows the result of the clustering algorithm applied to the octopus images, projected into two dimensions. After clustering has been completed for a given class, we assign each cluster (each different colour shown in Figure~\ref{fig:octopus-clusters}) an integer identifier. The data collection problem outlined at the start of this chapter has now been reduced to finding the mapping from each cluster identifier to a set of property-value pairs, which optimises some objective function, for each object type $t_i$. For example, for a cluster $c_i$, we want to find the optimal values for colour and rotation which correspond to $c_i$. We denote the optimal mapping from the set of cluster identifiers $C$ to the set of sets of property-value pairs $P$, for object type $t_i$ as $f_{t_i}^*: C \rightarrow P$.
+Figure~\ref{octopus-clusters} shows the result of the clustering algorithm applied to the octopus images, projected into two dimensions. After clustering has been completed for a given class, we assign each cluster (each different colour shown in Figure~\ref{fig:octopus-clusters}) an integer identifier. The data collection problem outlined at the start of this chapter has now been reduced to finding the mapping from each cluster identifier to a set of property-value pairs, which optimises some objective function, for each object type $t_i$. For example, for a cluster $c_j$, we want to find the optimal values for colour and rotation which correspond to $c_j$. We denote the optimal mapping from the set of cluster identifiers $C$ to the set of sets of property-value pairs $P$, for object type $t_i$ as $f_{t_i}^*: C \rightarrow P$.
+
+
+\subsection{Property Value Optimisation}
+\label{subsection:trained-mapping-optimisaton}
 
 In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $k$ as $(p_k, v_k, a_k)$, where $p_k$ is the property mentioned in the question (or $Null$ if there isn't one), $v_k$ is an optional property value mentioned in the question and $a_k$ is the answer, which is a property value.
 
 ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following five stages:
 \begin{enumerate}
-  \item Firstly, the search space for the optimisation is constructed using choice rules. For each cluster identifier $c_i$, the following two choice rules are added:
+  \item Firstly, the search space for the optimisation is constructed using choice rules. For each cluster identifier $c_j$, the following two choice rules are added:
   \begin{gather}
-    1\{ colour\_mapping(c_i, col_1) ; ... ; colour\_mapping(c_i, col_n) \}1. \\
-    1\{ rotation\_mapping(c_i, rot_1) ; ... ; rotation\_mapping(c_i, rot_m) \}1.
+    1\{ colour\_mapping(c_j, col_1) ; ... ; colour\_mapping(c_j, col_n) \}1. \\
+    1\{ rotation\_mapping(c_j, rot_1) ; ... ; rotation\_mapping(c_j, rot_m) \}1.
   \end{gather}
+  \textit{Where the set of possible colour values is: $\{col_1,...,col_n\}$ and the set of possible rotation values is: $\{rot_1,...,rot_m\}$.}
+
   These choice rules generate one answer set for each possible combination of property-value pairs. Notice that no attempt has been made to restrict the property-value pairs to those which were used to select the number of clusters, since the ASP optimisation will naturally choose the property-value pairs which answer the most questions correctly.
 
   \item Secondly, for each QA pair, the object data from the frame given in the question is added to the program. Only the objects with type $t_i$ are added. For example, if a question says ``What colour was the leftward-facing fish in frame 23?" and three fish have been detected in frame 23, then only the information for those three fish are listed in the program (fish from other questions will of course be listed in the same program).
@@ -104,7 +114,7 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
     obj(id, c_i, \textit{$<$k$>$}).
   \end{equation}
 
-  \item A number of helper ASP rules which convert convert object data in the form of the $obj$ and $\textit{$<$prop$>$}\_mapping$ predicates into the $holds$ predicate which is used to answer the questions. These two helper rules are as follows:
+  \item A number of helper ASP rules which convert object data in the form of the $obj$ and $\textit{$<$prop$>$}\_mapping$ predicates into the $holds$ predicate, which is used to answer the questions. These two helper rules are as follows:
   \begin{gather}
     holds(colour(\mathit{Val}, \mathit{Id}), Q) :- \begin{multlined}[t]
       obj(\mathit{Id}, Cluster, Q), \\
@@ -153,11 +163,11 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
     expected(\textit{$<$k$>$}, p_k, a_k).
   \end{gather}
 
-  \item The final part of the ASP program is the set of weak constraints used to find the optimal mapping. Firstly we define the helper rule, $mapping$, which is used to collate both the colour and rotation property values for each cluster identifier:
+  \item The final part of the ASP program is the set of weak constraints used to find the optimal mapping. We firstly define the helper rule, $mapping$, which is used to collate both the colour and rotation property values for each cluster:
   \begin{equation}
-    mapping(\mathit{Cluster}, \mathit{Col}, \mathit{Rot}) \text{ :- } \begin{multlined}[t]
-      colour\_mapping(\mathit{Cluster}, \mathit{Col}), \\
-      rotation\_mapping(\mathit{Cluster}, \mathit{Rot}).
+    mapping(\mathit{C}, \mathit{Col}, \mathit{Rot}) \text{ :- } \begin{multlined}[t]
+      colour\_mapping(\mathit{C}, \mathit{Col}), \\
+      rotation\_mapping(\mathit{C}, \mathit{Rot}).
     \end{multlined}
   \end{equation}
 
@@ -174,10 +184,29 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
 
   Rule~\ref{rule:mapping-constraint}, on the other hand, says that we prefer answer sets where mappings are unique. This rule could also be used as a hard constraint to rule out any answer sets where the mappings are not unique. However, we choose not to enforce this constraint so that the ASP optimiser could choose an answer set where more questions are answered correctly, at the expense of non-unique mappings. The reason for this decision is the following:
   \begin{displayquote}
-    If a group of objects with the same property values is split between two or more clusters, and these objects are commonly asked about in the QA pairs, then the ASP optimiser has the ability to assign multiple object clusters with the same property values, if it leads to a larger number of questions being answered correctly.
+    If a group of objects with the same property values is split between two or more clusters, and these objects are commonly asked about in the QA pairs, then the ASP optimiser has the ability to assign multiple object clusters to the same property values, if it leads to a larger number of questions being answered correctly.
   \end{displayquote}
   We therefore always try to ensure whatever rules the model learns it learns them in order to maximise the number of questions answered correctly. Hence, Rule~\ref{rule:answer-constraint} is given the highest priority.
 \end{enumerate}
+
+The ASP program is run for each object type $t_i$, and $\textit{$<$prop$>$}_mapping$ predicates contained in the optimal answer set in each case are then used to find the optimal mapping $f_{t_i}^*$, which is then stored and used to label all objects in the training data.
+
+
+\subsection{Data Labelling}
+\label{subsection:trained-data-labelling}
+
+Once $f_{t_i}^*$ has been found for every object type $t_i$, all of the objects in the training data can be labelled with property values. Labelling an object's property values requires that the centre point of each cluster be computed. For the sake of efficiency, the cluster centres are precomputed for each object type. The centre for a cluster $c_j$ is computed as the average of the object latent vectors assigned to $c_j$.
+
+After clusters centres have been computed, we assign property values to an object $obj_k$ with type $t_i$ as follows:
+\begin{enumerate}
+  \item The object's image is encoded into a latent vector, $v_k$, using the autoencoder.
+  \item For each cluster $c_j$ which corresponds to object type $t_i$, we compute the cosine distance between $v$ and the centre of $c_j$. The object is assigned to the cluster with the smallest distance, which we denote $c^*$.
+  \item Using the mapping found by the ASP optimisation for object type $t_i$, we can simply look up the optimal set of property values that correspond to $c^*$.
+\end{enumerate}
+
+Using this method, property values can be assigned to all detected objects in the training videos using only each object's image. After property values have been assigned, we train the property component in exactly the same way as Chapter~\ref{chapter:hardcoded}.
+
+Although the method for training the property component outlined in this Section works well when objects are simple and uniform, it is unlikely to scale to more complex, \textit{real-world} datasets. This is because, when training an autoencoder in an unsupervised way, it can learn to extract a lot of noise from the images, since its only goal is to minimise the mean-absolute difference between the object image and the network's output.
 
 
 \section{Relations}
