@@ -220,13 +220,13 @@ Each of these networks is assigned a binary relation, $r$, to learn. Each networ
 
 % The output of a network learning relation $r$, which we denote $o_r$, is therefore a single number between $0$ and $1$
 
-% Since fully-connected layers work with numbers, rather than symbolic data, we need to find a way to encode a pair of objects into a vector. To do this we encode each object in the pair separately and then concatenate the two encodings together. The encoding of an object $o_i$ is the result of concatentating each of the following:
-% \begin{enumerate}
-%   \item A one-hot encoding of the type of $o_i$.
-%   \item The position tuple for $o_i$, where each coordinate has been divided by 256 to produce a number of between 0 and 1.
-%   \item A one-hot encoding of $o_i$'s colour.
-%   \item A one-hot encoding of $o_i$'s position.
-% \end{enumerate}
+Since fully-connected layers work with numbers, rather than symbolic data, we need to find a way to encode a pair of objects into a vector. To do this we encode each object in the pair separately and then concatenate the two encodings together. The encoding of an object $o_i$ is the result of concatentating each of the following:
+\begin{enumerate}
+  \item A one-hot encoding of the type of $o_i$.
+  \item The position tuple for $o_i$, where each coordinate has been divided by 256 to produce a number of between 0 and 1.
+  \item A one-hot encoding of $o_i$'s colour.
+  \item A one-hot encoding of $o_i$'s position.
+\end{enumerate}
 
 
 
