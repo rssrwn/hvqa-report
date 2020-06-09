@@ -101,25 +101,25 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
   \begin{gather}
     answer(\textit{$<$i$>$}, p_i, V) \text{ :- } \begin{multlined}[t]
       holds(p_{v_i}(v_i, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+      holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
     \end{multlined} \\
     answer(\textit{$<$i$>$}, p_{v_i}, V) \text{ :- } \begin{multlined}[t]
       holds(p_{v_i}(V, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(p_i(v_i, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+      holds(p_i(v_i, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
     \end{multlined} \\
     expected(\textit{$<$i$>$}, p_i, a_i). \\
     expected(\textit{$<$i$>$}, p_{v_i}, v_i).
   \end{gather}
 
-  For example, the question ``What colour is the downward-facing bag in frame 7?" and answer ``white", would be converted into the following ASP rules and facts:
+  For example, the question ``What colour is the downward-facing bag in frame 7?" and answer ``white", would be converted into the following:
   \begin{gather}
     answer(\textit{$<$i$>$}, colour, V) \text{ :- } \begin{multlined}[t]
       holds(rotation(down, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(colour(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+      holds(colour(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
     \end{multlined} \\
     answer(\textit{$<$i$>$}, rotation, V) \text{ :- } \begin{multlined}[t]
       holds(rotation(V, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(colour(white, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+      holds(colour(white, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
     \end{multlined} \\
     expected(\textit{$<$i$>$}, colour, white). \\
     expected(\textit{$<$i$>$}, rotation, down).
@@ -127,9 +127,17 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
 
   Two rules are created for questions where $v_i$ is not $Null$ because the question gives away two pieces of information: the colour and the rotation. However, when $v_i$ is $Null$, the following ASP rule and fact are used:
   \begin{gather}
-    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}). \\
+    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}). \\
     expected(\textit{$<$i$>$}, p_i, a_i).
   \end{gather}
+
+  % TODO Add obj(Id, Label, Question) predicate description (may want to put this above since obj is used above)
+
+  % TODO Add mapping rules
+
+  % TODO Add optimisation rules
+
+  % TODO update number in intro to this list
 \end{itemize}
 
 
