@@ -88,8 +88,8 @@ Figure~\ref{octopus-clusters} shows the result of the clustering algorithm appli
 
 In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $k$ as $(p_k, v_k, a_k)$, where $p_k$ is the property mentioned in the question (or $Null$ if there isn't one), $v_k$ is an optional property value mentioned in the question and $a_k$ is the answer, which is a property value.
 
-ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following TODO stages:
-\begin{itemize}
+ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following five stages:
+\begin{enumerate}
   \item Firstly, the search space for the optimisation is constructed using choice rules. For each cluster identifier $c_i$, the following two choice rules are added:
   \begin{gather}
     1\{ colour\_mapping(c_i, col_1) ; ... ; colour\_mapping(c_i, col_n) \}1. \\
@@ -153,12 +153,31 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
     expected(\textit{$<$k$>$}, p_k, a_k).
   \end{gather}
 
-  % TODO Add mapping rules
+  \item The final part of the ASP program is the set of weak constraints used to find the optimal mapping. Firstly we define the helper rule, $mapping$, which is used to collate both the colour and rotation property values for each cluster identifier:
+  \begin{equation}
+    mapping(\mathit{Cluster}, \mathit{Col}, \mathit{Rot}) \text{ :- } \begin{multlined}[t]
+      colour\_mapping(\mathit{Cluster}, \mathit{Col}), \\
+      rotation\_mapping(\mathit{Cluster}, \mathit{Rot}).
+    \end{multlined}
+  \end{equation}
 
-  % TODO Add optimisation rules
+  The weak constraints are then defined as follows:
+  \begin{gather}
+    \text{:$\sim$ } answer(Q, \mathit{Prop}, \mathit{Val}), expected(Q, \mathit{Prop}, \mathit{Val}). [-1@2, Q, \mathit{Prop}, \mathit{Val}] \label{rule:answer-constraint} \\
+    \text{:$\sim$ } \begin{multlined}[t]
+      mapping(\mathit{C1}, \mathit{Col}, \mathit{Rot}), mapping(\mathit{C2}, \mathit{Col}, \mathit{Rot}), \\
+      \mathit{C1} \text{ != } \mathit{C2}. [1@1, \mathit{C1}, \mathit{C2}, \mathit{Col}, \mathit{Rot}]
+    \end{multlined} \label{rule:mapping-constraint}
+  \end{gather}
 
-  % TODO update number in intro to this list
-\end{itemize}
+  The body of Rule~\ref{rule:answer-constraint} is satisfied when question $Q$ is answered correctly. Since we are looking to maximise the number of questions answered correctly and ASP always minimises weak constraints, we give this rule a negative weight. This rule is given the higher priority of the two.
+
+  Rule~\ref{rule:mapping-constraint}, on the other hand, says that we prefer answer sets where mappings are unique. This rule could also be used as a hard constraint to rule out any answer sets where the mappings are not unique. However, we choose not to enforce this constraint so that the ASP optimiser could choose an answer set where more questions are answered correctly, at the expense of non-unique mappings. The reason for this decision is the following:
+  \begin{displayquote}
+    If a group of objects with the same property values is split between two or more clusters, and these objects are commonly asked about in the QA pairs, then the ASP optimiser has the ability to assign multiple object clusters with the same property values, if it leads to a larger number of questions being answered correctly.
+  \end{displayquote}
+  We therefore always try to ensure whatever rules the model learns it learns them in order to maximise the number of questions answered correctly. Hence, Rule~\ref{rule:answer-constraint} is given the highest priority.
+\end{enumerate}
 
 
 \section{Relations}
