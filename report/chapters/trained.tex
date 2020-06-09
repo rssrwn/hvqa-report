@@ -86,7 +86,7 @@ In theory, it is possible that this method of calculating the number of clusters
 
 Figure~\ref{octopus-clusters} shows the result of the clustering algorithm applied to the octopus images, projected into two dimensions. After clustering has been completed for a given class, we assign each cluster (each different colour shown in Figure~\ref{fig:octopus-clusters}) an integer identifier. The data collection problem outlined at the start of this chapter has now been reduced to finding the mapping from each cluster identifier to a set of property-value pairs, which optimises some objective function, for each object type $t_i$. For example, for a cluster $c_i$, we want to find the optimal values for colour and rotation which correspond to $c_i$. We denote the optimal mapping from the set of cluster identifiers $C$ to the set of sets of property-value pairs $P$, for object type $t_i$ as $f_{t_i}^*: C \rightarrow P$.
 
-In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $i$ as $(p, v, t, a)_i$, where $p$ is the property mentioned in the question (or $Null$ if there isn't one), $v$ is an optional property value mentioned in the question, $t$ is the object type mentioned in the question and $a$ is the answer, which is a property value.
+In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $k$ as $(p_k, v_k, a_k)$, where $p_k$ is the property mentioned in the question (or $Null$ if there isn't one), $v_k$ is an optional property value mentioned in the question and $a_k$ is the answer, which is a property value.
 
 ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following TODO stages:
 \begin{itemize}
@@ -97,41 +97,47 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
   \end{gather}
   These choice rules generate one answer set for each possible combination of property-value pairs. Notice that no attempt has been made to restrict the property-value pairs to those which were used to select the number of clusters, since the ASP optimisation will naturally choose the property-value pairs which answer the most questions correctly.
 
-  \item Secondly, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. For the tuple $(p_i, v_i, t_i, a_i)_{\textit{$<$i$>$}}$ extracted by the question and answer parsing component from the $i^{th}$ QA pair, the following rule and fact are added if $v_i$ is not $Null$, where $p_{v_i}$ is the property which corresponds to property value $v_i$:
+  \item Secondly, for each QA pair, the object data from the frame given in the question is added to the program. Only the objects with type $t_i$ are added. For example, if a question says ``What colour was the leftward-facing fish in frame 23?" and three fish have been detected in frame 23, then only the information for those three fish are listed in the program (fish from other questions will of course be listed in the same program).
+
+  Each of the objects to be added will be given an integer identifier, this identifier is unrelated to the identifier assigned by the tracking component. Each object is also listed with the cluster identifier that it was assigned to. For each object listed in QA pair \textit{$<$k$>$}, which is part of cluster $c_i$ and has identifier $id$, the following predicate is added to the ASP program:
+  \begin{equation}
+    obj(id, c_i, \textit{$<$k$>$}).
+  \end{equation}
+
+  \item Next, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. We firstly find the tuples $(p_k, v_k, a_k)$ which correspond to the object type $t_i$ and are extracted by the question and answer parsing component from the $\textit{$<$k$>$}^{th}$ QA pair. The following rule and fact are then added if $v_k$ is not $Null$:
   \begin{gather}
-    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } \begin{multlined}[t]
-      holds(p_{v_i}(v_i, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
+    answer(\textit{$<$k$>$}, p_k, V) \text{ :- } \begin{multlined}[t]
+      holds(p_{v_k}(v_k, \mathit{Id}), \textit{$<$k$>$}), \\
+      holds(p_k(V, \mathit{Id}), \textit{$<$k$>$}), obj(\mathit{Id}, \_, \textit{$<$k$>$}).
     \end{multlined} \\
-    answer(\textit{$<$i$>$}, p_{v_i}, V) \text{ :- } \begin{multlined}[t]
-      holds(p_{v_i}(V, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(p_i(v_i, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
+    answer(\textit{$<$k$>$}, p_{v_k}, V) \text{ :- } \begin{multlined}[t]
+      holds(p_{v_k}(V, \mathit{Id}), \textit{$<$k$>$}), \\
+      holds(p_k(v_k, \mathit{Id}), \textit{$<$k$>$}), obj(\mathit{Id}, \_, \textit{$<$k$>$}).
     \end{multlined} \\
-    expected(\textit{$<$i$>$}, p_i, a_i). \\
-    expected(\textit{$<$i$>$}, p_{v_i}, v_i).
+    expected(\textit{$<$k$>$}, p_k, a_k). \\
+    expected(\textit{$<$k$>$}, p_{v_k}, v_k).
   \end{gather}
+  \textit{Where $p_{v_k}$ is the property which corresponds to property value $v_k$.}
 
   For example, the question ``What colour is the downward-facing bag in frame 7?" and answer ``white", would be converted into the following:
   \begin{gather}
-    answer(\textit{$<$i$>$}, colour, V) \text{ :- } \begin{multlined}[t]
-      holds(rotation(down, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(colour(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
+    answer(\textit{$<$k$>$}, colour, V) \text{ :- } \begin{multlined}[t]
+      holds(rotation(down, \mathit{Id}), \textit{$<$k$>$}), \\
+      holds(colour(V, \mathit{Id}), \textit{$<$k$>$}), obj(\mathit{Id}, \_, \textit{$<$k$>$}).
     \end{multlined} \\
-    answer(\textit{$<$i$>$}, rotation, V) \text{ :- } \begin{multlined}[t]
-      holds(rotation(V, \mathit{Id}), \textit{$<$i$>$}), \\
-      holds(colour(white, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}).
+    answer(\textit{$<$k$>$}, rotation, V) \text{ :- } \begin{multlined}[t]
+      holds(rotation(V, \mathit{Id}), \textit{$<$k$>$}), \\
+      holds(colour(white, \mathit{Id}), \textit{$<$k$>$}), obj(\mathit{Id}, \_, \textit{$<$k$>$}).
     \end{multlined} \\
-    expected(\textit{$<$i$>$}, colour, white). \\
-    expected(\textit{$<$i$>$}, rotation, down).
+    expected(\textit{$<$k$>$}, colour, white). \\
+    expected(\textit{$<$k$>$}, rotation, down).
   \end{gather}
 
-  Two rules are created for questions where $v_i$ is not $Null$ because the question gives away two pieces of information: the colour and the rotation. However, when $v_i$ is $Null$, the following ASP rule and fact are used:
+  Two rules are created for questions where $v_k$ is not $Null$ because the question gives away two pieces of information: the colour and the rotation. However, when $v_k$ is $Null$, the following ASP rule and fact are used instead:
   \begin{gather}
-    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \_, \textit{$<$i$>$}). \\
-    expected(\textit{$<$i$>$}, p_i, a_i).
+    answer(\textit{$<$k$>$}, p_k, V) \text{ :- } holds(p_k(V, \mathit{Id}), \textit{$<$k$>$}), obj(\mathit{Id}, \_, \textit{$<$k$>$}). \\
+    expected(\textit{$<$k$>$}, p_k, a_k).
   \end{gather}
-
-  % TODO Add obj(Id, Label, Question) predicate description (may want to put this above since obj is used above)
 
   % TODO Add mapping rules
 
