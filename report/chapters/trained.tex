@@ -242,6 +242,7 @@ The neural network takes the vector encoding of the pair of objects as input and
   		false & \mbox{otherwise}
   	\end{array}
   \right.
+  \label{eqn:trained-close-def}
 \end{equation}
 
 \begin{table}[b]
@@ -267,6 +268,16 @@ Since the OceanQA dataset has only a single binary relation, \textit{close}, onl
   \item The frame number and object information is used to look up any missing property values for each object. The property component has already been applied to the dataset, so the property values of all detected objects are guaranteed to be labelled. The full set of property values, as well as the object type and position from the detector, is used to construct the object encoding. The two encodings are concatenated to produce the object-pair encoding.
   \item Finally, the set of object-pair encodings, and their associated answers, is used to train the network corresponding to the \textit{close} relation.
 \end{enumerate}
+
+After the network has been trained, the component can be used to classifier binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored.
+
+% \begin{equation}
+%   obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$}).
+% \end{equation}
+
+For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
+
+Applying the network to every pair of objects in every frame of a video could become a burden on the speed of the relations component, especially when there are many objects in each frame. Batching pairs of objects together when applying them to the network helps to improve efficiency, but it has its limits. Chapter~\ref{chapter:evaluation} shows that the relations component is the second slowest, after the detector, of all the components in the trained model. However, for the purposes of this project, the relations component is fast enough. Chapter~\ref{chapter:evaluation} also shows the full details of this components performance with perfect inputs.
 
 
 \section{Events}
