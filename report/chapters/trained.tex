@@ -206,7 +206,9 @@ After clusters centres have been computed, we assign property values to an objec
 
 Using this method, property values can be assigned to all detected objects in the training videos using only each object's image. After property values have been assigned, we train the property component in exactly the same way as Chapter~\ref{chapter:hardcoded}.
 
-Although the method for training the property component outlined in this Section works well when objects are simple and uniform, it is unlikely to scale to more complex, \textit{real-world} datasets. This is because, when training an autoencoder in an unsupervised way, it can learn to extract a lot of noise from the images, since its only goal is to minimise the mean-absolute difference between the object image and the network's output.
+Although the method for training the property component outlined in this section works well when objects are simple and uniform, it is unlikely to scale to more complex, \textit{real-world} datasets. This is because, when training an autoencoder in an unsupervised way, it can learn to extract a lot of noise from the images. When the latent vectors of object images are noisy, clustering will not be as successful in splitting the objects into groups based on their property values.
+
+The speed of the optimisation may also be a concern if the number of property values is large, since the size of the search space scales exponentionally with the average number of property values. However, for the purposes of the OceanQA dataset neither of these potential drawbacks causes any problems. The details of the evaluation of the trained property component, along with the entire trained model, is available in Chapter~\ref{chapter:evaluation}.
 
 
 \section{Relations}
