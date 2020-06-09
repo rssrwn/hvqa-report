@@ -213,7 +213,7 @@ The speed of the optimisation may also be a concern if the number of property va
 
 \section{Relations}
 
-Unlike the relations component in the hardcoded model, which used a manually engineered algorithm, the relations component in the trained model must learn definitions of binary relations between objects from data. As with the trained properties component outlined above, the relations component uses the QA-data version of the OceanQA dataset.
+Unlike the relations component in the hardcoded model, which used a manually engineered algorithm, the relations component in the trained model must learn definitions of binary relations between objects from data. As with the trained properties component outlined above, the relations component uses the QA-data version of the OceanQA dataset. Before the relations component is trained, the trained properties component is used to label all of the objects in the training data with property values.
 
 Instead of using manually engineered functions, we opt to use a neural network consisting of fully-connected layers as the core implementation of the relations component. For a generic environment, one neural network would be created for each binary relation, however, since OceanQA only has one relation, only one network is required for this component.
 Each of these networks is assigned a binary relation, $r$, to learn. Each network therefore takes a pair of objects as input, and learns to classify the objects as either being related by $r$ or not.
@@ -233,9 +233,7 @@ Since fully-connected layers work with numbers, rather than symbolic data, we ne
   \label{fig:encoding}
 \end{figure}
 
-% The output of a network learning relation $r$, which we denote $o_r$, is therefore a single number between $0$ and $1$
-
-The neural network takes the vector encoding of the pair of objects as input and passes this vector through a series of fully-connected layers. The details of the layers are shown in Table~\ref{table:relations-network}. As shown in the table, the output of the network is a single neuron. The sigmoid function is applied to the output of the network to ensure the value is between $0$ and $1$. If the value of the output of a network learning relation $r$ is denoted $o_r$, then the component's output for a pair of objects, denoted $r(\mathit{obj1}, \mathit{obj2})$, is as follows:
+The neural network takes the vector encoding of the pair of objects as input and passes this vector through a series of fully-connected layers. The details of the layers are shown in Table~\ref{table:relations-network}. As shown in the table, the output of the network is a single neuron. The sigmoid function is applied to the output of the network to ensure the value is between $0$ and $1$. If the value of the output of a network learning relation $r$ is denoted $o_r$, then the relation classifier component's output for a pair of objects, denoted $r(\mathit{obj1}, \mathit{obj2})$, is as follows:
 \begin{equation}
   r(\mathit{obj1}, \mathit{obj2}) =
   \left\{
@@ -258,10 +256,17 @@ The neural network takes the vector encoding of the pair of objects as input and
     Fully-connected 4 & 64   & 1    \\
     \hline
   \end{tabular}
-  \caption{Details of the layers of each relation classification network. The input is the size of two encoded objects, and the output is used for binary classification.}
+  \caption{Details of the layers of each relation classification network. The input is the size of two encoded objects, and the output is used for binary classification. Dropout of $0.2$ is also applied between each pair of layers.}
   \label{table:relations-network}
 \end{table}
 
+Since the OceanQA dataset has only a single binary relation, \textit{close}, only one neural network is required to be trained for the relation component. Training this network is fairly straightforward; the process is comprised of the following steps:
+\begin{enumerate}
+  \item All of the relation questions in the QA-data version of the training dataset are collated.
+  \item From each QA pair, a frame number, two objects (including types and, optionally, property values) and the answer are extracted using the question-and-answer parsing component.
+  \item The frame number and object information is used to look up any missing property values for each object. The property component has already been applied to the dataset, so the property values of all detected objects are guaranteed to be labelled. The full set of property values, as well as the object type and position from the detector, is used to construct the object encoding. The two encodings are concatenated to produce the object-pair encoding.
+  \item Finally, the set of object-pair encodings, and their associated answers, is used to train the network corresponding to the \textit{close} relation.
+\end{enumerate}
 
 
 \section{Events}
