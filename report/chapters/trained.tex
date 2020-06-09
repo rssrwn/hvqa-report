@@ -79,18 +79,58 @@ In theory, it is possible that this method of calculating the number of clusters
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.6\textwidth]{octopus-clusters.png}
-  \caption{TODO}
+  \includegraphics[width=0.7\textwidth]{octopus-clusters.png}
+  \caption{Output of the Agglomerative Clustering algorithm for the octopus images.}
   \label{fig:octopus-clusters}
 \end{figure}
 
-Figure~\ref{octopus-clusters} shows the result of the clustering algorithm applied to the octopus images, projected into two dimensions. After clustering has been completed for a given class, we assign each cluster (each different colour shown in Figure~\ref{fig:octopus-clusters}) an integer identifier. The data collection problem outlined at the start of this chapter has now been reduced to finding the mapping from each cluster identifier to a set of property-value pairs, which optimises some objective function, for each object type $t_i$. For example, for a cluster $c_i$, we want to find the optimal values for colour and rotation which correspond to $c_i$. We denote the optimal mapping from the set of cluster identifiers $C$ to the set of property-value pairs $P$, for object type $t_i$ as $f_{t_i}^*: C \rightarrow P$.
+Figure~\ref{octopus-clusters} shows the result of the clustering algorithm applied to the octopus images, projected into two dimensions. After clustering has been completed for a given class, we assign each cluster (each different colour shown in Figure~\ref{fig:octopus-clusters}) an integer identifier. The data collection problem outlined at the start of this chapter has now been reduced to finding the mapping from each cluster identifier to a set of property-value pairs, which optimises some objective function, for each object type $t_i$. For example, for a cluster $c_i$, we want to find the optimal values for colour and rotation which correspond to $c_i$. We denote the optimal mapping from the set of cluster identifiers $C$ to the set of sets of property-value pairs $P$, for object type $t_i$ as $f_{t_i}^*: C \rightarrow P$.
 
-In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly.
+In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $i$ as $(p, v, t, a)_i$, where $p$ is the property mentioned in the question (or $Null$ if there isn't one), $v$ is an optional property value mentioned in the question, $t$ is the object type mentioned in the question and $a$ is the answer, which is a property value.
 
+ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following TODO stages:
+\begin{itemize}
+  \item Firstly, the search space for the optimisation is constructed using choice rules. For each cluster identifier $c_i$, the following two choice rules are added:
+  \begin{gather}
+    1\{ colour\_mapping(c_i, col_1) ; ... ; colour\_mapping(c_i, col_n) \}1. \\
+    1\{ rotation\_mapping(c_i, rot_1) ; ... ; rotation\_mapping(c_i, rot_m) \}1.
+  \end{gather}
+  These choice rules generate one answer set for each possible combination of property-value pairs. Notice that no attempt has been made to restrict the property-value pairs to those which were used to select the number of clusters, since the ASP optimisation will naturally choose the property-value pairs which answer the most questions correctly.
 
+  \item Secondly, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. For the tuple $(p_i, v_i, t_i, a_i)_{\textit{$<$i$>$}}$ extracted by the question and answer parsing component from the $i^{th}$ QA pair, the following rule and fact are added if $v_i$ is not $Null$, where $p_{v_i}$ is the property which corresponds to property value $v_i$:
+  \begin{gather}
+    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } \begin{multlined}[t]
+      holds(p_{v_i}(v_i, \mathit{Id}), \textit{$<$i$>$}), \\
+      holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+    \end{multlined} \\
+    answer(\textit{$<$i$>$}, p_{v_i}, V) \text{ :- } \begin{multlined}[t]
+      holds(p_{v_i}(V, \mathit{Id}), \textit{$<$i$>$}), \\
+      holds(p_i(v_i, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+    \end{multlined} \\
+    expected(\textit{$<$i$>$}, p_i, a_i). \\
+    expected(\textit{$<$i$>$}, p_{v_i}, v_i).
+  \end{gather}
 
-we start by extracting what data we can from the QA pairs. As mentioned in Chapter~\ref{chapter:dataset}, only a small number of object images are `labelled' by a QA pair. In some cases, objects are labelled by two property values. For example, if a question asks ``What colour is the upward-facing bag in frame 5?", and the answer is ``white", then we know that one of the images of bags in the frame is both upward-facing and white.
+  For example, the question ``What colour is the downward-facing bag in frame 7?" and answer ``white", would be converted into the following ASP rules and facts:
+  \begin{gather}
+    answer(\textit{$<$i$>$}, colour, V) \text{ :- } \begin{multlined}[t]
+      holds(rotation(down, \mathit{Id}), \textit{$<$i$>$}), \\
+      holds(colour(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+    \end{multlined} \\
+    answer(\textit{$<$i$>$}, rotation, V) \text{ :- } \begin{multlined}[t]
+      holds(rotation(V, \mathit{Id}), \textit{$<$i$>$}), \\
+      holds(colour(white, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}).
+    \end{multlined} \\
+    expected(\textit{$<$i$>$}, colour, white). \\
+    expected(\textit{$<$i$>$}, rotation, down).
+  \end{gather}
+
+  Two rules are created for questions where $v_i$ is not $Null$ because the question gives away two pieces of information: the colour and the rotation. However, when $v_i$ is $Null$, the following ASP rule and fact are used:
+  \begin{gather}
+    answer(\textit{$<$i$>$}, p_i, V) \text{ :- } holds(p_i(V, \mathit{Id}), \textit{$<$i$>$}), obj(\mathit{Id}, \textit{$<$i$>$}). \\
+    expected(\textit{$<$i$>$}, p_i, a_i).
+  \end{gather}
+\end{itemize}
 
 
 \section{Relations}
