@@ -104,7 +104,21 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
     obj(id, c_i, \textit{$<$k$>$}).
   \end{equation}
 
-  \item Next, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. We firstly find the tuples $(p_k, v_k, a_k)$ which correspond to the object type $t_i$ and are extracted by the question and answer parsing component from the $\textit{$<$k$>$}^{th}$ QA pair. The following rule and fact are then added if $v_k$ is not $Null$:
+  \item A number of helper ASP rules which convert convert object data in the form of the $obj$ and $\textit{$<$prop$>$}\_mapping$ predicates into the $holds$ predicate which is used to answer the questions. These two helper rules are as follows:
+  \begin{gather}
+    holds(colour(\mathit{Val}, \mathit{Id}), Q) :- \begin{multlined}[t]
+      obj(\mathit{Id}, Cluster, Q), \\
+      colour\_mapping(Cluster, \mathit{Val}).
+    \end{multlined} \label{rule:holds-colour} \\
+    holds(rotation(\mathit{Val}, \mathit{Id}), Q) :- \begin{multlined}[t]
+      obj(\mathit{Id}, Cluster, Q), \\
+      rotation\_mapping(Cluster, \mathit{Val}).
+    \end{multlined} \label{rule:holds-rotation}
+  \end{gather}
+
+  Rules~\ref{rule:holds-colour} and~\ref{rule:holds-rotation} collate the data from the object's cluster and from the property value that that cluster has been assigned and convert this data into $holds$ form. The $holds$ predicate can then be used to answer the questions.
+
+  \item Next, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. We firstly find the tuples $(p_k, v_k, a_k)$ which correspond to the object type $t_i$ are extracted by the question and answer parsing component from the $\textit{$<$k$>$}^{th}$ QA pair. The following rule and fact are then added if $v_k$ is not $Null$:
   \begin{gather}
     answer(\textit{$<$k$>$}, p_k, V) \text{ :- } \begin{multlined}[t]
       holds(p_{v_k}(v_k, \mathit{Id}), \textit{$<$k$>$}), \\
