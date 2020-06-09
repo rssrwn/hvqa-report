@@ -213,6 +213,22 @@ The speed of the optimisation may also be a concern if the number of property va
 
 \section{Relations}
 
+Unlike the relations component in the hardcoded model, which used a manually engineered algorithm, the relations component in the trained model must learn definitions of binary relations between objects from data. As with the trained properties component outlined above, the relations component uses the QA-data version of the OceanQA dataset.
+
+Instead of using manually engineered functions, we opt to use a neural network consisting of fully-connected layers as the core implementation of the relations component. For a generic environment, one neural network would be created for each binary relation, however, since OceanQA only has one relation, only one network is required for this component.
+Each of these networks is assigned a binary relation, $r$, to learn. Each network therefore takes a pair of objects as input, and learns to classify the objects as either being related by $r$ or not.
+
+% The output of a network learning relation $r$, which we denote $o_r$, is therefore a single number between $0$ and $1$
+
+% Since fully-connected layers work with numbers, rather than symbolic data, we need to find a way to encode a pair of objects into a vector. To do this we encode each object in the pair separately and then concatenate the two encodings together. The encoding of an object $o_i$ is the result of concatentating each of the following:
+% \begin{enumerate}
+%   \item A one-hot encoding of the type of $o_i$.
+%   \item The position tuple for $o_i$, where each coordinate has been divided by 256 to produce a number of between 0 and 1.
+%   \item A one-hot encoding of $o_i$'s colour.
+%   \item A one-hot encoding of $o_i$'s position.
+% \end{enumerate}
+
+
 
 \section{Events}
 
