@@ -8,7 +8,7 @@
 \label{chapter:trained}
 
 
-In contrast to the hardcoded model, the trained H-PERL model does not use manually engineered relations or events components, and must therefore rely on using components which can be trained. The trained model also uses the QA-data version of the OceanQA dataset, rather than the full-data version which the hardcoded model was able to use to train its properties component. This means that the trained model needs to rely on the data contained in QA pairs alone to train its components.
+In contrast to the hardcoded model, the trained H-PERL model does not use manually engineered relations or events components, and must therefore rely on using components which can be trained. The trained model also uses the QA-data version of the OceanQA dataset, rather than the full-data version which the hardcoded model was able to use to train its properties component. This means that the trained model needs to rely on the data contained in QA pairs alone to train its components. The three trained core components of the model are outlined in this chapter. After training each component, the component is used to extract relevant symbolic information from the training data before the next component in the architecture is trained.
 
 As with the hardcoded model, full performance evaluation details of the trained model and some of its components can be found in Chapter~\ref{chapter:evaluation}.
 
@@ -269,18 +269,38 @@ Since the OceanQA dataset has only a single binary relation, \textit{close}, onl
   \item Finally, the set of object-pair encodings, and their associated answers, is used to train the network corresponding to the \textit{close} relation.
 \end{enumerate}
 
-After the network has been trained, the component can be used to classifier binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored.
-
-% \begin{equation}
-%   obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$}).
-% \end{equation}
-
-For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
+After the network has been trained, the component can be used to classifier binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored. For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
 
 Applying the network to every pair of objects in every frame of a video could become a burden on the speed of the relations component, especially when there are many objects in each frame. Batching pairs of objects together when applying them to the network helps to improve efficiency, but it has its limits. Chapter~\ref{chapter:evaluation} shows that the relations component is the second slowest, after the detector, of all the components in the trained model. However, for the purposes of this project, the relations component is fast enough. Chapter~\ref{chapter:evaluation} also shows the full details of this components performance with perfect inputs.
 
 
 \section{Events}
+
+The final of the three core components in the trained model is the event component. As with the properties and relations component, the event component uses the QA-data version of the dataset for training. However, unlike the previous components, both the properties and relations components are applied to the training data in order to extract relevant symbolic information, prior to training the event component. During training, the event component can therefore access data that has been extracted by all preceeding components in the architecture: the object detector, properties, tracking and relations components.
+
+\pagebreak
+
+Since a lot of symbolic information will already have been extracted from the video during evaluation by preceeding components, the event component does not need to look at raw pixels in the video at all. Instead, it is much more efficient to use the data that has already been gleaned from the video to work out which events occur. Unlike the hardcoded events component, the trained component cannot assume to have access to an $\mathcal{AL}$ model of the environment. Instead, it must learn its own symbolic rules using the training data. One option is to learn an $\mathcal{AL}$ model and use this to find which events occur in the same way as the hardcoded component. However, these $\mathcal{AL}$ rules can be quite complex, so we do not consider this option for this project. Instead, we opt to learn ASP rules which, given a symbolic enoding for a pair of frames, return the action which occurs between the two frames. Once the actions for the entire video have been found, additional ASP rules can be used to find the effects.
+
+These ASP rules are found using a greedy search algorithm. The algorithm is run three times; once for each each action. Before outlining this algorithm, we first define the terminology used as follows:
+\begin{itemize}
+  \item \textbf{Feature} :- High-level names, whose values categorise the state of an object. We make use of the following features: $x$-position, $y$-position, colour, rotation and disappear (defined below). Each object has a specific value for each feature, which come (directly or indirectly) from the information extracted from the video.
+
+  \item \textbf{Feature Sort} :- Each feature can be categorised into the following three \textit{sorts}, based on the set of possible values that an object can hold for that feature:
+  \begin{enumerate}
+    \item \textbf{Binary}. Disappear is the only binary feature.
+    \item \textbf{Discrete} (excluding binary). Colour and rotation are discrete features.
+    \item \textbf{Continuous}. $x$-position and $y$-position are both continuous features.
+  \end{enumerate}
+
+  \item \textbf{Feature Operation} :- An operation that is applied to the value of a feature. Each feature operation is usually intended to be applied to a single feature \textit{sort}. For example, a discrete feature operation cannot be applied to continuous feature values.
+
+  \item \textbf{Operation Result} :- The result of applying a feature operation to a feature value. Every operation result must be a binary value, since we want to use these values in the body of ASP rules.
+\end{itemize}
+
+The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ is the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with operation results in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
+
+The algorithm therefore needs to search over a set of features and, for each feature, a set of defined feature operations in order to find the set of feature results which can explain the actions
 
 
 
