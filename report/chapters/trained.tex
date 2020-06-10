@@ -300,7 +300,64 @@ These ASP rules are found using a greedy search algorithm. The algorithm is run 
 
 The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ is the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with operation results in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
 
-The algorithm therefore needs to search over a set of features and, for each feature, a set of defined feature operations in order to find the set of feature results which can explain the actions
+As mentioned above, each feature operation is associated with a feature sort. For each sort, we now define the set of possible operations that can be applied to feature values of that sort. For every object in the video, a feature operation $\sigma$ is applied to the pair $(f_{v_{i}}, f_{v_{i+1}})$, where $f_{v_i}$ and $f_{v_{i+1}}$ are the object's values for feature $f$ in frame $i$ and $i+1$, respectively. Every set of feature operations also includes the $\top$ operation, which always evaluates to true.
+
+Firstly, for binary features we only consider values in the initial frame, however, it would be very simple to expand this to include both frames. In the following, we show the the set of possible feature operations for a binary feature, $\Sigma_{\mathit{binary}}$. Each operation takes the pair $(f_{v_{i}}, f_{v_{i+1}})$ as input:
+\begin{equation}
+  \Sigma_{\mathit{binary}} =
+  \left\{
+  	\begin{array}{ll}
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} \\
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := \neg f_{v_i} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
+  	\end{array}
+  \right\}
+  \label{eqn:trained-close-def}
+\end{equation}
+
+Secondly, a pair of discrete feature values $(f_{v_{i}}, f_{v_{i+1}})$ can have the following feature operations applied:
+\begin{equation}
+  \Sigma_{\mathit{discrete}} =
+  \left\{
+  	\begin{array}{ll}
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = c_i, f_{v_{i+1}} = c_j \textit{ for each $(c_i, c_j)$} \\
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = f_{v_{i+1}} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} != f_{v_{i+1}} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
+  	\end{array}
+  \right\}
+  \label{eqn:trained-close-def}
+\end{equation}
+\textit{Where $(c_i, c_j)$ loops over all possible combinations of feature values.}
+
+Finally, a pair of continuous feature values $(f_{v_{i}}, f_{v_{i+1}})$ can take the following feature operations:
+\begin{equation}
+  \Sigma_{\mathit{continuous}} =
+  \left\{
+  	\begin{array}{ll}
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} > f_{v_{i+1}} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} < f_{v_{i+1}} \\
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = f_{v_{i+1}} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} != f_{v_{i+1}} \\
+      \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
+  	\end{array}
+  \right\}
+  \label{eqn:trained-close-def}
+\end{equation}
+
+The $\top$ feature operations always give an operation result of \textit{true}. Intuitively, a $\top$ feature operational has no effect on the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
+\begin{equation}
+  a_i \textbf{ if } \begin{multlined}[t]
+    \sigma_{x\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{y\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{colour}(f_{v_{i}}, f_{v_{i+1}}), \\
+    \sigma_{rotation}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{disappear}(f_{v_{i}}, f_{v_{i+1}})
+  \end{multlined}
+  \label{eqn:event-rule-layout}
+\end{equation}
+\textit{Where each $\sigma_{\textit{$<$f$>$}}$ is a member of \textit{$<$f$>$}'s set of possible feature operations.}
+
+% Equation~\ref{eqn:event-rule-layout} shows that 
+
+% The algorithm therefore needs to search over a set of features and, for each feature, a set of defined feature operations in order to find the set of operation results which can explain the actions
 
 
 
