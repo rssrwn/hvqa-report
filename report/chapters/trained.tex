@@ -345,7 +345,7 @@ Finally, a pair of continuous feature values $(f_{v_{i}}, f_{v_{i+1}})$ can take
   \label{eqn:trained-close-def}
 \end{equation}
 
-The $\top$ feature operations always give an operation result of \textit{true}. Intuitively, a $\top$ feature operational has no effect on the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
+The $\top$ feature operations always give an operation result of \textit{true}. Intuitively, a $\top$ feature operation has no effect on the outcome of the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
 \begin{equation}
   a_i \textbf{ if } \begin{multlined}[t]
     \sigma_{x\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{y\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{colour}(f_{v_{i}}, f_{v_{i+1}}), \\
@@ -355,9 +355,11 @@ The $\top$ feature operations always give an operation result of \textit{true}. 
 \end{equation}
 \textit{Where each $\sigma_{\textit{$<$f$>$}}$ is a member of \textit{$<$f$>$}'s set of possible feature operations.}
 
-% Equation~\ref{eqn:event-rule-layout} shows that 
+Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger.
 
-% The algorithm therefore needs to search over a set of features and, for each feature, a set of defined feature operations in order to find the set of operation results which can explain the actions
+To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
+
+The case where the algorithm is left to decide how many rules are required - the number of rules to learn is part of the search - is more complex. In this case there is one set of accumulated operations for each rule learnt, and, during the next feature optimisation, the algorithm can choose any of the accumulated operation sets for each rule being learnt.
 
 
 
