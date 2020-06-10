@@ -282,7 +282,10 @@ The final of the three core components in the trained model is the event compone
 
 Since a lot of symbolic information will already have been extracted from the video during evaluation by preceeding components, the event component does not need to look at raw pixels in the video at all. Instead, it is much more efficient to use the data that has already been gleaned from the video to work out which events occur. Unlike the hardcoded events component, the trained component cannot assume to have access to an $\mathcal{AL}$ model of the environment. Instead, it must learn its own symbolic rules using the training data. One option is to learn an $\mathcal{AL}$ model and use this to find which events occur in the same way as the hardcoded component. However, these $\mathcal{AL}$ rules can be quite complex, so we do not consider this option for this project. Instead, we opt to learn ASP rules which, given a symbolic enoding for a pair of frames, return the action which occurs between the two frames. Once the actions for the entire video have been found, additional ASP rules can be used to find the effects.
 
-These ASP rules are found using a greedy search algorithm. The algorithm is run three times; once for each each action. Before outlining this algorithm, we first define the terminology used as follows:
+
+\subsection{Terminology}
+
+The ASP rules for finding the actions which occur in a video are found using a greedy search algorithm. The algorithm is run three times; once for each each action. Before outlining this algorithm, we define the terminology used as follows:
 \begin{itemize}
   \item \textbf{Feature} :- High-level names, whose values categorise the state of an object. We make use of the following features: $x$-position, $y$-position, colour, rotation and disappear (defined below). Each object has a specific value for each feature, which come (directly or indirectly) from the information extracted from the video.
 
@@ -320,7 +323,7 @@ Secondly, a pair of discrete feature values $(f_{v_{i}}, f_{v_{i+1}})$ can have 
   \Sigma_{\mathit{discrete}} =
   \left\{
   	\begin{array}{ll}
-  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = c_i, f_{v_{i+1}} = c_j \textit{ for each $(c_i, c_j)$} \\
+  		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = v_n, f_{v_{i+1}} = v_m \textit{ for each $(v_n, v_m)$} \\
   		\sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} = f_{v_{i+1}} \\
       \sigma(f_{v_{i}}, f_{v_{i+1}}) := f_{v_i} != f_{v_{i+1}} \\
       \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
@@ -328,7 +331,7 @@ Secondly, a pair of discrete feature values $(f_{v_{i}}, f_{v_{i+1}})$ can have 
   \right\}
   \label{eqn:trained-close-def}
 \end{equation}
-\textit{Where $(c_i, c_j)$ loops over all possible combinations of feature values.}
+\textit{Where $(v_n, v_m)$ loops over all possible combinations of feature values.}
 
 Finally, a pair of continuous feature values $(f_{v_{i}}, f_{v_{i+1}})$ can take the following feature operations:
 \begin{equation}
@@ -355,11 +358,63 @@ The $\top$ feature operations always give an operation result of \textit{true}. 
 \end{equation}
 \textit{Where each $\sigma_{\textit{$<$f$>$}}$ is a member of \textit{$<$f$>$}'s set of possible feature operations.}
 
+\pagebreak
+
+Before outlining an Inductive Logic Programming (ILP) search algorithm for finding the set of rules, we first give an example which explains the terminology and the construction of the search space.
+
+\begin{example}
+  Consider an example in the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
+
+  \bigskip
+
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    $x$-position operations $\rightarrow$ results
+    \begin{gather*}
+      100 > 100 \rightarrow \mathit{false} \\
+      100 < 100 \rightarrow \mathit{false} \\
+      100 = 100 \rightarrow \mathit{true} \\
+      100 \text{ } != 100 \rightarrow \mathit{false} \\
+      \top \rightarrow \mathit{true}
+    \end{gather*}
+  \end{minipage}
+  \begin{minipage}{0.45\textwidth}
+    \centering
+    $y$-position operations $\rightarrow$ results
+    \begin{gather*}
+      40 > 25 \rightarrow \mathit{true} \\
+      40 < 25 \rightarrow \mathit{false} \\
+      40 = 25 \rightarrow \mathit{false} \\
+      40 \text{ } != 25 \rightarrow \mathit{true} \\
+      \top \rightarrow \mathit{true}
+    \end{gather*}
+  \end{minipage}
+
+  \medskip
+
+  It is easy to see that there are many possible rules which the algorithm could learn, given only this single example, although many of these rules are undesired. However, when there are many examples, the algorithm should be able to learn useful rules. The search space required to learn a single rule using a complete algorithm for this example (showing only the position features) is shown in Figure~\ref{fig:search-space}.
+\end{example}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{search-space}
+  \caption{Part of the search space for a complete search algorithm, showing only the $x$-position and $y$-position features operations. The full search space would also include rotation, colour and disappear feature operations.}
+  \label{fig:search-space}
+\end{figure}
+
+
+\subsection{Search Strategy}
+
 Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger.
 
-To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
+To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. Our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly.
+
+In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
 
 The case where the algorithm is left to decide how many rules are required - the number of rules to learn is part of the search - is more complex. In this case there is one set of accumulated operations for each rule learnt, and, during the next feature optimisation, the algorithm can choose any of the accumulated operation sets for each rule being learnt.
+
+
+\subsection{ASP Encoding}
 
 
 
