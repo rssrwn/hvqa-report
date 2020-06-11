@@ -443,7 +443,7 @@ The case where the algorithm is left to decide how many rules are required - whe
           \State $s \gets$ \Call{SortOf}{$f$}
           \State $acc \gets $ \Call{OptimiseFeature}{$action, \Sigma_s, acc, data$}
         \EndFor
-        \State $hyps \gets hyps + $ \Call{GenHyp}{$acc$}
+        \State $hyps \gets hyps + $ \Call{GenHyp}{$a, acc$}
       \EndFor
       \State \textbf{return} $hyps$
     \EndProcedure

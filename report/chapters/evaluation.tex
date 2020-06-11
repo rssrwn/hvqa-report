@@ -7,9 +7,29 @@
 \chapter{Evaluation}
 \label{chapter:evaluation}
 
-TODO object tracker evaluation - perfect performance, if not remove ref from end of h-perl chapter (discuss that object tracker is not officially since there are no questions for it, but that unofficially it achieves perfect performance). Under actual object detector performance conditions as well.
+% TODO object tracker evaluation - perfect performance, if not remove ref from end of h-perl chapter (discuss that object tracker is not officially since there are no questions for it, but that unofficially it achieves perfect performance). Under actual object detector performance conditions as well.
 
-Talk about timings, including trained relation component (or else remove ref from end of relations in trained model chapter). 
+% Talk about timings, including trained relation component (or else remove ref from end of relations in trained model chapter).
+
+
+This chapter describes the performance details of the components and models outlined in Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained}. Section~\ref{section:eval-components} compares the performance of a selection of counterpart components used in the hardcoded and trained models. Section~\ref{section:eval-models} compares the overall performance of the two H-PERL models, and includes details of the models' performance under noisy conditions.
+
+Before presenting the evaluation, we outline the following three key criteria that we want to evaluate the models against:
+\begin{enumerate}
+  \item \textbf{Accuracy} :- What proportion of questions does the model answer correctly?
+  \item \textbf{Speed} :- How long does the model take to complete the evaluation?
+  \item \textbf{Adaptability} :- How simple is it to transfer the model to a new environment?
+\end{enumerate}
+
+While we would have preferred to have compared our models to state-of-the-art neural network implementations for VideoQA, training end-to-end VideoQA networks is very resource intensive and takes a long time. If these models were included in the evaluation, we would add explainability as an additional criterion. However, since our models are both hybrid, their implementations have roughly the same explainability. We do, however, keep in mind that hybrid models are often easier to understand than fully-neural counterparts, as well as being significantly faster to train.
+
+
+\section{Components}
+\label{section:eval-components}
+
+
+\section{Models}
+\label{section:eval-models}
 
 
 
