@@ -8,14 +8,20 @@
 \label{chapter:trained}
 
 
-In contrast to the hardcoded model, the trained H-PERL model does not use manually engineered relations or events components, and must therefore rely on using components which can be trained. The trained model also uses the QA-data version of the OceanQA dataset, rather than the full-data version which the hardcoded model was able to use to train its properties component. This means that the trained model needs to rely on the data contained in QA pairs alone to train its components. The three trained core components of the model are outlined in this chapter. After training each component, the component is used to extract relevant symbolic information from the training data before the next component in the architecture is trained.
+In contrast to the hardcoded model, the trained H-PERL model does not use manually engineered relations or events components, and must therefore rely on using components which can be trained. The trained model also uses the QA-data version of the OceanQA dataset, rather than the full-data version which the hardcoded model was able to use to train its properties component. This means that the trained model needs to rely on the data contained in QA pairs alone to train its components.
 
-As with the hardcoded model, full performance evaluation details of the trained model and some of its components can be found in Chapter~\ref{chapter:evaluation}.
+The model is trained using \textit{curriculum learning} - the model learns concepts incrementally. In the case of H-PERL, this means that the model is, firstly, trained to understand object properties, then trained to understand relations, and, finally, is trained to understand events. After training a component, the component is used to extract its corresponding symbolic information from the training data, which can then be used by the next component to be trained.
+
+% The three trained core components of the model are outlined in this chapter. After training each component, the component is used to extract relevant symbolic information from the training data before the next component in the architecture is trained.
+
+% As with the hardcoded model, full performance evaluation details of the trained model and some of its components can be found in Chapter~\ref{chapter:evaluation}.
 
 
 \section{Properties}
 
-As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This creates a `chicken-and-egg' problem when collecting the training data; the model needs a trained property extractor in order to find the images to train the property extractor with. This means the training data cannot be collated in the same way as the hardcoded model.
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
+
+% This creates a `chicken-and-egg' problem when collecting the training data
 
 In this section we propose a solution to overcome this problem which utilises semi-supervised learning in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
 
