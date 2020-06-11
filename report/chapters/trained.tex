@@ -362,38 +362,36 @@ The $\top$ feature operations always give an operation result of \textit{true}. 
 
 Before outlining an Inductive Logic Programming (ILP) search algorithm for finding the set of rules, we first give an example which explains the terminology and the construction of the search space.
 
-\begin{example}
-  Consider an example in the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
+\textbf{Example.} Consider an example in the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
 
-  \bigskip
+\smallskip
 
-  \begin{minipage}{0.45\textwidth}
-    \centering
-    $x$-position operations $\rightarrow$ results
-    \begin{gather*}
-      100 > 100 \rightarrow \mathit{false} \\
-      100 < 100 \rightarrow \mathit{false} \\
-      100 = 100 \rightarrow \mathit{true} \\
-      100 \text{ } != 100 \rightarrow \mathit{false} \\
-      \top \rightarrow \mathit{true}
-    \end{gather*}
-  \end{minipage}
-  \begin{minipage}{0.45\textwidth}
-    \centering
-    $y$-position operations $\rightarrow$ results
-    \begin{gather*}
-      40 > 25 \rightarrow \mathit{true} \\
-      40 < 25 \rightarrow \mathit{false} \\
-      40 = 25 \rightarrow \mathit{false} \\
-      40 \text{ } != 25 \rightarrow \mathit{true} \\
-      \top \rightarrow \mathit{true}
-    \end{gather*}
-  \end{minipage}
+\begin{minipage}{0.45\textwidth}
+  \centering
+  $x$-position operations $\rightarrow$ results
+  \begin{gather*}
+    100 > 100 \rightarrow \mathit{false} \\
+    100 < 100 \rightarrow \mathit{false} \\
+    100 = 100 \rightarrow \mathit{true} \\
+    100 \text{ } != 100 \rightarrow \mathit{false} \\
+    \top \rightarrow \mathit{true}
+  \end{gather*}
+\end{minipage}
+\begin{minipage}{0.45\textwidth}
+  \centering
+  $y$-position operations $\rightarrow$ results
+  \begin{gather*}
+    40 > 25 \rightarrow \mathit{true} \\
+    40 < 25 \rightarrow \mathit{false} \\
+    40 = 25 \rightarrow \mathit{false} \\
+    40 \text{ } != 25 \rightarrow \mathit{true} \\
+    \top \rightarrow \mathit{true}
+  \end{gather*}
+\end{minipage}
 
-  \medskip
+\smallskip
 
-  It is easy to see that there are many possible rules which the algorithm could learn, given only this single example, although many of these rules are undesired. However, when there are many examples, the algorithm should be able to learn useful rules. The search space required to learn a single rule using a complete algorithm for this example (showing only the position features) is shown in Figure~\ref{fig:search-space}.
-\end{example}
+It is easy to see that there are many possible rules which the algorithm could learn, given only this single example, although many of these rules are undesired. However, when there are many examples, the algorithm should be able to learn useful rules. The search space required to learn a single rule using a complete algorithm for this example (showing only the position features) is shown in Figure~\ref{fig:search-space}.
 
 \begin{figure}
   \centering
@@ -405,16 +403,57 @@ Before outlining an Inductive Logic Programming (ILP) search algorithm for findi
 
 \subsection{Search Strategy}
 
-Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger.
+Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger. The number of feature operations for each feature and the total search space size is shown in Table~\ref{table:feature-op-sizes}
+
+\begin{table}
+  \centering
+  \begin{tabular}{ |c|c| }
+    \hline
+    \textbf{Feature} & \textbf{Search Size} \\
+    \hline
+    $x$-position & 5 \\
+    $y$-position & 5 \\
+    colour       & 52 \\
+    rotation     & 19 \\
+    disappear    & 3 \\
+    \hline
+    \hline
+    Total & 74100 \\
+    \hline
+  \end{tabular}
+  \caption{Number of feature operations for each feature. The total search size is then calculated by multiplying all these sizes together.}
+  \label{table:feature-op-sizes}
+\end{table}
 
 To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. Our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly.
 
 In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
 
-The case where the algorithm is left to decide how many rules are required - the number of rules to learn is part of the search - is more complex. In this case there is one set of accumulated operations for each rule learnt, and, during the next feature optimisation, the algorithm can choose any of the accumulated operation sets for each rule being learnt.
+The case where the algorithm is left to decide how many rules are required - where the number of rules to learn is part of the search - is more complex. In this case there is one set of accumulated operations for each rule learnt, and, during the next feature optimisation, the algorithm can choose any of the accumulated operation sets for each rule being learnt. Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hyposthesis - the set of rules which correctly answers the most questions - for each action.
+
+\begin{algorithm}[h!]
+  \caption{Finding the optimal hyposthesis for each action}
+  \label{algo:optimise}
+  \begin{algorithmic}[1]
+    \Procedure{OptimiseRules}{$\mathit{actions}, \mathit{features}, data$}
+      \State $hyps \gets \{\}$
+      \For{$a \gets actions$}
+        \State $acc \gets \{\}$
+        \For{$f \gets \mathit{features}$}
+          \State $s \gets$ \Call{SortOf}{$f$}
+          \State $acc \gets $ \Call{OptimiseFeature}{$action, \Sigma_s, acc, data$}
+        \EndFor
+        \State $hyps \gets hyps + $ \Call{GenHyp}{$acc$}
+      \EndFor
+      \State \textbf{return} $hyps$
+    \EndProcedure
+  \end{algorithmic}
+\end{algorithm}
 
 
 \subsection{ASP Encoding}
+
+The \textsc{OptimiseFeature} function shown in Algorithm~\ref{algo:optimise} takes as input an action, a set of feature operations, the accumulated feature operations and the training data for the given action. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program. This section outlines the details of that program.
 
 
 
