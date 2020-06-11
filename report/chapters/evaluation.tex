@@ -113,7 +113,7 @@ Since the task of the relations component is binary classification, and since th
   \centering
   \begin{subtable}{0.45\textwidth}
     \centering
-    \begin{tabular}{ |l|c c| }
+    \begin{tabular}{ |c|c c| }
       \hline
       \diagbox{\textbf{Actual:}}{\textbf{Pred:}} & \textbf{Yes} & \textbf{No} \\
       \hline
@@ -126,7 +126,7 @@ Since the task of the relations component is binary classification, and since th
   \end{subtable}
   \begin{subtable}{0.45\textwidth}
     \centering
-    \begin{tabular}{ |l|c c| }
+    \begin{tabular}{ |c|c c| }
       \hline
       \diagbox{\textbf{Actual:}}{\textbf{Pred:}} & \textbf{Yes} & \textbf{No} \\
       \hline
@@ -147,11 +147,39 @@ While the hardcoded relations component takes only $22.8$ seconds to process the
 
 \subsection{Events}
 
+Like properties, detecting events can be considered a multi-class classification task since, for a given pair of frames, the events component needs to select an action from a set, and select an event (or none) from a set. However, in the case of events, both the hardcoded and trained components achieve $100\%$ accuracy. This is not particularly surprising since the rules of the OceanQA environment are relatively simple to model. It does, however, prove that there is no human-introduced bias in the $\mathcal{AL}$ environment model, and that the trained model has learnt correct rules. As with all the previously outlined components, the evaluation of events uses non-noisy data. Section~\ref{subsection:eval-robustness} gives a much better indication of how these components perform under noisy conditions.
+
+As mentioned in Chapter~\ref{chapter:hardcoded}, the speed at which the hardcoded model can operate is a concern. The component evaluation reiterates this; as Table~\ref{table:event-timings} shows, the hardcoded events component is about 50 times slower than the trained component on the 200 testing videos.
+
+\begin{table}
+  \centering
+  \begin{tabular}{ |c|c| }
+    \hline
+    \textbf{Event Component} & \textbf{Time Taken (seconds)} \\
+    \hline
+    Hardcoded      & 256.8 \\
+    Hardcoded (EC) & 250.5 \\
+    Trained        & 5.2 \\
+    \hline
+  \end{tabular}
+  \caption{Time taken in seconds for each event component to detect all events in the testing data. Hardcoded (EC) is the error correcting version of the hardcoded model.}
+  \label{table:event-timings}
+\end{table}
+
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is much better, but it not perfect since the features and feature operations it uses in the rule bodies may have to be updated to better suit different environments.
+
 
 \section{Models}
 \label{section:eval-models}
 
 % TODO When timings are created update refs above.
+
+
+\subsection{Performance}
+
+
+\subsection{Robustness}
+\label{subsection:eval-robustness}
 
 
 
