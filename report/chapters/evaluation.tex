@@ -63,7 +63,46 @@ Despite the simpicity of the environment, the object detector is, however, quite
 
 \subsection{Properties}
 
+Since the properties component is predicting multiple properties for each object, the component has a separate accuracy for each property. As well as accuracy, we also evaluate the properties component in terms of precision and recall (all three metrics are defined in Chapter~\ref{chapter:background}), to ensure underrepresented property values are not being missed. Table~\ref{table:hardcoded-colour-results} and Table~\ref{table:hardcoded-rotation-results} show the results for the hardcoded model on the \textit{colour} and \textit{rotation} properties, respectively. We do not present the results for the trained model, since every metric is $1.0$ for all property values.
 
+\begin{table}[b!]
+  \centering
+  \begin{tabular}{ |c|c c c| }
+    \hline
+    \textbf{Colour} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} \\
+    \hline
+    red    & 1.000 & 1.000 & 1.000 \\
+    blue   & 1.000 & 1.000 & 1.000 \\
+    purple & 1.000 & 1.000 & 1.000 \\
+    brown  & 1.000 & 1.000 & 1.000 \\
+    green  & 1.000 & 1.000 & 1.000 \\
+    silver & 1.000 & 1.000 & 1.000 \\
+    white  & 1.000 & 1.000 & 1.000 \\
+    \hline
+  \end{tabular}
+  \caption{Hardcoded properties component results on the colour property.}
+  \label{table:hardcoded-colour-results}
+\end{table}
+
+\begin{table}[b!]
+  \centering
+  \begin{tabular}{ |c|c c c| }
+    \hline
+    \textbf{Rotation} & \textbf{Accuracy} & \textbf{Precision} & \textbf{Recall} \\
+    \hline
+    upward-facing    & 1.000 & 1.000 & 0.999 \\
+    right-facing     & 1.000 & 0.999 & 1.000 \\
+    downward-facing  & 1.000 & 0.999 & 1.000 \\
+    left-facing      & 1.000 & 1.000 & 1.000 \\
+    \hline
+  \end{tabular}
+  \caption{Hardcoded properties component results on the rotation property.}
+  \label{table:hardcoded-rotation-results}
+\end{table}
+
+The results show that both the hardcoded and trained models have (almost) perfect performance. It is surprising that the trained model can achieve the same result as the hardcoded model, despite only using weakly-supervised QA training data - data where most objects are not labelled with property values. It is worth noting, however, that this analysis uses the full-data version of the validation dataset; this means that the object detection was performed perfectly before the components were evaluated. However, Section~\ref{section:eval-models} shows that the properties questions were answered almost perfectly when the trained object detector was used.
+
+Despite being made of neural networks, the properties components are both fairly fast. Both components took approximately 18 seconds to label the entire all of the objects in the testing data with properties. As with the detector, both property component implementations are deemed adaptable, since they can simply be retrained for a new environment. One potential issue for the trained properties component, however, is a lack of data. The QA training data is sparsely labelled to start with, and, since training this component requires solving an optimisation problem, there may not be enough data for the optimiser to find a `good' solution. However, we did not have time to explore this potential issue any further.
 
 
 \subsection{Relations}
