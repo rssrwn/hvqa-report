@@ -100,12 +100,49 @@ Since the properties component is predicting multiple properties for each object
   \label{table:hardcoded-rotation-results}
 \end{table}
 
-The results show that both the hardcoded and trained models have (almost) perfect performance. It is surprising that the trained model can achieve the same result as the hardcoded model, despite only using weakly-supervised QA training data - data where most objects are not labelled with property values. It is worth noting, however, that this analysis uses the full-data version of the validation dataset; this means that the object detection was performed perfectly before the components were evaluated. However, Section~\ref{section:eval-models} shows that the properties questions were answered almost perfectly when the trained object detector was used.
+The results show that both the hardcoded and trained models have (almost) perfect performance. It is surprising that the trained model can achieve the same result as the hardcoded model, despite only using weakly-supervised QA training data - data where most objects are not labelled with property values. It is worth noting, however, that this analysis uses the full-data version of the validation dataset; this means that the object detection was performed without any errors. However, even when the trained object detector was used, Section~\ref{section:eval-models} shows that the properties questions were answered almost perfectly.
 
 Despite being made of neural networks, the properties components are both fairly fast. Both components took approximately 18 seconds to label the entire all of the objects in the testing data with properties. As with the detector, both property component implementations are deemed adaptable, since they can simply be retrained for a new environment. One potential issue for the trained properties component, however, is a lack of data. The QA training data is sparsely labelled to start with, and, since training this component requires solving an optimisation problem, there may not be enough data for the optimiser to find a `good' solution. However, we did not have time to explore this potential issue any further.
 
 
 \subsection{Relations}
+
+Since the task of the relations component is binary classification, and since the data is highly imbalanced we present the results for each implementation using a confusion matrix. A confusion matrix presents the true positives (TP), false postives (FP), true negatives (TN) and false negatives (FN) in a matrix. Unlike simply looking at the accuracy, confusion matrices are very useful for ensuring that the model is good at correctly predicting both positive and negative classes. The results for the hardcoded and trained relations components are shown in Table~\ref{table:eval-hardcoded-relations} and Table~\ref{table:eval-trained-relations}, respectively.
+
+\begin{table}[b]
+  \centering
+  \begin{subtable}{0.45\textwidth}
+    \centering
+    \begin{tabular}{ |l|c c| }
+      \hline
+      \diagbox{\textbf{Actual:}}{\textbf{Pred:}} & \textbf{Yes} & \textbf{No} \\
+      \hline
+      \textbf{Yes} & 0.16 & 0.00 \\
+      \textbf{No}  & 0.00 & 0.84 \\
+      \hline
+    \end{tabular}
+    \caption{Hardcoded relations component.}
+    \label{table:eval-hardcoded-relations}
+  \end{subtable}
+  \begin{subtable}{0.45\textwidth}
+    \centering
+    \begin{tabular}{ |l|c c| }
+      \hline
+      \diagbox{\textbf{Actual:}}{\textbf{Pred:}} & \textbf{Yes} & \textbf{No} \\
+      \hline
+      \textbf{Yes} & 0.16 & 0.00 \\
+      \textbf{No}  & 0.01 & 0.83 \\
+      \hline
+    \end{tabular}
+    \caption{Trained relations component}
+    \label{table:eval-trained-relations}
+  \end{subtable}
+  \caption{Confusion matrices for hardcoded and trained relations components for the \textit{close} relation. Columns show predicted classifications, while rows show actual.}
+\end{table}
+
+Table~\ref{table:eval-hardcoded-relations} shows that the hardcoded relations component achieves an accuracy, precision and recall of $1.0$, and therefore an F1-score of $1.0$. The trained relations component performs marginally worse, with an accuracy of $0.99$, a precision of $0.96$, a recall of $1.0$, and therefore an F1-score of $0.98$. The performance of both components is, however, comparable.
+
+While the hardcoded relations component takes only $22.8$ seconds to process the entire testing dataset, the trained component takes almost twice as long, at $39.6$ seconds. This time difference is due to the trained component using a neural function, rather than a hardcoded function. However, despite being slower, the trained component is more adaptable than the hardcoded component, since it can learn the definition of binary relations from the data.
 
 
 \subsection{Events}
