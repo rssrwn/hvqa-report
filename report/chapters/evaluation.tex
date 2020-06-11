@@ -52,9 +52,11 @@ In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Av
     0.5 : 0.95 & 0.995 \\
     \hline
   \end{tabular}
-  \caption{Mean average precisions for a number of IoU thresholds. A threshold of 0.5~:~0.95 indicates an average mAP value for the set of thresholds $\{ 0.5, 0.55, ..., 0.95 \}$.}
+  \caption{Mean average precision values for a number of intersection over union thresholds. A threshold of 0.5~:~0.95 indicates an average mAP value for the set of thresholds: $\{ 0.5, 0.55, ..., 0.95 \}$.}
   \label{table:detector-maps}
 \end{table}
+
+The results presented in Table~\ref{table:detector-maps} show that our object detector performs very strongly. This isn't particularly surprising, since the dataset environment is very simple and the object detection algorithm used is state-of-the-art. Nonetheless it proves the assumption that it is possible, in the OceanQA environment at least, to extract objects from the frames of the video and work with these objects directly.
 
 
 \subsection{Properties}
