@@ -27,6 +27,35 @@ While we would have preferred to have compared our models to state-of-the-art ne
 \section{Components}
 \label{section:eval-components}
 
+The first part of the evaluation concerns the individual model components. In this section we compare the performance of the properties, relations and events components from both the hardcoded and trained models. These components are evaluated using perfect input data - where we assume no mistakes have been made in previous parts of the pipeline. We also outline the performance of the object detection component, which is common to both H-PERL models. All of these components are evaluated using the 200 validation videos, rather than the testing videos, although both sets of videos are generated in the same way.
+
+This section does not include a dedicated discussion on the object tracker's performance, since there are no QA pairs with which it can be directly evaluated. However, after using some intuitive heuristics to gauge the component's object tracking abilities, we see that the tracker assigns identifiers in exactly the way we would expect for the OceanQA environment. In the rest of this chapter, therefore, it should be assumed that the tracker operates with perfect accuracy on the OceanQA environment, but we cannot provide an official evaluation for this.
+
+
+\subsection{Object Detector}
+
+In Chapter~\ref{chapter:background} we mentioned that \textit{Intersection over Union} (IoU), which is calculated between a ground truth bounding box and the bounding box produced by the detector, measures how well a detector localises an image. As a reminder, the IoU between an object A and object B is defined as the area of intersection between A and B, divided by the area of union between A and B. Chapter~\ref{chapter:background} also mentioned that a threshold $t$ can be applied to a set of detections so that only the detections with confidence $> t$ are used. Each IoU threshold that is applied to the set of detections produces a different precision-recall curve for the detector. The average precision (AP) is then defined as the area under the (smoothed) precision-recall curve, although estimates of this value are used. Average precision, however, is only defined for detection of a single class. The mean average precision (mAP) metric is therefore used to find the mean AP across $k$ classes, and is intuitively defined as follows:
+\begin{equation}
+  mAP = \frac{\sum_{i=1}^{k} AP_i}{k}
+\end{equation}
+
+In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library, which implements the metrics used in the COCO object detection challenge. Table~\ref{table:detector-aps} presents the average precision values, for a range of IoU thresolds, achieved by our detector on the OceanQA validation dataset.
+
+% \begin{table}
+%   \begin{tabular}
+%
+%   \end{tabular}
+% \end{table}
+
+
+\subsection{Properties}
+
+
+\subsection{Relations}
+
+
+\subsection{Events}
+
 
 \section{Models}
 \label{section:eval-models}
