@@ -34,18 +34,27 @@ This section does not include a dedicated discussion on the object tracker's per
 
 \subsection{Object Detector}
 
-In Chapter~\ref{chapter:background} we mentioned that \textit{Intersection over Union} (IoU), which is calculated between a ground truth bounding box and the bounding box produced by the detector, measures how well a detector localises an image. As a reminder, the IoU between an object A and object B is defined as the area of intersection between A and B, divided by the area of union between A and B. Chapter~\ref{chapter:background} also mentioned that a threshold $t$ can be applied to a set of detections so that only the detections with confidence $> t$ are used. Each IoU threshold that is applied to the set of detections produces a different precision-recall curve for the detector. The average precision (AP) is then defined as the area under the (smoothed) precision-recall curve, although estimates of this value are used. Average precision, however, is only defined for detection of a single class. The mean average precision (mAP) metric is therefore used to find the mean AP across $k$ classes, and is intuitively defined as follows:
+In Chapter~\ref{chapter:background} we mentioned that \textit{Intersection over Union} (IoU), which is calculated between a ground truth bounding box and the bounding box produced by the detector, measures how well a detector localises an image. As a reminder, the IoU between an object A and object B is defined as the area of intersection between A and B, divided by the area of union between A and B. Chapter~\ref{chapter:background} also mentioned that a threshold $t$ can be applied to a set of detections so that only the detections with confidence $> t$ are used. Each IoU threshold that is applied to the set of detections produces a different precision-recall curve for the detector. The average precision (AP) is then defined as the area under the precision-recall curve, although estimates of this value are used. Average precision, however, is only defined for detection of a single class. The mean average precision (mAP) metric is therefore used to find the mean AP across $k$ classes, and is intuitively defined as follows:
 \begin{equation}
   mAP = \frac{\sum_{i=1}^{k} AP_i}{k}
 \end{equation}
 
-In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library, which implements the metrics used in the COCO object detection challenge. Table~\ref{table:detector-aps} presents the average precision values, for a range of IoU thresolds, achieved by our detector on the OceanQA validation dataset.
+In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Available at: https://github.com/cocodataset/cocoapi} library, which implements the metrics used in the COCO object detection challenge. The library provides mAP values for IoU thresholds $0.5$ and $0.75$, as well as the average mAP over the set of thresholds $\{ 0.5, 0.55, 0.6, ..., 0.95 \}$. Table~\ref{table:detector-maps} presents mAP values achieved by our detector on the OceanQA validation dataset.
 
-% \begin{table}
-%   \begin{tabular}
-%
-%   \end{tabular}
-% \end{table}
+\begin{table}[h]
+  \centering
+  \begin{tabular}{ |c|c| }
+    \hline
+    \textbf{IoU Threshold} & \textbf{mAP} \\
+    \hline
+    0.5        & 1.000 \\
+    0.75       & 0.998 \\
+    0.5 : 0.95 & 0.995 \\
+    \hline
+  \end{tabular}
+  \caption{Mean average precisions for a number of IoU thresholds. A threshold of 0.5~:~0.95 indicates an average mAP value for the set of thresholds $\{ 0.5, 0.55, ..., 0.95 \}$.}
+  \label{table:detector-maps}
+\end{table}
 
 
 \subsection{Properties}
