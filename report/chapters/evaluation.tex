@@ -107,7 +107,7 @@ Despite being made of neural networks, the properties components are both fairly
 
 \subsection{Relations}
 
-Since the task of the relations component is binary classification, and since the data is highly imbalanced we present the results for each implementation using a confusion matrix. A confusion matrix presents the true positives (TP), false postives (FP), true negatives (TN) and false negatives (FN) in a matrix. Unlike simply looking at the accuracy, confusion matrices are very useful for ensuring that the model is good at correctly predicting both positive and negative classes. The results for the hardcoded and trained relations components are shown in Table~\ref{table:eval-hardcoded-relations} and Table~\ref{table:eval-trained-relations}, respectively.
+Since the task of the relations component is binary classification, and since the data is highly imbalanced we present the results for each implementation using a confusion matrix. A confusion matrix presents the proportion of true positives (TP), false postives (FP), true negatives (TN) and false negatives (FN) in a matrix. Unlike simply looking at the accuracy, confusion matrices are very useful for ensuring that the model is good at correctly predicting both positive and negative classes. The results for the hardcoded and trained relations components are shown in Table~\ref{table:eval-hardcoded-relations} and Table~\ref{table:eval-trained-relations}, respectively.
 
 \begin{table}[b]
   \centering
@@ -166,20 +166,83 @@ As mentioned in Chapter~\ref{chapter:hardcoded}, the speed at which the hardcode
   \label{table:event-timings}
 \end{table}
 
-As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is much better, but it not perfect since the features and feature operations it uses in the rule bodies may have to be updated to better suit different environments.
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
 
 
 \section{Models}
 \label{section:eval-models}
 
-% TODO When timings are created update refs above.
+In this section we outline the performance of both H-PERL models, as well the error correcting version of the hardcoded model. Section~\ref{subsection:eval-performance} outlines the performance details of the models on the 200 testing videos, as well as the relative component timings, some of which have already been mentioned above. Then, in Section~\ref{subsection:eval-robustness}, we evaluate the models when a faulty detector is used, in order to compare their robustness to changes in the object detection data.
 
 
 \subsection{Performance}
+\label{subsection:eval-performance}
+
+This section compares the performance of the models, when using the trained object detector, on the 200 testing videos in the dataset. Table~\ref{table:models-eval} shows the accuracy - the number of questions answered correctly - as well as the amount of time taken, for each H-PERL model.
+
+\pagebreak
+
+\begin{table}
+  \centering
+  \begin{tabular}{ |c|c c| }
+    \hline
+    \textbf{Model} & \textbf{Accuracy (\%)} & \textbf{Time (seconds)} \\
+    \hline
+    \textbf{Hardcoded}      & 97.9 & 363.3 \\
+    \textbf{Hardcoded (EC)} & 99.1 & 356.9 \\
+    \textbf{Trained}        & 98.8 & 126.4 \\
+    \hline
+  \end{tabular}
+  \caption{Performance and timing details for each model.}
+  \label{table:models-eval}
+\end{table}
+
+Table~\ref{table:models-eval} provides a number of interesting comparisons between the three implementations, some of which are as follows:
+\begin{enumerate}
+  \item All three models perform remarkably well; the error correcting hardcoded model, for example, gets only 18 questions wrong, out of a total of 2000. This strong performance is of course partly due to the simplicity of the dataset environment, but it also shows the strength and potential of the H-PERL approach for VideoQA tasks.
+
+  \item The trained model actually performs better than the baseline hardcoded model. An initial analysis shows that the hardcoded model gets a relatively large number of \textit{repetition count} and \textit{repeating action} questions wrong, unlike the trained model (as shown in Table~\ref{table:model-question-acc}). We suspect that this may be due to the hardcoded event component's reliance on looking at the entire sequence of frames when detecting a sequence of actions. A small mistake in one frame may lead the component to find a set of actions which differs significantly from the ground truth. The trained event component, on the hand, looks only at two consecutive frames when detecting an action.
+
+  \item The error correcting version of the hardcoded model performs better than the baseline version. Despite the performance increase being quite small, this shows that the error correcting algorithm had an unambiguous positive effect on the model's performance. Table~\ref{table:model-question-acc}, which provides a breakdown of the models' accuracy on each question type, shows that the performance difference is most pronounced for the questions which relate to events.
+
+  % As Table~\ref{table:model-question-acc} shows, the performance difference is most pronounced for the questions which relate to events.
+
+  \item As alluded to earlier, the trained model is significantly faster than either of hardcoded implementations. This is entirely down to the difference in speed between the hardcoded and trained events components.
+\end{enumerate}
+
+% Table~\ref{table:model-question-acc} provides a breakdown of the models' accuracy on each question type.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{ |c|c c c c c c c| }
+    \hline
+    \diagbox{\textbf{Model:}}{\textbf{Q:}} & \textbf{Property} & \textbf{Relation} & \textbf{Action} & \textbf{CP} & \textbf{RC} & \textbf{RA} & \textbf{ST} \\
+    \hline
+    \textbf{Hardcoded}      & 99.7 & 99.6 & 97.3 & 100  & 98.0 & 94.6 & 96.1 \\
+    \textbf{Hardcoded (EC)} & 99.7 & 99.6 & 99.0 & 100  & 99.2 & 98.2 & 98.0 \\
+    \textbf{Trained}        & 100  & 97.5 & 99.7 & 99.7 & 98.4 & 96.8 & 99.0 \\
+    \hline
+  \end{tabular}
+  \caption{Accuracy of each model, split by question type. CP refers to \textit{changed-property} questions, RC refers to \textit{repetition count} questions, RA refers to \textit{repeating action} questions and ST refers to \textit{state transition} questions.}
+  \label{table:model-question-acc}
+\end{table}
+
+
+% TODO When timings are created update refs above.
 
 
 \subsection{Robustness}
 \label{subsection:eval-robustness}
+
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
+
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
+
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
+
+As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
+
+
 
 
 

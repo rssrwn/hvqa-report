@@ -431,9 +431,9 @@ Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training alg
   \label{table:feature-op-sizes}
 \end{table}
 
-To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. Our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly.
+To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. Our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of action questions answered correctly.
 
-In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of event questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
+In the case where only a single rule is to be learnt, our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of action questions answered correctly. The set of operations that have been selected so far are then stored as the \textit{accumulated operations}. When the next feature is optimised it can choose to either use the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$. The updated set of \textit{accumulated operations} chosen by the algorithm is now stored. This process continues until all features have been optimised.
 
 The case where the algorithm is left to decide how many rules are required - where the number of rules to learn is part of the search - is more complex. In this case there is one set of accumulated operations for each rule learnt, and, during the next feature optimisation, the algorithm can choose any of the accumulated operation sets for each rule being learnt. Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hyposthesis - the set of rules which correctly answers the most questions - for each action.
 
@@ -460,6 +460,9 @@ The case where the algorithm is left to decide how many rules are required - whe
 \subsection{ASP Encoding}
 
 The \textsc{OptimiseFeature} function shown in Algorithm~\ref{algo:optimise} takes as input an action, a set of feature operations, the accumulated feature operations and the training data for the given action. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program. This section outlines the details of that program.
+
+
+% TODO mention how effects are modelled separately
 
 
 
