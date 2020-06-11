@@ -58,8 +58,12 @@ In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Av
 
 The results presented in Table~\ref{table:detector-maps} show that our object detector performs very strongly. This isn't particularly surprising, since the dataset environment is very simple and the object detection algorithm used is state-of-the-art. Nonetheless it proves the assumption that it is possible, in the OceanQA environment at least, to extract objects from the frames of the video and work with these objects directly.
 
+Despite the simpicity of the environment, the object detector is, however, quite slow. Detection of all objects in the testing dataset takes about 56 seconds; making the detector the slowest component in the trained model, and the second slowest in the hardcoded model. The full details of the timings of all components are outlined in TODO. Since the object detector can be trained for a specific environment, we consider it to be adaptable. Training can take a long time however, and each environment must have a large number of object detection examples available.
+
 
 \subsection{Properties}
+
+
 
 
 \subsection{Relations}
@@ -70,6 +74,8 @@ The results presented in Table~\ref{table:detector-maps} show that our object de
 
 \section{Models}
 \label{section:eval-models}
+
+% TODO When timings are created update refs above.
 
 
 
