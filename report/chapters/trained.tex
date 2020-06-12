@@ -480,7 +480,7 @@ This section outlines the details the ASP program which is used in place of the 
 
 The ASP program for a feature $f$, feature operations $\Sigma$, action $a$, accumulator set $acc_1,...,acc_m$ and dataset $D$ is constructed as follows:
 \begin{enumerate}
-  \item Firstly, the action questions in $D$ which contain $a$ as an answer are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $a$ is then represented as:
+  \item Firstly, the action questions in $D$ which contain $a$ as an answer are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $a$ for tuple $j$ is then represented as:
   \begin{equation}
     actual(a, j).
   \end{equation}
@@ -489,6 +489,28 @@ The ASP program for a feature $f$, feature operations $\Sigma$, action $a$, accu
   \begin{equation}
     acc(\mathit{feat}, \sigma_{id}, i).
   \end{equation}
+
+  \item Rules~\ref{rule:rule-creation} and~\ref{rule:rule-def}, which follow, define the search space for the number of rules and give each rule an identifier, respectively.
+  \begin{gather}
+    1 \{ max\_rule\_id(0..\textit{$<$max\_rules$>$}-1) \} 1. \label{rule:rule-creation} \\
+    rule(0..\mathit{Max}) \text{ :- } max\_rule\_id(\mathit{Max}). \label{rule:rule-def}
+  \end{gather}
+  \textit{Where \textit{$<$max\_rules$>$} is a hyperparameter of the component, which specifies the maximum number of rules in the search.}
+
+  \item Next, we need to assign each rule one of the accumulated sets of operators or none. This is done using the following helper and choice rules:
+  \begin{gather}
+    acc\_id(Acc\_id) \text{ :- } acc(\_, \_, Acc\_id). \\
+    1 \{ use\_acc(\mathit{Acc\_id}, Rule) : acc\_id(\mathit{Acc\_id}) \text{ } ; \text{ } no\_acc(\mathit{Rule}) \} 1 \text{ :- } rule(\mathit{Rule}).
+  \end{gather}
+
+  There are also a number of rules which set the feature operations (using the $operation$ predicate, described below) based on the accumulator, however, these are not shown here. On the first feature optimisation, we also set any feature which is not being optimised to have operation $\top$, which ensures that all features are represented in the accumulator for successive optimisations.
+
+  \item We now need to generate the possible feature operations that feature $f$ can take. We do this using the following ASP choice rule:
+  \begin{equation}
+    1 \{ operation(f, Op\_id, R) : op\_weight(f, Op\_id, \_) \} 1 \text{ :- } rule(R).
+    \label{rule:operation-gen}
+  \end{equation}
+  Rule~\ref{rule:operation-gen} generates a potential answer set for each operation of $f$. This rule uses the $op\_weight$ predicate, which defines the weight assigned to each operation for a feature, however, here it is simply used to fetch the operation identifier for each operation of $f$.
 \end{enumerate}
 
 
