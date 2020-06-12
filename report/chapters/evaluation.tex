@@ -58,7 +58,7 @@ In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Av
 
 The results presented in Table~\ref{table:detector-maps} show that our object detector performs very strongly. This isn't particularly surprising, since the dataset environment is very simple and the object detection algorithm used is state-of-the-art. Nonetheless it proves the assumption that it is possible, in the OceanQA environment at least, to extract objects from the frames of the video and work with these objects directly.
 
-Despite the simpicity of the environment, the object detector is, however, quite slow. Detection of all objects in the testing dataset takes about 56 seconds; making the detector the slowest component in the trained model, and the second slowest in the hardcoded model. The full details of the timings of all components are outlined in TODO. Since the object detector can be trained for a specific environment, we consider it to be adaptable. Training can take a long time however, and each environment must have a large number of object detection examples available.
+Despite the simpicity of the environment, the object detector is, however, quite slow. Detection of all objects in the testing dataset takes about 56 seconds; making the detector the slowest component in the trained model, and the second slowest in the hardcoded model. Figure~\ref{fig:model-timings} shows the full details of the timings for all components. Since the object detector can be trained for a specific environment, we consider it to be adaptable. Training can take a long time however, and each environment must have a large number of object detection examples available.
 
 
 \subsection{Properties}
@@ -205,12 +205,8 @@ Table~\ref{table:models-eval} provides a number of interesting comparisons betwe
 
   \item The error correcting version of the hardcoded model performs better than the baseline version. Despite the performance increase being quite small, this shows that the error correcting algorithm had an unambiguous positive effect on the model's performance. Table~\ref{table:model-question-acc}, which provides a breakdown of the models' accuracy on each question type, shows that the performance difference is most pronounced for the questions which relate to events.
 
-  % As Table~\ref{table:model-question-acc} shows, the performance difference is most pronounced for the questions which relate to events.
-
   \item As alluded to earlier, the trained model is significantly faster than either of hardcoded implementations. This is entirely down to the difference in speed between the hardcoded and trained events components.
 \end{enumerate}
-
-% Table~\ref{table:model-question-acc} provides a breakdown of the models' accuracy on each question type.
 
 \begin{table}[h!]
   \centering
@@ -227,22 +223,30 @@ Table~\ref{table:models-eval} provides a number of interesting comparisons betwe
   \label{table:model-question-acc}
 \end{table}
 
-
 % TODO When timings are created update refs above.
+
+Since speed is a key criteria for our evaluation, we provide the breakdown of the timings for each component for the hardcoded and trained models. The timings for the error correcting version of the hardcoded model are not shown, however, they are almost identical to those of the hardcoded model. These breakdowns are shown in Figure~\ref{fig:model-timings}.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{hardcoded-timings.png}
+    \caption{Timings for hardcoded model.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{trained-timings.png}
+    \caption{Timings for trained model.}
+  \end{subfigure}
+  \caption{Breakdown of the relative time taken by each component in both models.}
+  \label{fig:model-timings}
+\end{figure}
 
 
 \subsection{Robustness}
 \label{subsection:eval-robustness}
-
-As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
-
-As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
-
-As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
-
-As well as being very slow, the hardcoded model also comes with very poor adaptability, since the $\mathcal{AL}$ model must be rewritten for every new dataset environment. The trained model is better in this regard, however, the features and feature operations is uses to learn rules may have to be updated for learning new environments.
-
-
 
 
 
