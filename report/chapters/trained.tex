@@ -307,7 +307,7 @@ The ASP rules for finding the actions which occur in a video are found using a g
   \item \textbf{Operation Result} :- The result of applying a feature operation to a feature value. Every operation result must be a binary value, since we want to use these values in the body of ASP rules.
 \end{itemize}
 
-The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ is the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with operation results in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
+The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ is the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with feature operations in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each QA pair contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
 
 As mentioned above, each feature operation is associated with a feature sort. For each sort, we now define the set of possible operations that can be applied to feature values of that sort. For every object in the video, a feature operation $\sigma$ is applied to the pair $(f_{v_{i}}, f_{v_{i+1}})$, where $f_{v_i}$ and $f_{v_{i+1}}$ are the object's values for feature $f$ in frame $i$ and $i+1$, respectively. Every set of feature operations also includes the $\top$ operation, which always evaluates to true.
 
@@ -354,7 +354,7 @@ Finally, a pair of continuous feature values $(f_{v_{i}}, f_{v_{i+1}})$ can take
   \label{eqn:trained-close-def}
 \end{equation}
 
-The $\top$ feature operations always give an operation result of \textit{true}. Intuitively, a $\top$ feature operation has no effect on the outcome of the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
+The $\top$ feature operations always gives an operation result of \textit{true}. Intuitively, a $\top$ feature operation has no effect on the outcome of the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
 \begin{equation}
   a_i \textbf{ if } \begin{multlined}[t]
     \sigma_{x\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{y\_position}(f_{v_{i}}, f_{v_{i+1}}), \sigma_{colour}(f_{v_{i}}, f_{v_{i+1}}), \\
@@ -366,15 +366,17 @@ The $\top$ feature operations always give an operation result of \textit{true}. 
 
 \pagebreak
 
-Before outlining an Inductive Logic Programming (ILP) search algorithm for finding the set of rules, we first give an example which explains the terminology and the construction of the search space.
+Each feature operation is also assigned a \textit{weight}. The weight of a rule is then the sum of the weights of its operations. Secondary goals for the optimisation algorithm are, firstly, to minimise the number of rules and, secondly, to minimise the sum of weights of the rules.
 
-\textbf{Example.} Consider an example in the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
+Before outlining an Inductive Logic Programming (ILP) search algorithm for finding a set of rules, we first give an example which explains the terminology.
 
-\smallskip
+\textbf{Example.} Consider an element of the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
+
+\medskip
 
 \begin{minipage}{0.45\textwidth}
   \centering
-  $x$-position operations $\rightarrow$ results
+  $x$-position operation $\rightarrow$ result
   \begin{gather*}
     100 > 100 \rightarrow \mathit{false} \\
     100 < 100 \rightarrow \mathit{false} \\
@@ -385,7 +387,7 @@ Before outlining an Inductive Logic Programming (ILP) search algorithm for findi
 \end{minipage}
 \begin{minipage}{0.45\textwidth}
   \centering
-  $y$-position operations $\rightarrow$ results
+  $y$-position operation $\rightarrow$ result
   \begin{gather*}
     40 > 25 \rightarrow \mathit{true} \\
     40 < 25 \rightarrow \mathit{false} \\
@@ -395,16 +397,9 @@ Before outlining an Inductive Logic Programming (ILP) search algorithm for findi
   \end{gather*}
 \end{minipage}
 
-\smallskip
+\medskip
 
-It is easy to see that there are many possible rules which the algorithm could learn, given only this single example, although many of these rules are undesired. However, when there are many examples, the algorithm should be able to learn useful rules. The search space required to learn a single rule using a complete algorithm for this example (showing only the position features) is shown in Figure~\ref{fig:search-space}.
-
-\begin{figure}
-  \centering
-  \includegraphics[width=\textwidth]{search-space}
-  \caption{Part of the search space for a complete search algorithm, showing only the $x$-position and $y$-position features operations. The full search space would also include rotation, colour and disappear feature operations.}
-  \label{fig:search-space}
-\end{figure}
+Clearly, given only this single example, there are many possible rules which the algorithm could learn, many of which will be undesirable. However, when there are a more significant number of examples, the algorithm should be able to learn rules which correctly model the environment.
 
 
 \subsection{Search Strategy}
@@ -435,7 +430,7 @@ To ensure the training algorithm remains tractable, we implement a greedy search
 
 Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hyposthesis - the set of rules which correctly answers the most questions - for every action. Algorithm~\ref{algo:optimise} makes use of the \textsc{OptimiseFeature} function, which takes as input: an action, a set of feature operations, the accumulated feature operations and the training data. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program, the encoding for which is outlined in Section~\ref{subsection:trained-events-asp-enc}.
 
-\begin{algorithm}[h!]
+\begin{algorithm}[bp!]
   \caption{Finding the optimal hyposthesis for each action}
   \label{algo:optimise}
   \begin{algorithmic}[1]
@@ -463,7 +458,7 @@ Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the al
 \begin{enumerate}
   \item At the highest level of the search, the algorithm needs to choose how many rules to learn. Therefore we start by creating one node in the search tree for each possible number of rules in $\{ 1, 2, ..., R_{max} \}$, where $R_{max}$ is a hyperparameter of the search.
 
-  \item Then, for each possible number of rules, each rule can choose to use at most one of $\{ acc_{r_1},...,acc_{r_m} \}$. Therefore, for each previous node $n$, which allows $R$ rules, for every rule $r_k$ such that $r_k <= R$, $m+1$ child nodes are added to $n$, one node for each choice of accumulated operations, including none.
+  \item Then, for each possible number of rules, each rule can choose to use at most one of $\{ acc_1,...,acc_m \}$. Therefore, for each previous node $n$, which allows $R$ rules, each rule in $\{ r_1,...,r_R \}$ chooses between $m$ accumulators or none, meaning $(m+1)^R$ child nodes must be added to $n$, since $(m+1)^R$ is the number of possible combinations of accumulator choices.
 
   \item Finally, after choosing which accumulator to use (or none), each rule chooses a feature operation for the feature $f_i$. This means, for each leaf node $n$ constructed so far, we add a child node to $n$ for each possible feature operation $\sigma_i \in \Sigma_{s}$.
 \end{enumerate}
@@ -474,7 +469,7 @@ Once the search space has been constructed, the optimiser evaluates each of the 
 \subsection{ASP Encoding}
 \label{subsection:trained-events-asp-enc}
 
-This section outlines the details of that program.
+This section outlines the details the ASP program which is used in place of the \textsc{OptimiseFeature} function described above. As expected, the program creates the search space using choice rules, and evaluates each possible answer set by counting the number of action questions it answers correctly.
 
 
 % TODO mention how effects are modelled separately

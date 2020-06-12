@@ -69,7 +69,7 @@ Objects in each frame are always enclosed by a rectangular box. Object positions
 
 The dataset models a single binary relation between objects, \textit{close}. Internally this relation is defined as: object A is close to object B if, after expanding A by 5 pixels on each side, for each pair of parallel edges of A (edges in the horizontal direction and edges in the vertical direction), one of the edges either overlaps with B or is fully contained within B's rectangular box. The \textit{close} relation is symmetric. The algorithm for determining closeness is outlined in pseudocode in Algorithm~\ref{algo:close_to}. The dataset does not consider any relations with an arity higher than two.
 
-\begin{algorithm}[h]
+\begin{algorithm}[bp!]
   \caption{Determine whether one object is close to another}
   \label{algo:close_to}
   \begin{algorithmic}[1]
