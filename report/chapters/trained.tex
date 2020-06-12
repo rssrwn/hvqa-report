@@ -478,8 +478,24 @@ Once the search space has been constructed, the optimiser evaluates each of the 
 
 This section outlines the details the ASP program which is used in place of the \textsc{OptimiseFeature} function described above. As expected, the program creates the search space using choice rules, and evaluates each possible answer set by counting the number of action questions it answers correctly.
 
+The ASP program for a feature $f$, feature operations $\Sigma$, action $a$, accumulator set $acc_1,...,acc_m$ and dataset $D$ is constructed as follows:
+\begin{enumerate}
+  \item Firstly, the action questions in $D$ which contain $a$ as an answer are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $a$ is then represented as:
+  \begin{equation}
+    actual(a, j).
+  \end{equation}
 
-% TODO mention how effects are modelled separately
+  \item Secondly, each accumulated feature operation, $acc_i = \{ (\mathit{feat}, \sigma_{id}) \}$, is a set of tuples, where $\mathit{feat}$ is the name of a feature and $\sigma_{id}$ is the identifier assigned to a feature operation (each operation is assigned an integer identifier which is unique within its feature sort). Each element $(\mathit{feat}, \sigma_{id})$ of $acc_i$ is represented using the following predicate:
+  \begin{equation}
+    acc(\mathit{feat}, \sigma_{id}, i).
+  \end{equation}
+\end{enumerate}
+
+
+
+\subsection{Effects}
+
+% TODO mention how effects are modelled separately, why it is helpful to use hybrid model - can add background knowledge of env.
 
 
 
