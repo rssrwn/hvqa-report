@@ -244,6 +244,8 @@ Since speed is a key criteria for our evaluation, we provide the breakdown of th
   \label{fig:model-timings}
 \end{figure}
 
+As mentioned previously, the hardcoded model cannot be easily ported to another environment. This is mostly due to its relations and events components, but also because it makes use of the full-data version of the dataset for training its properties component. Other environments will not be able to guarantee that a similar type of dataset is available. The trained mode, on the other hand, is relatively adaptable to other environments, since its components can be re-trained using a different dataset fairly easily.
+
 
 \subsection{Robustness}
 \label{subsection:eval-robustness}
