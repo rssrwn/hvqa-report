@@ -250,6 +250,35 @@ As mentioned previously, the hardcoded model cannot be easily ported to another 
 \subsection{Robustness}
 \label{subsection:eval-robustness}
 
+Having evaluated a number of H-PERL models, we would also like to evaluate the strengths and weaknesses of the H-PERL approach. Chapter~\ref{chapter:conclusion} summarises many of these strengths and weaknesses, but some of the advantages that we have already seen include: learning efficiency; transparency or explainability; and the ability to encode commonsense or background knowledge into the model.
+
+However, since H-PERL is a pipelined architecture, we must also evaluate the models in terms of how well they deal with deficiencies in the early stages of the architecture. In particular, we focus on how well each H-PERL model operates when the object detection is imperfect. For this reason, we run a robustness test against each of the three model implementations to find out how reliant they are on highly accuracte object detection.
+
+In this section we only deal with a single type of object detection error, where the detector misses an object completely. To implement this, we take the full-data version of the 200 OceanQA test videos and remove each object with probability $p$. We run tests with four different values for $p$: $0$, $0.1$, $0.2$ and $0.3$. A probability of $0$ means that full-data version of the test data is unchanged. Figures~\ref{fig:hardcoded-accs} and~\ref{fig:trained-accs} show how the accuracies of the hardcoded and trained models change with $p$. The pink bar in each case shows the accuracy of the standard H-PERL model, where the trained object decector is used. The results for the error correcting version of the hardcoded model are not shown since they are very similar to those of the hardcoded model.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{hardcoded-accs.png}
+    \caption{Accuracies for hardcoded model.}
+    \label{fig:hardcoded-accs}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}{0.48\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{trained-accs.png}
+    \caption{Accuracies for trained model.}
+    \label{fig:trained-accs}
+  \end{subfigure}
+  \caption{Accuracies of the H-PERL models for different values of $p$. The pink bar shows the accuracy of each model with the trained object detector, for comparison.}
+  \label{fig:model-accs}
+\end{figure}
+
+Figure~\ref{fig:model-accs} shows the accuracies of the models when a 20 seconds timeout was applied to the event detection components. This is particularly important for the hardcoded model and helps to explain the stark difference in performance for higher values of $p$. Due to the timeout the hardcoded event detector was often unable to search through the entire space required to find the optimal set of actions. As mentioned in Chapter~\ref{chapter:hardcoded}, the hardcoded event detector is likely to suffer from this problem when the input data is noisy, which is exactly the sort of condition these robustness tests are trying to emulate.
+
+
+
 
 
 \end{document}
