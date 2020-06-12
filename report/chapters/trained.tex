@@ -366,13 +366,13 @@ The $\top$ feature operations always gives an operation result of \textit{true}.
 
 \pagebreak
 
-Each feature operation is also assigned a \textit{weight}. The weight of a rule is then the sum of the weights of its operations. Secondary goals for the optimisation algorithm are, firstly, to minimise the number of rules and, secondly, to minimise the sum of weights of the rules.
+Each feature operation is also assigned a \textit{weight}. The weight of a rule is then defined as the sum of the weights of its operations. Secondary goals for the optimisation algorithm are, firstly, to minimise the number of rules and, secondly, to minimise the sum of the weights of the rules. In the case of the above feature operations, all operations other than $\top$ are assigned a weight of 1, and $\top$ is assigned a weight of 0. This encourages the optimiser to use $\top$ as much as possible, as long as the set of rules continue to perform well.
 
 Before outlining an Inductive Logic Programming (ILP) search algorithm for finding a set of rules, we first give an example which explains the terminology.
 
 \textbf{Example.} Consider an element of the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
 
-\medskip
+\bigskip
 
 \begin{minipage}{0.45\textwidth}
   \centering
@@ -404,7 +404,7 @@ Clearly, given only this single example, there are many possible rules which the
 
 \subsection{Search Strategy}
 
-Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger. The number of feature operations for each feature and the total search space size is shown in Table~\ref{table:feature-op-sizes}.
+Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger. The number of feature operations for each feature and the total search space size for a complete algorithm which learns only a single rule is shown in Table~\ref{table:feature-op-sizes}.
 
 \begin{table}
   \centering
@@ -450,18 +450,25 @@ Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required 
   \end{algorithmic}
 \end{algorithm}
 
-% In the remainder of this section we provide an English description for the task which the \textsc{OptimiseFeature} function must solve, and, in particular, what the search space for the optimisation looks like.
-
 In the remainder of this section we provide an inductive description for the task which the \textsc{OptimiseFeature} function must solve.
+
+\pagebreak
 
 Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the algorithm is currently optimising feature $f_i$. The algorithm will therefore be given: an action $a$; the set of feature operations $\Sigma_s$, where $s$ is the sort of $f_i$; the \textit{accumulated operations} $acc_1,...,acc_m$ from the previous feature optimisation, where each $acc_j$ is the set of feature operations used by rule $r_j$ in the previous optimisation; and the training data $D$. In the case where $i=1$, the \textit{accumulated operations} contains a single rule whose feature operations are all set to $\top$. The search space for feature optimisation $f_i$ can then be constructed as follows:
 \begin{enumerate}
   \item At the highest level of the search, the algorithm needs to choose how many rules to learn. Therefore we start by creating one node in the search tree for each possible number of rules in $\{ 1, 2, ..., R_{max} \}$, where $R_{max}$ is a hyperparameter of the search.
 
-  \item Then, for each possible number of rules, each rule can choose to use at most one of $\{ acc_1,...,acc_m \}$. Therefore, for each previous node $n$, which allows $R$ rules, each rule in $\{ r_1,...,r_R \}$ chooses between $m$ accumulators or none, meaning $(m+1)^R$ child nodes must be added to $n$, since $(m+1)^R$ is the number of possible combinations of accumulator choices.
+  \item Then, for each possible number of rules, each rule can choose to use at most one of $\{ acc_1,...,acc_m \}$. Therefore, for each previous node $n$, which allows $R$ rules, each rule in $\{ r_1,...,r_R \}$ chooses between $m$ accumulators or none, meaning $(m+1)^R$ child nodes must be added to $n$, since $(m+1)^R$ is the number of possible combinations of accumulator choices. This part of the search tree is shown in Figure~\ref{fig:acc-search} for the node where $R=2$ and two accumulators are carried over.
 
   \item Finally, after choosing which accumulator to use (or none), each rule chooses a feature operation for the feature $f_i$. This means, for each leaf node $n$ constructed so far, we add a child node to $n$ for each possible feature operation $\sigma_i \in \Sigma_{s}$.
 \end{enumerate}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{acc-search}
+  \caption{Accumulator assignment nodes in the search tree, where the number of rules is two and two accumulators are carried forward.}
+  \label{fig:acc-search}
+\end{figure}
 
 Once the search space has been constructed, the optimiser evaluates each of the leaf nodes in the tree outlined above, and chooses the node which maximises the number of action questions answered correctly. The \textsc{OptimiseFeature} function then returns accumulated set of feature operations, $\{ acc_1, ..., acc_i \}$, so that they can be used for the next feature optimisation.
 
