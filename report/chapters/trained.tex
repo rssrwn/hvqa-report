@@ -321,7 +321,7 @@ Firstly, for binary features we only consider values in the initial frame, howev
       \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
   	\end{array}
   \right\}
-  \label{eqn:trained-close-def}
+  \label{eqn:binary-ops}
 \end{equation}
 
 Secondly, a pair of discrete feature values $(f_{v_{i}}, f_{v_{i+1}})$ can have the following feature operations applied:
@@ -335,7 +335,7 @@ Secondly, a pair of discrete feature values $(f_{v_{i}}, f_{v_{i+1}})$ can have 
       \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
   	\end{array}
   \right\}
-  \label{eqn:trained-close-def}
+  \label{eqn:discrete-ops}
 \end{equation}
 \textit{Where $(v_n, v_m)$ loops over all possible combinations of feature values.}
 
@@ -351,7 +351,7 @@ Finally, a pair of continuous feature values $(f_{v_{i}}, f_{v_{i+1}})$ can take
       \sigma(f_{v_{i}}, f_{v_{i+1}}) := \top
   	\end{array}
   \right\}
-  \label{eqn:trained-close-def}
+  \label{eqn:continuous-ops}
 \end{equation}
 
 The $\top$ feature operations always gives an operation result of \textit{true}. Intuitively, a $\top$ feature operation has no effect on the outcome of the rule it is in. Since the algorithm has the option to choose the $\top$ feature operation for any feature, we can enforce that all features appear in every rule body at least once. Any feature that the algorithm doesn't care about can be assigned a $\top$ feature operation. For simplicity, we also enforce that each feature can appear at most once in a rule body. The search algorithm therefore tries to learn a set of rules, where each rule takes the following form:
@@ -527,6 +527,31 @@ The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,
     op\_weight(f, i, \textit{$<$weight$>$}).
   \end{equation}
   \textit{Where \textit{$<$weight$>$} is 0 for the $\top$ operation and 1 otherwise.}
+
+  \item Since it is the only feature which does not come directly from the symbolic information extracted from the video, we must provide a definition for the \textit{disappear} feature. Intuitively, if an object with identifer $\mathit{Id}$ exists in frame $I$, but not in frame $-I$, then $disappear(\mathit{Id}, I)$ is true (as with actions, disappear can be thought of as occurring between one frame and the next; by convention is is assigned to the initial frame).
+
+  The ASP rule for disappear is as follows:
+  \begin{equation}
+    \begin{split}
+      disappear(\mathit{Id}, I) \text{ :- } & obs(class(Class, \mathit{Id}), I), \\
+      & not \text{ } obs(class(Class, \mathit{Id}), -I), \\
+      & step(-I), step(I).
+    \end{split}
+  \end{equation}
+
+  \item We are now in a position to add the rule which generates the prediction of the action $a$ from the operation results. This rule is as follows:
+  \begin{equation}
+    \begin{split}
+      predicted(a, Frame) \text{ :- } & non\_static(\mathit{Id}, I), \\
+      & op\_result(x\_position, \mathit{Id}, I, Rule), \\
+      & op\_result(y\_position, \mathit{Id}, I, Rule), \\
+      & op\_result(rotation, \mathit{Id}, I, Rule), \\
+      & op\_result(colour, \mathit{Id}, I, Rule), \\
+      & op\_result(disappear, \mathit{Id}, I, Rule), \\
+      & rule(Rule).
+    \end{split}
+  \end{equation}
+  \textit{Where $non\_static(\mathit{Id}, I)$ is true for the octopus with identifier $\mathit{Id}$ in frame $I$.}
 \end{enumerate}
 
 
