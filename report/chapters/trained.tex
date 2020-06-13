@@ -478,7 +478,7 @@ Once the search space has been constructed, the optimiser evaluates each of the 
 
 This section outlines the details the ASP program which is used in place of the \textsc{OptimiseFeature} function described above. As expected, the program creates the search space using choice rules, and evaluates each possible answer set by counting the number of action questions it answers correctly.
 
-The ASP program for a feature $f$, feature operations $\Sigma$, action $a$, accumulator set $acc_1,...,acc_m$ and dataset $D$ is constructed as follows:
+The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,\sigma_n \}$, action $a$, accumulator set $acc_1,...,acc_m$ and dataset $D$ is constructed as follows:
 \begin{enumerate}
   \item Firstly, the action questions in $D$ which contain $a$ as an answer are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $a$ for tuple $j$ is then represented as:
   \begin{equation}
@@ -511,6 +511,22 @@ The ASP program for a feature $f$, feature operations $\Sigma$, action $a$, accu
     \label{rule:operation-gen}
   \end{equation}
   Rule~\ref{rule:operation-gen} generates a potential answer set for each operation of $f$. This rule uses the $op\_weight$ predicate, which defines the weight assigned to each operation for a feature, however, here it is simply used to fetch the operation identifier for each operation of $f$.
+
+  \item Next, we add the rules corresponding to feature operations, $\Sigma = \{ \sigma_1,...,\sigma_n \}$, for $f$. Each operation $sigma_i$ is a function of two symbolic feature values from an object. Encoding this operation in ASP therefore requires additional body predicates which can fetch these symbolic values. For example, one of the operations for the \textit{colour} feature is: $f_i = green, f_{i+1} = brown$, which require the use of the $obs(colour(f_i, \mathit{Id}), I)$ and $obs(colour(f_{i+1}, \mathit{Id}), -I)$ predicates. In the general case, we refer to each of these predicates as $p(f_i, \mathit{Id}, I)$ and $p(f_{i+1}, \mathit{Id}, -I)$, and the symbolic representation of the feature operation as $op(\sigma_i, f_i, f_{i+1})$. We can then construct the ASP rule for an operation $sigma_i$ from feature $f$ as follows:
+  \begin{equation}
+    op\_result(f, \mathit{Id}, I, Rule) \text{ :- } \begin{multlined}[t]
+      op(\sigma_i, f_i, f_{i+1}), p(f_i, \mathit{Id}, I), \\
+      p(f_{i+1}, \mathit{Id}, -I), operation(f, i, Rule).
+    \end{multlined}
+  \end{equation}
+
+  The $op\_result(f, \mathit{Id}, I, R)$ predicate stores the binary operation result of feature $f$ in rule $R$ for an object with identifier $\mathit{Id}$ in frame $I$. If $op_result$ is in the answer set, it is storing the result \textit{true}, otherwise, it is storing \textit{false}.
+
+  \item We also need to add the operation weight for each feature operation. To do this we add the following predicate for each operation $\sigma_i$ of feature $f$:
+  \begin{equation}
+    op\_weight(f, i, \textit{$<$weight$>$}).
+  \end{equation}
+  \textit{Where \textit{$<$weight$>$} is 0 for the $\top$ operation and 1 otherwise.}
 \end{enumerate}
 
 
