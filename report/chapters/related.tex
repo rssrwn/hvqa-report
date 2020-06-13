@@ -6,7 +6,7 @@
 \chapter{Related Work}
 \label{chapter:related}
 
-This chapter discusses a number of works related to this project. Firstly, a selection of VideoQA datasets are presented in Section~\ref{section:related-datasets}. Then we discuss some of the existing VideoQA implementations in Section~\ref{section:related-implementations}. Since most existing work done in VideoQA involves end-to-end neural networks, Section~\ref{section:related-vqa} outlines a number of `hybrid' approaches used in VQA. Many of the authors of the VideoQA datasets discussed in Section~\ref{section:related-datasets} also present original VideoQA models. These models are therefore discussed in Section~\ref{section:related-implementations}.
+This chapter discusses a number of works related to this project. Firstly, a selection of VideoQA datasets are presented in Section~\ref{section:related-datasets}. Then we discuss some of the existing VideoQA implementations in Section~\ref{section:related-implementations}. Since most existing work done in VideoQA involves end-to-end neural networks, Section~\ref{section:related-vqa} outlines a number of VQA approaches which require some form of symbolic external knowledge. Many of the authors of the VideoQA datasets discussed in Section~\ref{section:related-datasets} also present original VideoQA models. These models are therefore discussed in Section~\ref{section:related-implementations}.
 
 
 \section{Datasets for VideoQA}
@@ -49,7 +49,7 @@ The TGIF-QA dataset~\cite{dataset:tgif-qa} is commonly used for assessing the pe
 
 \pagebreak
 
-For the VideoQA questions the authors created templates for questions and used a large number of human annotators to speed up the generation process. The FrameQA questions are generated using the descriptions from the TGIF dataset. A number of quality control checks were also included. A few example questions and videos from the TGIF-QA dataset are shown in Figure~\ref{fig:tgif-qa}.
+For the VideoQA questions the authors created templates for questions and used a large number of human annotators to speed up the generation process. The FrameQA questions are generated using the descriptions from the TGIF dataset. A number of quality control checks were also included. A few example questions and videos from the TGIF-QA dataset are shown in Figure~\ref{fig:tgif-examples}.
 
 \begin{figure}
   \centering
@@ -108,7 +108,18 @@ Finally, the MovieFIB dataset~\cite{dataset:movie-fib} is a large-scale fill-in-
 \section{VideoQA Implementations}
 \label{section:related-implementations}
 
-All of the datasets described in the section above (except~\cite{dataset:ego-vqa}) were presented along with original neural network models for solving the VideoQA task. This section attempts to summarise some of these approaches, along with a few others~\cite{videoqa:co-mem, videoqa:cwd, videoqa:mm-att, videoqa:strr}. However, since the focus of our approach will not be an end-to-end neural architecture, we do not give detailed descriptions. An example of a typical VideoQA neural architecture is given in Figure~\ref{fig:video-qa-arch}.
+The CLEVRER dataset, discussed above, was presented along with a VideoQA model called Neuro-Symbolic Dynamic Reasoning (NS-DR). This model combines neural networks for pattern recognition and symbolic logic for causal reasoning. For this reason, it is of particular interest to us for this project, since our goal is also to produce a hybrid model for VideoQA. Below, we give a brief overview of the NS-DR model, and in Chapter~\ref{chapter:conclusion} we compare NS-DR to our own hybrid VideoQA implementations.
+
+NS-DR makes use of a video frame parser, which serves a perception component for the model. The component outputs an object-centric representation of the video, which includes: object mask proposals; a label for intrinsic attributes of objects (colour, material and shape); and a confidence score for each proposal. The object-centric representation is passed to a neural dynamics prediction component, which uses the Propagation Network~\cite{propnet} algorithm to model the dynamics of the system. The role of the dynamics predictor is to extract event occurrences from the video. Separately, a question parsing component constructs a functional program from a given question. Finally, this program is exectued with the event information gleaned by the dynamics predictor to produce an answer to the question. An outline of the NS-DR model is shown in Figure~\ref{fig:ns-dr}.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{ns-dr-image.png}
+  \caption{An outline of the Neuro-Symbolic Dynamic Reasoning (NS-DR) model for VideoQA. Image from~\cite{dataset:clevrer}.}
+  \label{fig:ns-dr}
+\end{figure}
+
+All of the other datasets described in Section~\ref{section:related-datasets} (except~\cite{dataset:ego-vqa}) were presented along with original end-to-end neural network models for solving the VideoQA task. The remainder of this section attempts to summarise some of these approaches, along with a few others~\cite{videoqa:co-mem, videoqa:cwd, videoqa:mm-att, videoqa:strr}. However, since the focus of our approach will not be an end-to-end neural architecture, we do not give detailed descriptions. An example of a typical VideoQA neural architecture is given in Figure~\ref{fig:video-qa-arch}.
 
 All models from work previously presented here contain a video encoder for extracting features from frames of the video. These usually include both appearance and motion features, which are extracted from pre-trained networks (ResNet~\cite{resnet}, VGG~\cite{vgg} or GoogLeNet~\cite{googlenet}, for appearance, and C3D~\cite{c3d}, for motion). The features extracted from each frame are then usually passed into LSTM or GRU networks to obtain encodings for the whole video.
 
