@@ -162,22 +162,17 @@ $\mathcal{AL}$ models a system by a \textit{transition diagram} - a directed gra
   \end{equation}
 \end{itemize}
 
-A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in
+A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in a given video.
+
+
 \subsection{Symbolic Rule Learning}
 
-Inductive Logic Programming~\cite{ilp-intro} (ILP) is a field of symbolic AI research concerned with learning symbolic rules which, when combined with background knowledge, entail a set of positive examples and do not entail any negative examples. ILASP~\cite{ilasp-system} (Inductive Learning of Answer Set Programs) is an ILP framework for learning ASP programs.
+Inductive Logic Programming~\cite{ilp-intro} (ILP) is a field of symbolic AI research concerned with learning symbolic rules which, when combined with background knowledge, entail a set of positive examples and do not entail any negative examples. In ILP terminology, one such set of rules is known as a hypothesis.
 
-The authors of~\cite{ilasp-1} define the \textit{Learning from Answer Sets} ($ILP_{LAS}$) task (which is the task solved by the original version of ILASP), by first defining a \textit{partial interpretation}. A partial interpretation $E$ is a pair of sets of atoms $E^{inc}$ and $E^{exc}$, known as the \textit{inclusions} and \textit{exclusions} of $E$. An answer set $A$ \textit{extends} $E$ if it contains all of the inclusions ($E^{inc} \subseteq A$) and none of the exclusions ($E^{exc} \cap A = \emptyset$). An $ILP_{LAS}$ task is then defined as the tuple $T = \langle B, S_M, E^+, E^- \rangle$, where $B$ is the background knowledge, $S_M$ is the search space, $E^+$ and $E^-$ are the partial interpretations for the positive and negative examples, respectively. ILASP is able to construct the search space from a \textit{language bias} specified by \textit{mode declarations}. Full details, and examples, on how to write a language bias for ILASP can be found in the ILASP manual~\cite{ilasp-system}.
+Inductive Learning of Answer Set Programs (ILASP)~\cite{ilasp-system} is an ILP framework for learning ASP programs. ILASP works by searching over a set of possible hypotheses in a search space. A search space can be generated using a \textit{language bias}, which is essentially a way of specifying which predicates should appear in the rules of a hypothesis. A full definition of the language bias for ILASP is given in~\cite{ilasp-1}.
 
-Given an $ILP_{LAS}$ task, $T$, ILASP finds an hypothesis (an ASP program), $H$, which is known as an inductive solution of $T$, such that all of the following are true:
-\begin{enumerate}
-  \item $H \subseteq S_M$
-  \item $\forall e^+ \in E^+ \text{ } \exists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^+$
-  \item $\forall e^- \in E^- \text{ } \nexists A \in AS(B \cup H) \textit{ such that } A \textit{ extends } e^-$
-\end{enumerate}
-\noindent
-\textit{Where $AS(P)$ refers to the answer sets of a program $P$.}
+In Chapter~\ref{chapter:trained}, however, we opt to use our own simple ILP algorithm which makes use of an ASP optimisation program to find hypotheses, rather than ILASP. This ILP algorithm is used to find a hypothesis which models the occurrence of an action. Chapter~\ref{chapter:trained} describes the construction of the search space for that task.
 
-Later versions of ILASP are capable of solving more complex tasks, including learning weak constraints~\cite{ilasp-wc} (a method for specifying preferences in ASP), learning from context dependent examples~\cite{ilasp-cde} and learning from noisy examples~\cite{ilasp-noisy}.
+
 
 \end{document}
