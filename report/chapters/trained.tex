@@ -12,16 +12,10 @@ In contrast to the hardcoded model, the trained H-PERL model does not use manual
 
 The model is trained using \textit{curriculum learning} - the model learns concepts incrementally. In the case of H-PERL, this means that the model is, firstly, trained to understand object properties, then trained to understand relations, and, finally, is trained to understand events. After training a component, the component is used to extract its corresponding symbolic information from the training data, which can then be used by the next component to be trained.
 
-% The three trained core components of the model are outlined in this chapter. After training each component, the component is used to extract relevant symbolic information from the training data before the next component in the architecture is trained.
-
-% As with the hardcoded model, full performance evaluation details of the trained model and some of its components can be found in Chapter~\ref{chapter:evaluation}.
-
 
 \section{Properties}
 
-As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
-
-% This creates a `chicken-and-egg' problem when collecting the training data
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there are three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
 
 In this section we propose a solution to overcome this problem which utilises semi-supervised learning in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
 
@@ -134,7 +128,7 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
 
   Rules~\ref{rule:holds-colour} and~\ref{rule:holds-rotation} collate the data from the object's cluster and from the property value that that cluster has been assigned and convert this data into $holds$ form. The $holds$ predicate can then be used to answer the questions.
 
-  \item Next, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. We firstly find the tuples $(p_k, v_k, a_k)$ which correspond to the object type $t_i$ are extracted by the question and answer parsing component from the $\textit{$<$k$>$}^{th}$ QA pair. The following rule and fact are then added if $v_k$ is not $Null$:
+  \item Next, the ASP rules corresponding to the questions and the ASP facts corresponding to the answers to those questions are added to the program. We firstly find the tuples $(p_k, v_k, a_k)$ which correspond to the object type $t_i$ and are extracted from the $\textit{$<$k$>$}^{th}$ QA pair. The following rules and facts are then added if $v_k$ is not $Null$:
   \begin{gather}
     answer(\textit{$<$k$>$}, p_k, V) \text{ :- } \begin{multlined}[t]
       holds(p_{v_k}(v_k, \mathit{Id}), \textit{$<$k$>$}), \\
@@ -263,7 +257,7 @@ The neural network takes the vector encoding of the pair of objects as input and
     Fully-connected 4 & 64   & 1    \\
     \hline
   \end{tabular}
-  \caption{Details of the layers of each relation classification network. The input is the size of two encoded objects, and the output is used for binary classification. Dropout of $0.2$ is also applied between each pair of layers.}
+  \caption{Details of the layers of each relation classification network. The input is the size of two encoded objects, and the output is used for binary classification, everything else (including the use of four layers) is a hyperparameter of the network. Dropout of $0.2$ is also applied between each pair of layers.}
   \label{table:relations-network}
 \end{table}
 
@@ -275,7 +269,7 @@ Since the OceanQA dataset has only a single binary relation, \textit{close}, onl
   \item Finally, the set of object-pair encodings, and their associated answers, is used to train the network corresponding to the \textit{close} relation.
 \end{enumerate}
 
-After the network has been trained, the component can be used to classifier binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored. For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
+After the network has been trained, the component can be used to classify binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored. For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
 
 Applying the network to every pair of objects in every frame of a video could become a burden on the speed of the relations component, especially when there are many objects in each frame. Batching pairs of objects together when applying them to the network helps to improve efficiency, but it has its limits. Chapter~\ref{chapter:evaluation} shows that the relations component is the second slowest, after the detector, of all the components in the trained model. However, for the purposes of this project, the relations component is fast enough. Chapter~\ref{chapter:evaluation} also shows the full details of this components performance with perfect inputs.
 
@@ -307,7 +301,7 @@ The ASP rules for finding the actions which occur in a video are found using a g
   \item \textbf{Operation Result} :- The result of applying a feature operation to a feature value. Every operation result must be a binary value, since we want to use these values in the body of ASP rules.
 \end{itemize}
 
-The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ is the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with feature operations in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each QA pair contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
+The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ are the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with feature operations in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each QA pair contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
 
 As mentioned above, each feature operation is associated with a feature sort. For each sort, we now define the set of possible operations that can be applied to feature values of that sort. For every object in the video, a feature operation $\sigma$ is applied to the pair $(f_{v_{i}}, f_{v_{i+1}})$, where $f_{v_i}$ and $f_{v_{i+1}}$ are the object's values for feature $f$ in frame $i$ and $i+1$, respectively. Every set of feature operations also includes the $\top$ operation, which always evaluates to true.
 
@@ -469,7 +463,7 @@ Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the al
   \label{fig:acc-search}
 \end{figure}
 
-Once the search space has been constructed, the optimiser evaluates each of the leaf nodes in the tree outlined above, and chooses the node which maximises the number of action questions answered correctly. The \textsc{OptimiseFeature} function then returns accumulated set of feature operations, $\{ acc_1, ..., acc_i \}$, so that they can be used for the next feature optimisation.
+Once the search space has been constructed, the optimiser evaluates each of the leaf nodes in the tree outlined above, and chooses the node which maximises the number of action questions answered correctly. The \textsc{OptimiseFeature} function then returns the accumulated set of feature operations, $\{ acc_1, ..., acc_i \}$, so that they can be used for the next feature optimisation.
 
 
 \subsection{ASP Encoding}
@@ -477,7 +471,7 @@ Once the search space has been constructed, the optimiser evaluates each of the 
 
 This section outlines the details the ASP program which is used in place of the \textsc{OptimiseFeature} function described above. As expected, the program creates the search space using choice rules, and evaluates each possible answer set by counting the number of action questions it answers correctly.
 
-The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,\sigma_n \}$, action $\mathit{action}$, accumulator set $acc_1,...,acc_m$ and dataset $D$ is constructed as follows:
+The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,\sigma_n \}$, action $\mathit{action}$, accumulator set $\{ acc_1,...,acc_m \}$ and dataset $D$ is constructed as follows:
 \begin{enumerate}
   \item Firstly, the action-type questions in $D$ (including those which do not mention $action$) are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $\mathit{action}$ for tuple $j$ is then represented as:
   \begin{equation}
@@ -491,8 +485,8 @@ The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,
 
   \item Rules~\ref{rule:rule-creation} and~\ref{rule:rule-def}, which follow, define the search space for the number of rules and give each rule an identifier, respectively.
   \begin{gather}
-    1 \{ max\_rule\_id(0..\textit{$<$max\_rules$>$}-1) \} 1. \label{rule:rule-creation} \\
-    rule(0..\mathit{Max}) \text{ :- } max\_rule\_id(\mathit{Max}). \label{rule:rule-def}
+    1 \{ max\_rule\_id(1..\textit{$<$max\_rules$>$}) \} 1. \label{rule:rule-creation} \\
+    rule(1..\mathit{Max}) \text{ :- } max\_rule\_id(\mathit{Max}). \label{rule:rule-def}
   \end{gather}
   \textit{Where \textit{$<$max\_rules$>$} is a hyperparameter of the component, which specifies the maximum number of rules in the search.}
 
