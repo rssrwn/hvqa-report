@@ -364,9 +364,9 @@ Each feature operation is also assigned a \textit{weight}. The weight of a rule 
 
 Before outlining an Inductive Logic Programming (ILP) search algorithm for finding a set of rules, we first give an example which explains the terminology.
 
-\textbf{Example.} Consider an element of the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are given as follows:
+\textbf{Example.} Consider an element of the dataset which includes an action, \textit{move}, and an octopus which is upward-facing, blue and has position $(100, 40, 116, 56)$ in frame 6, and is upward-facing, purple and has position $(100, 25, 116, 41)$ in frame 7. For simplicity we only consider the $x$-position and $y$-position features. Each position feature only uses the top left corner of the object's bounding box, since both corners move by the same amount. The position feature operations are:
 
-\bigskip
+\smallskip
 
 \begin{minipage}{0.45\textwidth}
   \centering
@@ -391,12 +391,19 @@ Before outlining an Inductive Logic Programming (ILP) search algorithm for findi
   \end{gather*}
 \end{minipage}
 
-\medskip
+\smallskip
 
-Clearly, given only this single example, there are many possible rules which the algorithm could learn, many of which will be undesirable. However, when there are a more significant number of examples, the algorithm should be able to learn rules which correctly model the environment.
+Given only this single example, there are many possible rules which the algorithm could learn. Since they all satisfy the dataset example, these include the following:
+\begin{gather*}
+  move \textbf{ if } x\_pos_i = x\_pos_{i+1} , y\_pos_i > y\_pos_{i+1} \\
+  move \textbf{ if } \top , y\_pos_i \text{ } != y\_pos_{i+1} \\
+  move \textbf{ if } \top , \top
+\end{gather*}
+Clearly, these rules are undesirable, however, when there are more examples, the algorithm is able to learn a hypothesis which correctly models the environment. Section~\ref{subsection:trained-search-strategy} outlines how our algorithm searches for such a hypothesis.
 
 
 \subsection{Search Strategy}
+\label{subsection:trained-search-strategy}
 
 Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training algorithm needs to search over the set of all possible combinations of feature operations, where each feature is assigned exactly one operation in the rule body. Even for a relatively simple environment, such as OceanQA, this is a very large search space, and when the possibility of searching over an arbitrary number of rules is taken into account the space becomes even larger. The number of feature operations for each feature and the total search space size for a complete algorithm which learns only a single rule is shown in Table~\ref{table:feature-op-sizes}.
 
@@ -422,8 +429,6 @@ Equation~\ref{eqn:event-rule-layout} shows that, for each rule, the training alg
 
 To ensure the training algorithm remains tractable, we implement a greedy search over features, rather than a complete search over the entire space. Our search algorithm takes each feature individually and finds the operation for the given feature which maximises the number of action questions answered correctly. After each optimisation, we store the set of operations which have been selected as the \textit{accumulated operations}. When the next feature is optimised, each rule in the new hypothesis can choose to use either the full set of stored operations or none - using none means setting all previously optimised feature operations to $\top$.
 
-Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hypothesis - the set of rules which correctly answers the most questions - for every action. Algorithm~\ref{algo:optimise} makes use of the \textsc{OptimiseFeature} function, which takes as input: an action, a set of feature operations, the accumulated feature operations and the training data. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program, the encoding for which is outlined in Section~\ref{subsection:trained-events-asp-enc}. The \textsc{GenHyp} function shown in Alorithm~\ref{algo:optimise} generates the hypothesis for action $a$ using the accumulated feature operations. Section~\ref{subsection:trained-detecting-events} provides more detail on how events are detected after the hypothesis has been learnt.
-
 \begin{algorithm}[bp!]
   \caption{Finding the optimal hypothesis for each action}
   \label{algo:optimise}
@@ -443,9 +448,11 @@ Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required 
   \end{algorithmic}
 \end{algorithm}
 
-In the remainder of this section we provide an inductive description for the task which the \textsc{OptimiseFeature} function must solve.
+Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hypothesis - the set of rules which correctly answers the most questions - for every action. Algorithm~\ref{algo:optimise} makes use of the \textsc{OptimiseFeature} function, which takes as input: an action, a set of feature operations, the accumulated feature operations and the training data. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program, the encoding for which is outlined in Section~\ref{subsection:trained-events-asp-enc}. The \textsc{GenHyp} function shown in Alorithm~\ref{algo:optimise} generates the hypothesis for action $a$ using the accumulated feature operations.
 
 \pagebreak
+
+In the remainder of this section we provide an inductive description for the task which the \textsc{OptimiseFeature} function must solve.
 
 Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the algorithm is currently optimising feature $f_i$. The algorithm will therefore be given: an action $a$; the set of feature operations $\Sigma_s$, where $s$ is the sort of $f_i$; the \textit{accumulated operations} $acc_1,...,acc_m$ from the previous feature optimisation, where each $acc_j$ is the set of feature operations used by rule $r_j$ in the previous optimisation; and the training data $D$. In the case where $i=1$, the \textit{accumulated operations} contains a single rule whose feature operations are all set to $\top$. The search space for feature optimisation $f_i$ can then be constructed as follows:
 \begin{enumerate}
@@ -462,6 +469,8 @@ Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the al
   \caption{Accumulator assignment nodes in the search tree, where the number of rules is two and two accumulators are carried forward.}
   \label{fig:acc-search}
 \end{figure}
+
+\pagebreak
 
 Once the search space has been constructed, the optimiser evaluates each of the leaf nodes in the tree outlined above, and chooses the node which maximises the number of action questions answered correctly. The \textsc{OptimiseFeature} function then returns the accumulated set of feature operations, $\{ acc_1, ..., acc_i \}$, so that they can be used for the next feature optimisation.
 
@@ -555,7 +564,7 @@ The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,
 
   Rule~\ref{rule:tps} is satisfied when the predicted action matches the actual action (defined by each element of the dataset). This rule is maximising (since the weight is negative) the number of true positives generated by the action rules. On the other hand, Rule~\ref{rule:tns} maximises the number of true negatives, since its body is satisfied if the learnt hypothesis does not predict $\mathit{action}$ and $\mathit{action}$ is not the answer for this element of the dataset.
 
-  We also add the following weak constraints to minimise the size of the learnt hypothesis:
+  We also want to minimise the size of the learnt hypothesis, as folllows:
   \begin{gather}
     \text{:$\sim$ } count\_rules(Cnt). [Cnt@2] \label{rule:rule-count} \\
     \text{:$\sim$ } Sum = \#sum\{ W, R : rule\_weight(W, R), rule(R) \}. [Sum@1] \label{rule:rule-size}
