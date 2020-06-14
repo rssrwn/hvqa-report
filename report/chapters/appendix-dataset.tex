@@ -4,10 +4,213 @@
 \begin{document}
 
 
-\chapter{Dataset Examples}
+\chapter{OceanQA Examples}
 \label{appendix-dataset}
 
-TODO
+This supplementary material provides a number of example questions and video frames from the OceanQA dataset. The appendix is split into sections based on the question type. Each section outlines a number of example questions and some of the video frames which relate to each question.
+
+
+% What rotation was the blue rock in frame 22?
+% Was the purple rock close to the octopus in frame 7?
+% What does the octopus do 25 times?
+% Was the upward-facing fish close to the blue rock in frame 31?
+% Which action occurred immediately after frame 23?
+% What happened to the octopus immediately after frame 6?
+% Which action occurred immediately after frame 11?
+% What colour was the upward-facing fish in frame 14?
+% Which action occurred immediately after frame 12?
+% What colour was the octopus in frame 10?"]
+%
+% "answers": ["upward-facing", "yes", "move", "no", "rotate right", "Its colour changed from red to purple", "rotate left", "silver", "move", "purple"]
+
+
+\vspace{1cm}
+{\large \textbf{Property Questions}}
+
+Q: What rotation was the brown rock in frame 21? \\A: upward-facing
+
+Q: What colour was the right-facing fish in frame 27? \\A: silver
+
+Figure~\ref{fig:prop-qs-frame-examples} shows frames 21 and 27 from these videos.
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{prop-example-21.png}
+    \caption{Frame 21.}
+  \end{subfigure}
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{prop-example-27.png}
+    \caption{Frame 27.}
+  \end{subfigure}
+  \caption{ }
+  \label{fig:prop-qs-frame-examples}
+\end{figure}
+
+\pagebreak
+
+{\large \textbf{Relation Questions}}
+
+Q: Was the purple rock close to the octopus in frame 7? \\A: yes
+
+Q: Was the upward-facing fish close to the brown rock in frame 20? \\A: no
+
+Figure~\ref{fig:relation-examples} shows the two frames these questions are referring to.
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{close-example-yes.png}
+    \caption{Frame 7.}
+  \end{subfigure}
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{close-example-no.png}
+    \caption{Frame 20.}
+  \end{subfigure}
+  \caption{ }
+  \label{fig:relation-examples}
+\end{figure}
+
+
+\vspace{1cm}
+{\large \textbf{Action Questions}}
+
+Q: Which action occurred immediately after frame 16? \\ A: rotate anti-clockwise
+
+Figure~\ref{fig:cp-example-rotation} gives an example of an octopus rotating anti-clockwise.
+
+Q: Which action occurred immediately after frame 12? \\A: move
+
+
+\vspace{1cm}
+{\large \textbf{Changed-Property Questions}}
+
+Q: What happened to the octopus immediately after frame 0? \\A: Its rotation changed from upward-facing to left-facing
+
+Figure~\ref{fig:cp-example-rotation} shows the first and second frame from this video.
+
+Q: What happened to the octopus immediately after frame 20? \\A: Its colour changed from red to blue
+
+Figure~\ref{fig:cp-example-cc} shows frame 20 and frame 21 from this video.
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{cp-example-rot-0.png}
+  \end{subfigure}
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{cp-example-rot-1.png}
+  \end{subfigure}
+  \caption{An example of an octopus rotating clockwise.}
+  \label{fig:cp-example-rotation}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{cp-example-cc-0.png}
+  \end{subfigure}
+  \begin{subfigure}{0.4\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{cp-example-cc-1.png}
+  \end{subfigure}
+  \caption{An example of an octopus changing colour.}
+  \label{fig:cp-example-cc}
+\end{figure}
+
+\pagebreak
+
+
+{\large \textbf{Repetition Count Questions}}
+
+Q: How many times does the octopus rotate clockwise? \\A: 0
+
+Figure~\ref{fig:st-example-rc} gives an example of an octopus rotating clockwise and then moving.
+
+Q: How many times does the octopus eat a bag? \\A: 1
+
+Figure~\ref{fig:rc-example-eab} shows the octopus eating a bag.
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{rc-example-eab-0.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{rc-example-eab-1.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{rc-example-eab-2.png}
+  \end{subfigure}
+  \caption{An example of an octopus eating a bag.}
+  \label{fig:rc-example-eab}
+\end{figure}
+
+
+\vspace{1cm}
+{\large \textbf{Repeating Action Questions}}
+
+Q: What does the octopus do 1 times? \\A: eat a fish
+
+Figure~\ref{fig:ra-example-eaf} shows an octopus eating a fish.
+
+Q: What does the octopus do 4 times? \\A: rotate clockwise
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{ra-example-0.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{ra-example-1.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{ra-example-2.png}
+  \end{subfigure}
+  \caption{An example of the octopus eating a fish.}
+  \label{fig:ra-example-eaf}
+\end{figure}
+
+
+\vspace{1cm}
+{\large \textbf{State Transition Questions}}
+
+Q: What does the octopus do immediately after rotating clockwise for the fourth time? \\A: move
+
+Figure~\ref{fig:st-example-rc} shows the video frames which this question is asking about.
+
+% Another example
+
+\begin{figure}[h!]
+  \centering
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{st-example-rc-0.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{st-example-rc-1.png}
+  \end{subfigure}
+  \begin{subfigure}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{st-example-rc-2.png}
+  \end{subfigure}
+  \caption{An example of an octopus rotating clockwise before moving.}
+  \label{fig:st-example-rc}
+\end{figure}
 
 
 
