@@ -9,7 +9,7 @@
 
 
 % TODO discuss:
-% 1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an envionment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
+% 1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an environment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
 % 2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
 % 3. Compare to NS-DR
 % 4. Compare to objectives to see if completed
@@ -74,6 +74,21 @@ Finally, attention mechanisms have been used by a number of recent VideoQA imple
 
 
 \subsection{NS-DR Model}
+
+The Neuro-Symbolic Dynamic Reasoning (NS-DR) model was outlined in Chapter~\ref{chapter:related}. We now compare this model to the H-PERL models described in previous chapters.
+
+At a high level, the Neuro-Symbolic Dynamic Reasoning (NS-DR) model, which was outlined in Chapter~\ref{chapter:related}, is very similar to H-PERL. Both approaches make use of some form of object recognition (NS-DR uses Mask R-CNN~\cite{mask-r-cnn}, while H-PERL uses Faster R-CNN~\cite{cnn-uses:faster-r-cnn}), both models extract attributes or properties of objects using neural networks, both approaches attempt to extract event information from the video, and finally, in order to find answers to questions, both models execute programs with the data extracted from the video.
+
+However, when the approaches are analysed in depth a number of key differences emerge, which we list as follows:
+\begin{itemize}
+  \item NS-DR uses a single `object-centric' component, the video frame parser. This component roughly corresponds to two different H-PERL components: the object detector, properties component. The NS-DR video frame parser is also pre-trained on non-QA data - data other than QA pairs. Whereas, in H-PERL, only the object detector is pre-trained; the properties component can be trained using QA pairs. In this sense H-PERL is more adaptable to new environments, since each environment requires only a trained object detector and a dataset containing properties questions.
+
+  \item While H-PERL makes use of symbolic event components, NS-DR uses a neural event prediction engine which models objects and relations between objects as a graph. This likely makes NS-DR's event detection less transparent, since it is harder to tell how the model came to a particular conclusion, but may improve accuracy.
+
+  \item NS-DR uses a neural question parser which constructs a functional program, with which the output of the event prediction component is executed. Training this question parser requires additional supervised data, in the form of pairs of natural language questions and their corresponding functional program. H-PERL's question parser is manually engineered specifically for the OceanQA environment. In this case, both question parsing components would be difficult to adapt to new environments, since one would need to either engineer a new component or have a dataset of questions and functional programs available.
+
+  \item Finally, we note that the methods for answer generation are similar in the two models, except that NS-DR uses a trained question parsing component to generate a program to be executed, whereas H-PERL uses a manually engineered question-anwering component, and that H-PERL uses logic programming to both represent the video information and to find the answer to the question.
+\end{itemize}
 
 
 \section{Future Work}
