@@ -7,11 +7,6 @@
 \chapter{Evaluation}
 \label{chapter:evaluation}
 
-% TODO object tracker evaluation - perfect performance, if not remove ref from end of h-perl chapter (discuss that object tracker is not officially since there are no questions for it, but that unofficially it achieves perfect performance). Under actual object detector performance conditions as well.
-
-% Talk about timings, including trained relation component (or else remove ref from end of relations in trained model chapter).
-
-
 This chapter describes the performance details of the components and models outlined in Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained}. Section~\ref{section:eval-components} compares the performance of a selection of counterpart components used in the hardcoded and trained models. Section~\ref{section:eval-models} compares the overall performance of the two H-PERL models, and includes details of the models' performance under noisy conditions.
 
 Before presenting the evaluation, we outline the following three key criteria that we want to evaluate the models against:
@@ -222,8 +217,6 @@ Table~\ref{table:models-eval} provides a number of interesting comparisons betwe
   \caption{Accuracy of each model, split by question type. CP refers to \textit{changed-property} questions, RC refers to \textit{repetition count} questions, RA refers to \textit{repeating action} questions and ST refers to \textit{state transition} questions.}
   \label{table:model-question-acc}
 \end{table}
-
-% TODO When timings are created update refs above.
 
 Since speed is a key criteria for our evaluation, we provide the breakdown of the timings for each component for the hardcoded and trained models. The timings for the error correcting version of the hardcoded model are not shown, however, they are almost identical to those of the hardcoded model. These breakdowns are shown in Figure~\ref{fig:model-timings}.
 
