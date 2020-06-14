@@ -41,7 +41,7 @@ We now summarise the weaknesses of the current state of the H-PERL approach that
   \item Unlike other machine learning methods, an environment specification must be provided to each H-PERL model. For complex environments, this may be very difficult to generate.
 \end{enumerate}
 
-Of course, H-PERL comes with many advantages as well. We now list the following strengths of the H-PERL approach:
+Of course, as well as disadvantages, H-PERL also comes with many advantages. We now list the following strengths of the H-PERL approach:
 \begin{enumerate}
   \item Firstly, H-PERL is highly accurate on the OceanQA dataset; with one of the models answering $99.1\%$ of questions correctly.
 
@@ -54,11 +54,28 @@ Of course, H-PERL comes with many advantages as well. We now list the following 
   \item After symbolic information has been extracted from the video, all of the questions for that video can be answered in one go, meaning the architecture can be quite fast. This is in contrast to some VideoQA implementations which make use of attention; each question is applied to the attention module individually in order to extract the relevant parts of the video.
 \end{enumerate}
 
+% In addition to these advantages, we also conjecture that H-PERL would train significantly faster and with much fewer data than an end-to-end neural network. We believe this should be the case since
+
 
 \section{Comparison with Existing Models}
 
+We spend the second part of this section comparing H-PERL to the Neuro-Symbolic Dynamic Reasoning~\cite{dataset:clevrer} model, since, to the best of our knowledge, it is currently the only other hybrid VideoQA implementation. Firstly, though, we compare H-PERL to some of the existing neural end-to-end VideoQA approaches.
+
+
+\subsection{End-to-End Architectures}
+
+Both H-PERL and all of the end-to-end neural network approaches presented in Chapter~\ref{chapter:related} attempt to extract features from the video. One of the key differences between the two approaches is that H-PERL makes these features explicit, while end-to-end networks do not, instead the information in the video is stored implicitly, in a vector. Clearly, storing information explicitly makes the model more transparent, but, in many cases, it is very difficult, especially for the real-world datasets used by many of the implementations in Chapter~\ref{chapter:related}.
+
+A further difference between H-PERL and end-to-end networks is that H-PERL uses a hardcoded question parser, whereas many existing VideoQA implementations use a neural component, and again store the information extracted from the question implicitly. H-PERL's use of a hardcoded question parser makes it less adaptable to other datasets. It also makes applying H-PERL to free-form, natural language questions without templates impossible.
+
+Finally, attention mechanisms have been used by a number of recent VideoQA implementations~\cite{dataset:tgif-qa, dataset:xu, dataset:youtube2text-qa, dataset:tvqa, videoqa:co-mem, videoqa:cwd, videoqa:mm-att, dataset:pororo-qa}. These allow the model to focus on the most relevant part of the video, based on the current question. While object detection may be considered an attention mechanism in H-PERL, the attention is not dynamically updated for each question. Adding an attention mechanism to H-PERL could allow the model to focus on only the relevant objects of a video, however, a lack of attention allows H-PERL to answer every question for a given video at the same time. Adding an attention mechanism may therefore slow each model down. We consider this idea further in Section~\ref{section:future-work}.
+
+
+\subsection{NS-DR Model}
+
 
 \section{Future Work}
+\label{section:future-work}
 
 
 \end{document}
