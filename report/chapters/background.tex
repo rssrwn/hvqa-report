@@ -70,7 +70,7 @@ Firstly, for classification tasks the following terminology is commonly used:
   \item $F_1 = 2 * \frac{precision * recall}{precision + recall}$. The $F_1$ score is a way of combining the precision and recall scores.
 \end{itemize}
 
-Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value such that confidence scores below the threshold are not counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in Figure~\ref{fig:prec-recall}.
+Each object detector model will output a confidence score for each object classification it makes. We can then set a threshold value, such that confidence scores below the threshold are not counted as a classification of an object. Altering this threshold value will give different precision and recall values for the model, which can then be plotted on a precision-recall graph. Example precision-recall curves are shown in Figure~\ref{fig:prec-recall}.
 
 \begin{figure}
   \centering
@@ -130,7 +130,7 @@ As well as negation as failure, ASP also has a notion of `strong negation'. The 
   \label{eqn:asp-example}
 \end{align}
 
-As an example, the two answer sets of the program, $P$, outlined in~\ref{eqn:asp-example}, are $\{ f, a, p \}$ and $\{ f \}$. The final rule of the program is known as a \textit{fact}. Facts must be true in all answer sets.
+As an example, the two answer sets of the program $P$, outlined in~\ref{eqn:asp-example}, are $\{ f, a, p \}$ and $\{ f \}$. The final rule of the program is known as a \textit{fact}. Facts must be true in all answer sets.
 
 As well as finding the set of answer sets of a logic program, the ASP language can also be used to create a preference ordering between answer sets. The ASP solver is then capable of finding the most preferred answer set. Preferences are assigned to answer sets using weak constaints. The format of a weak constraint in ASP is as follows:
 \begin{equation}
@@ -142,7 +142,7 @@ In Rule~\ref{asp-rule:weak-constraint} each $b_i$ is a literal, each $t_i$ is a 
 
 \subsection{The Action Language $\mathcal{AL}$}
 
-Action languages are formal models for describing the behaviour of dynamic systems. In this section we present the version of $\mathcal{AL}$ given in~\cite{krr-asp-book}. $\mathcal{AL}$'s signature contains three special sorts: \textit{statics}, \textit{fluents} and \textit{actions}. Fluents are partitioned into two sorts: \textit{inertial} and \textit{defined}. Inertial fluents are subject to the law of inertia, which means their value stays the same unless it is changed (directly or indirectly) by an action. Defined fluents are not subject to the inertia axiom and cannot be caused by an action; instead they must be defined in terms of other fluents. Statics and fluents are both referred to as `domain properties'. A `domain literal' is a domain property or its negation.
+Action languages are formal models for describing the behaviour of dynamic systems. In this section we present the version of $\mathcal{AL}$ given in~\cite{krr-asp-book}. $\mathcal{AL}$'s signature contains three special sorts: \textit{statics}, \textit{fluents} and \textit{actions}. Fluents are partitioned into two sorts: \textit{inertial} and \textit{defined}. Inertial fluents are subject to the law of inertia, which means their value stays the same unless it is changed (directly or indirectly) by an action. Defined fluents are not subject to the inertia axiom and cannot be caused by an action; instead they must be defined in terms of other fluents. Statics and fluents are both referred to as \textit{domain properties}. A \textit{domain literal} is a domain property or its negation.
 
 $\mathcal{AL}$ models a system by a \textit{transition diagram} - a directed graph whose nodes correspond to possible states of the system and whose arcs, which are labelled by actions, correspond to possible transitions between states. The following three types of $\mathcal{AL}$ statements are used to describe the transitions of an $\mathcal{AL}$ model:
 \begin{itemize}
@@ -162,7 +162,7 @@ $\mathcal{AL}$ models a system by a \textit{transition diagram} - a directed gra
   \end{equation}
 \end{itemize}
 
-A collection of $\mathcal{AL}$ statements is known as a \textit{system decription}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in a given video.
+A collection of $\mathcal{AL}$ statements is known as a \textit{system description}. An $\mathcal{AL}$ system description can be used to model the behaviour of dynamic systems with discrete states; each state can be seen as the set of fluents which are true, and transitions between states are caused by actions. It is possible to encode a given $\mathcal{AL}$ system description, along with a number of domain independent axioms, in ASP. The method for creating this, along with an example encoding, is given in Appendix~\ref{appendix-al}. In Chapter~\ref{chapter:hardcoded} we outline an $\mathcal{AL}$ model and use it to find the set of events which are most likely to have occured in a given video.
 
 
 \subsection{Symbolic Rule Learning}

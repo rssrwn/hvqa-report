@@ -291,13 +291,14 @@ In the following, we show, firstly, the question template (as already outlined i
   The ASP rule for answering this question is as follows:
   \begin{equation}
     \begin{split}
-      answer(\textit{$<$question$>$}, Prop, Before, After) \text{ :- } & changed(Prop, Before, After, Id, \textit{$<$frame$>$}), \\
-      & exists(Id, \textit{$<$frame$>$}+1), \\
-      & \textsc{AspObj}(\text{octopus}, Id, \textit{$<$frame$>$}).
+      answer( & \textit{$<$question$>$}, \mathit{Prop}, \mathit{Before}, \mathit{After}) \text{ :- } \\
+      & changed(\mathit{Prop}, \mathit{Before}, \mathit{After}, \mathit{Id}, \textit{$<$frame$>$}), \\
+      & exists(\mathit{Id}, \textit{$<$frame$>$}+1), \\
+      & \textsc{AspObj}(\text{octopus}, \mathit{Id}, \textit{$<$frame$>$}).
     \end{split}
   \end{equation}
   The answer string is then constructed as follows:
-  $$\text{Its $Prop$ changed from $Before$ to $After$}$$
+  $$\text{Its $\mathit{Prop}$ changed from $\mathit{Before}$ to $\mathit{After}$}$$
 
   \item Repetition count questions resemble the following template:
   $$\text{How many times does the octopus \textit{$<$event$>$}?}$$
