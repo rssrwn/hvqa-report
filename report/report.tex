@@ -16,7 +16,13 @@
 
 %% Abstract
 \begin{abstract}
-Your abstract goes here
+Writing algorithms which can answer questions about a video - a task known as VideoQA - has long been a goal of artificial intelligence (AI) researchers. In order to correctly answer these questions, such algorithms are required to reason about physical and spatial properties of objects, as well as temporal sequences of frames.
+
+Most existing VideoQA implementations make use of large neural networks, which require significant time and resources to train. These models also suffer from opacity; it is very difficult to understand what these models learn and how they come to their conclusions. Hybrid models - models which make use of both neural networks and symbolic reasoning - offer an alternative approach. Implemented correctly, hybrid models have the ability to recognise complex patterns in the video, as well as the ability to store knowledge, and reason about this knowledge, in an interpretable manner.
+
+In this report, we present an algorithmically generated VideoQA dataset, which models objects, relations and interactions between objects. The dataset contains seven different types of questions, each of which tests a model's intelligence in a particular way.
+
+We also present a hybrid architecture for VideoQA tasks. This architecture combines the strengths of neural networks and symbolic reasoning, in order to understand: properties of objects, relations between objects and the occurrence of events in a video. We train a number of different models of this architecture on our VideoQA dataset, and evaluate each model's relative strengths and weaknesses. We show that one of these models can reason about uncertainty due to errors and is able to answer over $99\%$ of questions in the testing data correctly. Finally, as part of our qualitative comparisons to existing implementations, we show that one of our models would be more adaptable to new environments than another recently proposed hybrid VideoQA model.
 \end{abstract}
 
 \cleardoublepage
@@ -45,15 +51,15 @@ Your acknowledgements
 \fancyhead[LO,RE]{\slshape \leftmark}
 
 %% Chapters
-\subfile{chapters/intro}
-\subfile{chapters/background}
-\subfile{chapters/related}
-\subfile{chapters/dataset}
-\subfile{chapters/h-perl}
-\subfile{chapters/hardcoded}
-\subfile{chapters/trained}
-\subfile{chapters/evaluation}
-\subfile{chapters/conclusion}
+% \subfile{chapters/intro}
+% \subfile{chapters/background}
+% \subfile{chapters/related}
+% \subfile{chapters/dataset}
+% \subfile{chapters/h-perl}
+% \subfile{chapters/hardcoded}
+% \subfile{chapters/trained}
+% \subfile{chapters/evaluation}
+% \subfile{chapters/conclusion}
 
 %% Bibliography
 \newpage
