@@ -10,7 +10,6 @@
 
 % TODO discuss:
 % 1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an environment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
-% 2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
 % 3. Compare to NS-DR
 % 4. Compare to objectives to see if completed
 
@@ -93,6 +92,23 @@ However, when the approaches are analysed in depth a number of key differences e
 
 \section{Future Work}
 \label{section:future-work}
+
+% 2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
+
+The two sections above indicate a number of possible extensions to the H-PERL model, which may help to alleviate the approach's the drawbacks. We outline some of these extensions as follows:
+\begin{itemize}
+  \item Firstly, one of the major drawbacks of the model is its inability to work with non-templated questions and its use of an engineered question parser. Future models may be able to extend H-PERL by adding natural language processing (NLP) components which can take any question and either extract some symbolic information, or even produce an ASP rule which can find an answer to the question, in a similar way to the NS-DR model.
+
+  \item In addition to an NLP question parser, a neural attention module could be added, which would allow the model to focus on the most salient aspects of a video, for a given question.
+
+  \item In order to learn rules for answering questions, Inductive Logic Programming (ILP) could be applied to the QA system component. This would enable the QA component to be easily applied to new environments and dataset.
+
+  \item Another helpful extension to the model would be to allow end-to-end training to take place, rather than relying on training each component individually using curriculum learning. An end-to-end trained model, may include a \textit{causality} module which, for a given question, would allow it understand which component of the model was responsible for an incorrect answer and should be updated.
+
+  \item A number of extensions to the OceanQA dataset could increase the diffuculty of the environment. These could include: allowing mutliple moving objects; additional object properties such as velocity or acceleration; including non-deterministic actions; adding more binary (or higher arity) relations; or allowing events which need to modelled using continuous variables, moving by $x$ pixels, for example.
+
+  \item Finally, questions which require a deeper understanding of the environment could be added to the dataset. These could include the explanatory, predictive or counterfactual questions used in the CLEVRER dataset, outlined in Chapter~\ref{chapter:related}. Or questions which ask the model to explain why an event occurred could be added.
+\end{itemize}
 
 
 \end{document}
