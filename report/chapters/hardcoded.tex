@@ -32,12 +32,12 @@ The final output of the network is a set of probability distributions, one for e
   \label{fig:prop-network}
 \end{figure}
 
-The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we collate all of the objects and their properties in the dataset, resize each object to 32x32 pixels, convert each property into a one-hot encoded vector and train the network using batches of 256 objects with a learning rate of 0.001 for 2 epochs. The cross-entropy loss is calculated for each property and these are summed to give an overall loss. The cross-entropy loss between a predicted probability distribution vector $\mathbf{p} \in \mathbb{R}^K$ and a one-hot encoded classification vector $\mathbf{y} \in \mathbb{R}^K$, where $K$ is the number of classes, is as follows:
+The full-data version of the OceanQA dataset labels both the colour and rotation of every object in every frame. This makes training a neural network relatively straightforward; we collate all of the objects and their properties in the dataset, resize each object image to 32x32 pixels, convert each property into a one-hot encoded vector and train the network using batches of 256 objects with a learning rate of 0.001 for 2 epochs. The cross-entropy loss is calculated for each property and these are summed to give an overall loss. The cross-entropy loss between a predicted probability distribution vector $\mathbf{p} \in \mathbb{R}^K$ and a one-hot encoded classification vector $\mathbf{y} \in \mathbb{R}^K$, where $K$ is the number of classes, is as follows:
 \begin{equation}
   H(\mathbf{p}, \mathbf{y}) = - \sum_{c=1}^{K} y_c \text{ log}(p_c)
 \end{equation}
 
-When the H-PERL model is being evaluated each object in the video is applied to the network (batched together for efficiency) and a set of probability distributions is produced. For each object, the property value for a particular property is given by the most probable element of the vector.
+When the H-PERL model is being evaluated each object image in the video is applied to the network (batched together for efficiency) and a set of probability distributions is produced. For each object, the property value for a particular property is given by the most probable element of the vector.
 
 
 \section{Relations}
@@ -64,13 +64,13 @@ Clearly, since the algorithm used to construct the dataset and the algorithm use
   \label{fig:change-colour}
 \end{figure}
 
-Another consideration for this approach to relation classification is speed; each relation classification algorithm (of which there is only one in the OceanQA dataset, but, in general there may be many) looks at every possible pair of objects in every frame of the video. Assuming that each relation classifier operates in constant time, this creates an overall algorithmic complexity of $\mathcal{O}(kmn^2)$, where $k$ is the number of frames per video, $m$ is the number of relations to be classified and $n$ is the number of objects in each frame. Despite this we found that the time taken by the relation component was small relative to other components in the H-PERL model. Chapter~\ref{chapter:evaluation} outlined the full details of the component's performance, including details on the time taken during evaluation.
+Another consideration for this approach to relation classification is speed; each relation classification algorithm (of which there is only one in the OceanQA dataset, but in general there may be many) looks at every possible pair of objects in every frame of the video. Assuming that each relation classifier operates in constant time, this creates an overall algorithmic complexity of $\mathcal{O}(kmn^2)$, where $k$ is the number of frames per video, $m$ is the number of relations to be classified and $n$ is the number of objects in each frame. Despite this we found that the time taken by the relation component was small relative to other components in the H-PERL model. Chapter~\ref{chapter:evaluation} outlines the full details of the component's performance, including details on the time taken during evaluation.
 
 
 \section{Events}
 \label{section:hardcoded-events}
 
-As mentioned in Chapter~\ref{chapter:h-perl}, the role of the event detection component is to list all of the actions and effects which take place between each pair of consecutive frames of a given video. Since preceeding components have extracted a number of object and frame-level symbolic features already, the event detector in the hardcoded model works only with these features, as opposed to viewing the raw pixels in each frame.
+As mentioned in Chapter~\ref{chapter:h-perl}, the role of the event detection component is to list all of the actions and effects which take place between each pair of consecutive frames of a given video. Since preceeding components have extracted a number of object- and frame-level symbolic features already, the event detector in the hardcoded model works only with these features, as opposed to viewing the raw pixels in each frame.
 
 For the hardcoded model, the event detector is implemented by, firstly, searching through all possible combinations of actions. The component assumes that there is only one action per frame and that only non-static objects can be the cause of an action. Each combination of actions is then applied to a hand-written $\mathcal{AL}$ model of the environment to generate the set of symbolic features which would be expected to be observed should the set of actions have occurred. This set of features is then compared to the set of features which were actually observed - the set of features extracted by preceeding components. Finally, the combination of actions which lead to the best fit with the observed data are selected.
 
@@ -79,7 +79,7 @@ For each set of possible actions and their associated features generated by the 
 
 \subsection{The $\mathcal{AL}$ Model}
 
-As described in Chapter~\ref{chapter:background}, $\mathcal{AL}$ is a formal model for describing the behaviour of a dynamic system. An $\mathcal{AL}$ system consists of a set of states and some way of transitioning between states using actions. We model our video as an $\mathcal{AL}$ system by considering each frame as a state and object actions between frames as $\mathcal{AL}$ actions. In $\mathcal{AL}$ a state is described by a set of fluents. Each fluent, $\textit{$<$f$>$}$, can be wrapped up in a predicate, $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$, where \textit{$<$i$>$} is a timestep in the video, which means that fluent \textit{$<$f$>$} is true at step \textit{$<$i$>$}. Conversely, $\neg holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ means that \textit{$<$f$>$} is not true at step \textit{$<$i$>$}. An OceanQA-specific example of a set of $\mathcal{AL}$ states and transitions between them is shown in Figure~\ref{fig:al-states}.
+As described in Chapter~\ref{chapter:background}, $\mathcal{AL}$ is a formal model for describing the behaviour of a dynamic system. An $\mathcal{AL}$ system consists of a set of states and some way of transitioning between states using actions. We model our video as an $\mathcal{AL}$ system by considering each frame as a state and object actions between frames as $\mathcal{AL}$ actions. In $\mathcal{AL}$, a state is described by a set of fluents. Each fluent, $\textit{$<$f$>$}$, can be wrapped up in a predicate, $holds(\textit{$<$f$>$}, \textit{$<$i$>$})$, where \textit{$<$i$>$} is a timestep in the video, which means that fluent \textit{$<$f$>$} is true at step \textit{$<$i$>$}. Conversely, $\neg holds(\textit{$<$f$>$}, \textit{$<$i$>$})$ means that \textit{$<$f$>$} is not true at step \textit{$<$i$>$}. An OceanQA-specific example of a set of $\mathcal{AL}$ states and transitions between them is shown in Figure~\ref{fig:al-states}.
 
 \begin{figure}
   \centering
@@ -100,7 +100,7 @@ Firstly, we outline the types involved in the $\mathcal{AL}$ system description,
 
   \item We add a further defined fluent, which also comes directly from the observed information. This fluent is called $disappear(\textit{$<$id$>$})$, and, naturally, means that an object with identifier \textit{$<$id$>$} disappears immediately after the current timestep.
 
-  \item Actions are, of course, modelled by the \textit{action} type. The action itself takes a single argument - the object's identifier. In ASP each action is written as $\textit{$<$action$>$}(\textit{$<$id$>$})$.
+  \item Actions are, of course, modelled by the \textit{action} type. The action itself takes a single argument - the object's identifier. In ASP, each action is written as $\textit{$<$action$>$}(\textit{$<$id$>$})$.
 \end{itemize}
 
 The domain independent rules for the OceanQA environment are as outlined in Appendix~\ref{appendix-al}, with the following addition:
@@ -117,7 +117,7 @@ Finally, we outline the domain dependent $\mathcal{AL}$ statements for the syste
   \item The \textit{move} action causes the object to move 15 pixels in the direction of rotation. This means that, in frame $i+1$, the object is no longer in the position it was in during frame $i$. We use a Python function, $new\_pos$, in the ASP program to calculate the object's next position. This function is called using the $@$ symbol. The $\mathcal{AL}$ \textit{causal laws} for the move action are the following:
   \begin{gather*}
     move(\mathit{Id}) \textbf{ causes } position(@new\_pos(P, R), \mathit{Id}) \textbf{ if } position(P, \mathit{Id}), rotation(R, \mathit{Id}) \\
-    move(\mathit{Id}) \textbf{ causes } \neg position(position(P, \mathit{Id})) \textbf{ if } position(P, \mathit{Id})
+    move(\mathit{Id}) \textbf{ causes } \neg position(P, \mathit{Id}) \textbf{ if } position(P, \mathit{Id})
   \end{gather*}
 
   \item $\mathcal{AL}$ causal laws follow the same pattern for both rotation actions. The Python function, $new\_rot$, is used to calculate the new rotation for the object, it takes the previous rotation and the type of rotation as arguments. In the following $\mathcal{AL}$ causal laws \textit{$<$d$>$} is used to refer to the direction of rotation:
@@ -180,7 +180,7 @@ Firstly, for the \textit{eat a fish} (an example of which is shown in Figure~\re
   \end{split}
 \end{equation}
 
-We also need to ensure the octopus' colour is updated when it comes close to rock, and that we keep track of any \textit{change colour} effects that occur. To do this we, firstly, use the following helper predicate:
+We also need to ensure the octopus' colour is updated when it comes close to a rock, and that we keep track of any \textit{change colour} effects that occur. To do this we, firstly, use the following helper predicate:
 \begin{equation}
   \begin{split}
     change\_colour(Old, New, Id, I-1) \text{ :- } & holds(class(octopus, Id), I), \\
@@ -220,8 +220,8 @@ Firstly, in order to ensure that both data models start with the same informatio
 
 Finally, in order to give each set of actions a score, the expected data is compared with the observed data and the number of mismatched fluents is counted. In ASP a \textit{weak constraint} can be used to assign a cost to an answer set. As explained in Chapter~\ref{chapter:background}, the ASP optimiser then searches for the answer set with the lowest cost. We use the following two weak constraints to optimise the action search:
 \begin{gather}
-  \text{:$\sim$ } \neg obs(exists(Id), I), holds(exists(Id), I). [1@1, exists(Id), I] \label{eqn:exists-opt} \\
-  \text{:$\sim$ } obs(F, I), \neg holds(F, I). [1@2, F, I] \label{eqn:fluent-opt}
+  \text{:$\sim$ } \neg obs(exists(Id), I), holds(exists(Id), I). [1@2, exists(Id), I] \label{eqn:exists-opt} \\
+  \text{:$\sim$ } obs(F, I), \neg holds(F, I). [1@1, F, I] \label{eqn:fluent-opt}
 \end{gather}
 
 Rule~\ref{eqn:exists-opt} is given a higher priority, so ASP searches for a set of answer sets which minimise the number of times the body is true before considering Rule~\ref{eqn:fluent-opt}. Rule~\ref{eqn:exists-opt} says that we prefer answer sets with the fewest mismatches due to the $exists\textit{$<$id$>$}$ fluent. Rule~\ref{eqn:fluent-opt}, on the other hand, says that we prefer answer sets with the fewest mismatches between all fluents. Rule~\ref{eqn:exists-opt} is given a higher priority, firstly, because it is more specific, and, secondly, because we consider an error in modelling the existence of an object as more significant than errors in modelling other fluents.
@@ -261,7 +261,7 @@ To combat this, we allow the tracker to assign the same identifier to multiple o
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.6\textwidth]{detection-error.png}
-  \caption{An example of an error in the object detection. Two purple octopuses are detected in this frame. This leads to competion for the identifier of the `real' octopus.}
+  \caption{An example of an error in the object detection. Two purple octopuses are detected in this frame. This leads to competition for the identifier of the `real' octopus.}
   \label{fig:detector-error}
 \end{figure}
 
