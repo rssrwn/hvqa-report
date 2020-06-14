@@ -8,17 +8,27 @@
 \label{chapter:conclusion}
 
 
-TODO discuss:
+% TODO discuss:
+% 1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an envionment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
+% 2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
+% 3. Compare to NS-DR
+% 4. Compare to objectives to see if completed
 
-1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an envionment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
 
-2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
+Many aspects of the OceanQA dataset and the H-PERL approach have been discussed in previous chapters. This chapter therefore aims to summarise these details, and particularly focus on the strengths and weaknesses of our VideoQA architecture. We also attempt to compare our approach qualitatively to existing work in VideoQA. Finally, we conclude by outlining a number of possible extensions to our architecture, some of which may help to address the drawbacks of the approach, or apply the approach to different tasks.
 
-% 3. How this model can be applied to related tasks (eg. VQA, captioning, maybe RL).
 
-3. Compare to NS-DR
+\section{Summary of H-PERL}
 
-4. Compare to objectives to see if completed
+In Chapter~\ref{chapter:h-perl} we described the H-PERL architecture as a hybrid architecture - composed of both neural networks and symbolic reasoning modules - made of a pipeline of components. Each component in the architecture extracts a particular concept from the video or question. These concepts include: objects, including type and position; object properties, such as colour and rotation; binary relations between objects, such as close; and events between two consecutive frames of the video.
+
+Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outlined specific H-PERL models. The hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}, used mostly manually engineered components. These components allowed the hardcoded model to find and correct errors in the object detection. The trained model, described in Chapter~\ref{chapter:trained}, continued to use some engineered components, but trained its \textit{core} components using QA pairs. Chapter~\ref{chapter:evaluation} outlined the performance differences between these models.
+
+
+\section{Comparison with Existing Models}
+
+
+\section{Future Work}
 
 
 \end{document}
