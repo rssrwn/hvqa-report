@@ -15,7 +15,7 @@ The model is trained using \textit{curriculum learning} - the model learns conce
 
 \section{Properties}
 
-As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there are three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model needs a trained property extractor in order to find the images to train the property extractor with.
+As mentioned in Chapter~\ref{chapter:dataset}, property questions in the OceanQA dataset ask the model to find a property value for a specific object. This object, however, can contain a reference to a property value. This means that, in some cases, knowledge of object properties is required in order to find the specified object in the frame. For example, if a question asked ``What colour was the upward-facing fish in frame 12?", and there are three fish, each with unique rotations, in frame 12, one would need knowledge of object properties in order to select the correct image of the fish. This means the training data cannot be collated in the same way as the hardcoded model; the model would need a trained property extractor in order to find the images to train the property extractor with.
 
 In this section we propose a solution to overcome this problem which utilises semi-supervised learning in order to label all of the objects in the dataset with property values. Once these labels have been found, the property component can be trained in the same way as the hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}.
 
@@ -28,10 +28,10 @@ The first step of the algorithm for finding these labels involves training an au
   \label{fig:ae-arch}
 \end{figure}
 
-The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects in groups based on their class. The component then proceeds to individually apply the following three high-level steps, which are described in further detail in the sections below, to each object type, $t_i$:
+The autoencoder allows the component to work with the latent vectors of objects rather than raw object images. At this stage, every object in the training data is encoded using the autoencoder and stored in vector form. After the autoencoder has been trained and all the objects have been encoded, the properties component splits objects into groups based on their class. The component then proceeds to individually apply the following three high-level steps, which are described in further detail in the sections below, to each object type, $t_i$:
 \begin{enumerate}
   \item The objects with type $t_i$ are clustered using their latent encoding and each cluster is assigned an integer identifier, $c_j$. More detail on the clustering is outlined in Section~\ref{subsection:trained-clustering}.
-  \item The QA pairs will label a number of the objects in the training data with some or all of their property values. ASP can be used to find a mapping from each $c_j$ to a set of property-value pairs. The ASP program used to conduct this mapping is described in Section~\ref{subsection:trained-mapping-optimisaton}.
+  \item The QA pairs will label a number of the objects in the training data with some or all of their property values. ASP can be used to find a mapping from each $c_j$ to a set of property-value pairs. The ASP program used to conduct the search for this mapping is described in Section~\ref{subsection:trained-mapping-optimisaton}.
   \item Once this mapping is known, all of the objects of type $t_i$ in the training data can be labelled. The algorithm for finding these labels is outlined in Section~\ref{subsection:trained-data-labelling}.
 \end{enumerate}
 
@@ -94,7 +94,7 @@ Figure~\ref{fig:octopus-clusters} shows the result of the clustering algorithm a
 \subsection{Property Value Optimisation}
 \label{subsection:trained-mapping-optimisaton}
 
-In order to find $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We also use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $k$ as $(p_k, v_k, a_k)$, where $p_k$ is the property mentioned in the question (or $Null$ if there isn't one), $v_k$ is an optional property value mentioned in the question and $a_k$ is the answer, which is a property value.
+In order to find each $f_{t_i}^*$, we must first define the objective function. Since we have a set of property questions and answers, we choose to maximise the number of questions answered correctly. It is now necessary to find the questions which correspond to object type $t_i$. We use the question and answer parsing component (outlined in Chapter~\ref{chapter:h-perl}) to extract the relevant symbolic information from the question and from the answer. We denote the information extracted from QA pair $k$ as $(p_k, v_k, a_k)$, where $p_k$ is the property mentioned in the question, $v_k$ is an optional property value mentioned in the question (or $Null$ if there isn't one) and $a_k$ is the answer, which is a property value.
 
 ASP is then used to conduct the optimisation. One ASP program is constructed for each object type. We outline the ASP program for the object type $t_i$ in the following five stages:
 \begin{enumerate}
@@ -186,10 +186,10 @@ ASP is then used to conduct the optimisation. One ASP program is constructed for
   \begin{displayquote}
     If a group of objects with the same property values is split between two or more clusters, and these objects are commonly asked about in the QA pairs, then the ASP optimiser has the ability to assign multiple object clusters to the same property values, if it leads to a larger number of questions being answered correctly.
   \end{displayquote}
-  We therefore always try to ensure whatever rules the model learns it learns them in order to maximise the number of questions answered correctly. Hence, Rule~\ref{rule:answer-constraint} is given the highest priority.
+  We therefore always try to ensure that, whichever rules the model learns, it learns them in order to maximise the number of questions answered correctly. Hence, Rule~\ref{rule:answer-constraint} is given the highest priority.
 \end{enumerate}
 
-The ASP program is run for each object type $t_i$, and $\textit{$<$prop$>$}_mapping$ predicates contained in the optimal answer set in each case are then used to find the optimal mapping $f_{t_i}^*$, which is then stored and used to label all objects in the training data.
+The ASP program is run for each object type $t_i$. $\textit{$<$prop$>$}\_mapping$ predicates contained in the optimal answer set in each case are then used to find the optimal mapping $f_{t_i}^*$, which is then stored and used to label all objects in the training data.
 
 
 \subsection{Data Labelling}
@@ -221,9 +221,9 @@ Each of these networks is assigned a binary relation, $r$, to learn. Each networ
 Since fully-connected layers work with numbers, rather than symbolic data, we need to find a way to encode a pair of objects into a vector. To do this we encode each object in the pair separately (an example encoding of an object is shown in Figure~\ref{fig:encoding}) and then concatenate the two encodings together. The encoding of an object is the result of concatentating each of the following:
 \begin{enumerate}
   \item A one-hot encoding of the object's type.
-  \item A one-hot encoding of object's colour.
-  \item A one-hot encoding of object's rotation.
-  \item The position tuple for the object, where each coordinate has been divided by 256 to produce a number of between $0$ and $1$.
+  \item A one-hot encoding of the object's colour.
+  \item A one-hot encoding of the object's rotation.
+  \item The position tuple for the object, where each coordinate has been divided by 256 to produce a number of between 0 and 1.
 \end{enumerate}
 
 \begin{figure}
@@ -233,7 +233,7 @@ Since fully-connected layers work with numbers, rather than symbolic data, we ne
   \label{fig:encoding}
 \end{figure}
 
-The neural network takes the vector encoding of the pair of objects as input and passes this vector through a series of fully-connected layers. The details of the layers are shown in Table~\ref{table:relations-network}. As shown in the table, the output of the network is a single neuron. The sigmoid function is applied to the output of the network to ensure the value is between $0$ and $1$. If the value of the output of a network learning relation $r$ is denoted $o_r$, then the relation classifier component's output for a pair of objects, denoted $r(\mathit{obj1}, \mathit{obj2})$, is as follows:
+The neural network takes the vector encoding of the pair of objects as input and passes this vector through a series of fully-connected layers. The details of the layers are shown in Table~\ref{table:relations-network}. As shown in the table, the output of the network is a single neuron. The sigmoid function is applied to the output of the network to ensure the value is between 0 and 1. If the value of the output of a network learning relation $r$ is denoted $o_r$, then the relation classifier component's output for a pair of objects, denoted $r(\mathit{obj1}, \mathit{obj2})$, is as follows:
 \begin{equation}
   r(\mathit{obj1}, \mathit{obj2}) =
   \left\{
@@ -265,22 +265,22 @@ Since the OceanQA dataset has only a single binary relation, \textit{close}, onl
 \begin{enumerate}
   \item All of the relation questions in the QA-data version of the training dataset are collated.
   \item From each QA pair, a frame number, two objects (including types and, optionally, property values) and the answer are extracted using the question-and-answer parsing component.
-  \item The frame number and object information is used to look up any missing property values for each object. The property component has already been applied to the dataset, so the property values of all detected objects are guaranteed to be labelled. The full set of property values, as well as the object type and position from the detector, is used to construct the object encoding. The two encodings are concatenated to produce the object-pair encoding.
-  \item Finally, the set of object-pair encodings, and their associated answers, is used to train the network corresponding to the \textit{close} relation.
+  \item The frame number and object information is used to look up (in the data extracted from the videos) any missing property values for each object. The property component has already been applied to the dataset, so the property values of all detected objects are guaranteed to be labelled. The full set of property values, as well as the object type and position from the detector, is used to construct the object encoding. The two encodings are concatenated to produce the object-pair encoding.
+  \item Finally, the set of object-pair encodings and their associated answers, is used to train the network corresponding to the \textit{close} relation.
 \end{enumerate}
 
 After the network has been trained, the component can be used to classify binary relations between objects. When being applied to a given video, the relations component classifies every pair of objects in every frame of the video as being either close or not using Equation~\ref{eqn:trained-close-def}. If two objects in frame $\textit{$<$frame$>$}$ with identifiers \textit{$<$id1$>$} and \textit{$<$id2$>$}, respectively, are deemed to be close by the component, then the $obs(close(\textit{$<$id1$>$}, \textit{$<$id2$>$}), \textit{$<$frame$>$})$ predicate is stored. For any pair of objects deemed to not be close, nothing is stored; the closed-world assumption (CWA) - that is, that any predicate which cannot be proved to be true is false - is made for relations between objects.
 
-Applying the network to every pair of objects in every frame of a video could become a burden on the speed of the relations component, especially when there are many objects in each frame. Batching pairs of objects together when applying them to the network helps to improve efficiency, but it has its limits. Chapter~\ref{chapter:evaluation} shows that the relations component is the second slowest, after the detector, of all the components in the trained model. However, for the purposes of this project, the relations component is fast enough. Chapter~\ref{chapter:evaluation} also shows the full details of this components performance with perfect inputs.
+Applying the network to every pair of objects in every frame of a video could become a burden on the speed of the relations component, especially when there are many objects in each frame. Batching pairs of objects together when applying them to the network helps to improve efficiency, but it has its limits. Chapter~\ref{chapter:evaluation} shows that the relations component is the second slowest, after the detector, of all the components in the trained model. However, for the purposes of this project, the relations component is fast enough. Chapter~\ref{chapter:evaluation} also shows the full details of this component's performance with perfect inputs.
 
 
 \section{Events}
 
-The final of the three core components in the trained model is the event component. As with the properties and relations component, the event component uses the QA-data version of the dataset for training. However, unlike the previous components, both the properties and relations components are applied to the training data in order to extract relevant symbolic information, prior to training the event component. During training, the event component can therefore access data that has been extracted by all preceeding components in the architecture: the object detector, properties, tracking and relations components.
+The final of the three core components in the trained model is the event component. As with the properties and relations component, the event component uses the QA-data version of the dataset for training. However, unlike the previous components, both the properties and relations components are applied to the training data, in order to extract relevant symbolic information, prior to training the event component. During training the event component can therefore access data that has been extracted by all preceeding components in the architecture: the object detection, properties, tracking and relations components.
 
 \pagebreak
 
-Since a lot of symbolic information will already have been extracted from the video during evaluation by preceeding components, the event component does not need to look at raw pixels in the video at all. Instead, it is much more efficient to use the data that has already been gleaned from the video to work out which events occur. Unlike the hardcoded events component, the trained component cannot assume to have access to an $\mathcal{AL}$ model of the environment. Instead, it must learn its own symbolic rules using the training data. One option is to learn an $\mathcal{AL}$ model and use this to find which events occur in the same way as the hardcoded component. However, these $\mathcal{AL}$ rules can be quite complex, so we do not consider this option for this project. Instead, we opt to learn ASP rules which, given a symbolic enoding for a pair of frames, return the action which occurs between the two frames. Once the actions for the entire video have been found, additional ASP rules can be used to find the effects.
+Since, during evaluation, a lot of symbolic information will already have been extracted from the video by preceeding components, the event component does not need to look at raw pixels in the video at all. Instead, it is much more efficient to use the data that has already been gleaned from the video to work out which events occur. Unlike the hardcoded events component, the trained component cannot assume to have access to an $\mathcal{AL}$ model of the environment. Instead, it must learn its own symbolic rules using the training data. One option is to learn an $\mathcal{AL}$ model and then use this to find which events occur in the same way as the hardcoded component. However, these $\mathcal{AL}$ rules can be quite complex, so we do not consider this option for this project. Instead, we opt to learn ASP rules which, given a symbolic enoding for a pair of frames, return the action which occurs between the two frames. Once the actions for the entire video have been found, additional ASP rules can be used to find the effects.
 
 
 \subsection{Terminology}
@@ -301,7 +301,7 @@ The ASP rules for finding the actions which occur in a video are found using a g
   \item \textbf{Operation Result} :- The result of applying a feature operation to a feature value. Every operation result must be a binary value, since we want to use these values in the body of ASP rules.
 \end{itemize}
 
-The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ are the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, find a set of rules with feature operations in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each QA pair contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
+The goal of the training algorithm is, given a dataset $\{(F_i, F_{i+1}, a_i)\}$, where $F_i$ and $F_{i+1}$ are the set of feature values for frame $i$ and $i+1$, respectively, and $a_i$ is the action which occurs between frame $i$ and $i+1$, to find a set of rules with feature operations in the body which best explain the data. In this case, explaining the data means maximising the number of questions answered correctly, where each QA pair contains a frame $i$ (using which we can look up $F_i$ and $F_{i+1}$ in the extracted data) and an answer (which provides $a_i$).
 
 As mentioned above, each feature operation is associated with a feature sort. For each sort, we now define the set of possible operations that can be applied to feature values of that sort. For every object in the video, a feature operation $\sigma$ is applied to the pair $(f_{v_{i}}, f_{v_{i+1}})$, where $f_{v_i}$ and $f_{v_{i+1}}$ are the object's values for feature $f$ in frame $i$ and $i+1$, respectively. Every set of feature operations also includes the $\top$ operation, which always evaluates to true.
 
@@ -448,13 +448,13 @@ To ensure the training algorithm remains tractable, we implement a greedy search
   \end{algorithmic}
 \end{algorithm}
 
-Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hypothesis - the set of rules which correctly answers the most questions - for every action. Algorithm~\ref{algo:optimise} makes use of the \textsc{OptimiseFeature} function, which takes as input: an action, a set of feature operations, the accumulated feature operations and the training data. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program, the encoding for which is outlined in Section~\ref{subsection:trained-events-asp-enc}. The \textsc{GenHyp} function shown in Alorithm~\ref{algo:optimise} generates the hypothesis for action $a$ using the accumulated feature operations.
+Algorithm~\ref{algo:optimise} gives a high-level overview of the steps required to find the optimal hypothesis - the set of rules which correctly answers the most questions - for every action. Algorithm~\ref{algo:optimise} makes use of the \textsc{OptimiseFeature} function, which takes as input: an action, a set of feature operations, the accumulated feature operations and the training data. This function searches over all of the feature operations to find the set of rules which maximise the number of questions answered correctly. It also searches over the number of rules to be used, as well as whether each of those rules should use an accumulated operation set or not. We implement this function using an ASP optimisation program, the encoding for which is outlined in Section~\ref{subsection:trained-events-asp-enc}. The \textsc{GenHyp} function shown in Algorithm~\ref{algo:optimise} generates the hypothesis for action $a$ using the accumulated feature operations.
 
 \pagebreak
 
 In the remainder of this section we provide an inductive description for the task which the \textsc{OptimiseFeature} function must solve.
 
-Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the algorithm is currently optimising feature $f_i$. The algorithm will therefore be given: an action $a$; the set of feature operations $\Sigma_s$, where $s$ is the sort of $f_i$; the \textit{accumulated operations} $acc_1,...,acc_m$ from the previous feature optimisation, where each $acc_j$ is the set of feature operations used by rule $r_j$ in the previous optimisation; and the training data $D$. In the case where $i=1$, the \textit{accumulated operations} contains a single rule whose feature operations are all set to $\top$. The search space for feature optimisation $f_i$ can then be constructed as follows:
+Consider an optimisation which uses features $f_1,...,f_{feat}$, and that the algorithm is currently optimising feature $f_i$. The algorithm will therefore be given: an action $a$; the set of feature operations $\Sigma_s$, where $s$ is the sort of $f_i$; the \textit{accumulated operations} $\{ acc_1,...,acc_m \}$ from the previous feature optimisation, where each $acc_j$ is the set of feature operations used by rule $r_j$ in the previous optimisation; and the training data $D$. In the case where $i=1$, the \textit{accumulated operations} contains a single rule whose feature operations are all set to $\top$. The search space for optimising feature $f_i$ can then be constructed as follows:
 \begin{enumerate}
   \item At the highest level of the search, the algorithm needs to choose how many rules to learn. Therefore we start by creating one node in the search tree for each possible number of rules in $\{ 1, 2, ..., R_{max} \}$, where $R_{max}$ is a hyperparameter of the search.
 
@@ -482,12 +482,12 @@ This section outlines the details the ASP program which is used in place of the 
 
 The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,\sigma_n \}$, action $\mathit{action}$, accumulator set $\{ acc_1,...,acc_m \}$ and dataset $D$ is constructed as follows:
 \begin{enumerate}
-  \item Firstly, the action-type questions in $D$ (including those which do not mention $action$) are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frame $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $\mathit{action}$ for tuple $j$ is then represented as:
+  \item Firstly, the action-type questions in $D$ (including those which do not mention $action$) are collated, these are denoted $D_a$. From the questions in $D_a$ we extract the frame number $i$ using the question-and-answer parser, and use this frame number to look up the symbolic representation for frames $i$ and $i+1$. We collate these symbolic representations, along with each action, as the tuple $(F_i, F_{i+1}, a)_j$, where $j$ is a unique integer identifier assigned to each tuple in the dataset. We then represent $F_i$ and $F_{i+1}$ in ASP as described in Chapter~\ref{chapter:h-perl}, with the exception that $F_i$ is assigned frame identifier $j$, and $F_{i+1}$ is assigned frame identifier $-j$. This is done so that all frames in the dataset can be added to the same ASP program. The action $\mathit{action}$ for tuple $j$ is then represented as:
   \begin{equation}
     actual(\mathit{action}, j).
   \end{equation}
 
-  \item Secondly, each accumulated feature operation, $acc_i = \{ (\mathit{feat}, \sigma_{id}) \}$, is a set of tuples, where $\mathit{feat}$ is the name of a feature and $\sigma_{id}$ is the identifier assigned to a feature operation (each operation is assigned an integer identifier which is unique within its feature sort). Each element $(\mathit{feat}, \sigma_{id})$ of $acc_i$ is represented using the following predicate:
+  \item Secondly, each accumulated feature operation, $acc_i$, is a set of tuples $(\mathit{feat}, \sigma_{id})$, where $\mathit{feat}$ is the name of a feature and $\sigma_{id}$ is the identifier assigned to a feature operation (each operation is assigned an integer identifier which is unique within its feature sort). Each element $(\mathit{feat}, \sigma_{id})$ of $acc_i$ is represented using the following predicate:
   \begin{equation}
     acc(\mathit{feat}, \sigma_{id}, i).
   \end{equation}
@@ -571,20 +571,34 @@ The ASP program for a feature $f$, feature operations $\Sigma = \{ \sigma_1,...,
   \end{gather}
   \textit{Where $count\_rules(Cnt)$ is true when $Cnt$ is the number of rules in the answer set, and $rule\_weight(W, R)$ is true when $W$ is the weight of $R$.}
 
-  Rule~\ref{rule:rule-count} attempts to minimises the number of rules which appear in the learnt hypothesis, while Rule~\ref{rule:rule-size} attempts to minimise the total weight of the rules in the hypothesis. Both of these rules, however, are given lower priority than the true positive and true negative rules, since we always prefer a more accurate solution, even if it is longer.
+  Rule~\ref{rule:rule-count} attempts to minimises the number of rules which appear in the learnt hypothesis, while Rule~\ref{rule:rule-size} attempts to minimise the total weight of the rules in the hypothesis. Both of these rules, however, are given lower priorities than the true positive and true negative rules, since we always prefer a more accurate solution, even if it is longer.
 \end{enumerate}
 
 
 \subsection{Detecting Events}
 \label{subsection:trained-detecting-events}
 
-The algorithm described in the previous sections is used to learn one hypothesis (a set of rules) for each action using the training data. After training, each hypothesis can be used to detect actions in a given video by constructing an ASP program which contains both the encoding of the video and the encoding of the hypothesis. Running this program will return a sequence of actions.
+The algorithm described in the previous sections is used to learn one hypothesis (a set of rules) for each action using the training data. After training, each hypothesis can be used to detect actions in a given video by constructing an ASP program which contains both the encoding of the video and the encoding of all the action hypotheses. However, in this program, we must also include a rule for the \textit{nothing} action, since we do not learn a hypothesis for it. Since the \textit{nothing} action is the absence of all other actions, it can be defined as follows:
+\begin{equation}
+  \begin{split}
+    occurs(nothing(\mathit{Id}), I) \text{ :- } & non\_static(\mathit{Id}), \\
+    & not \text{ } occurs(move(\mathit{Id}), I), \\
+    & not \text{ } occurs(rotate\_clockwise(\mathit{Id}), I), \\
+    & not \text{ } occurs(rotate\_anticlockwise(\mathit{Id}), I), \\
+    & step(I+1), step(I).
+  \end{split}
+  \label{rule:nothing-action}
+\end{equation}
 
-However, we have not outlined a method for detecting effects. Since there are questions in the dataset which concern only effects, we cannot run an ILP algorithm to learn effect definitions in the same as was done for actions. This is an opportunity for a hybrid model to showcase one of its key advantages; the ability to inject background knowledge of an environment directly into the model, without needing to learn anything.
+\textit{Where $non\_static(\mathit{Id})$ is true for an octopus with identifier $\mathit{Id}$ in any frame.}
 
-In this section we outline a number of ASP rules used to detect effects. These rules are included in the same ASP program as the learnt action hypotheses and the encoded video. This program is therefore able to return the set of events which occur in the video.
+Running the ASP program constructed from the learnt action hypotheses, Rule~\ref{rule:nothing-action} and the encoding of the video will return a sequence of actions.
 
-The ASP rule for effects are as follows:
+However, we have not yet outlined a method for detecting effects. Since there are no questions in the dataset which concern only effects, we cannot run an ILP algorithm to learn effect definitions in the same as was done for actions. This is an opportunity for a hybrid model to showcase one of its key advantages; the ability to inject background knowledge of an environment directly into the model, without needing to learn anything.
+
+In this section we outline a number of ASP rules used to detect effects. These rules are included in the same ASP program as the learnt action hypotheses, Rule~\ref{rule:nothing-action} and the encoded video. This program is therefore able to return the set of events which occur in the video.
+
+The ASP rules for effects are as follows:
 \begin{itemize}
   \item Firstly, the rule for the \textit{eat a fish} effect, which follows, says that a fish is eaten by the octopus if it exists in frame $I$, but not in frame $I+1$. The $exists(\mathit{id}, i)$ predicate is a helper predicate with the intuitive meaning that an object with identifier $\mathit{id}$ is present in frame $i$.
   \begin{equation}
@@ -610,7 +624,7 @@ The ASP rule for effects are as follows:
   % \item Finally, the \textit{change colour} effect is simply defined as occurring when the an object's colour changes:
 
 
-  \item Finally, \textit{change colour} is defined in terms of the $changed(p, \mathit{before}, \mathit{after}, \mathit{id}, i)$ predicate, which says that property $p$ has value $\mathit{before}$ in frame $i$, but changed to value $\mathit{after}$ in frame $i+1$.
+  \item Finally, \textit{change colour} is defined in terms of the $changed(p, \mathit{before}, \mathit{after}, \mathit{id}, i)$ predicate, which says that property $p$ has value $\mathit{before}$ in frame $i$, but changed to value $\mathit{after}$ in frame $i+1$, and is defined as:
   \begin{equation}
     \begin{split}
       changed(colour, \mathit{Before}, \mathit{After}, \mathit{Id}, I) \text{ :- } & obs(colour(\mathit{Before}, \mathit{Id}), I), \\
@@ -619,13 +633,13 @@ The ASP rule for effects are as follows:
     \end{split}
   \end{equation}
 
-  The \textit{change colour} effect is then simply defined as follows:
+  The \textit{change colour} effect is then simply defined as:
   \begin{equation}
     \mathit{occurs\_effect}(\mathit{change\_colour}(\mathit{Id}), I) \text{ :- } changed(colour, \_, \_, \mathit{Id}, I).
   \end{equation}
 \end{itemize}
 
-While it can be very useful to allow background knowledge to be injected into the H-PERL model, there are a few trade-offs. Firstly, the model is less adaptable; porting the model to a new environment requires rewriting the background rules. And secondly, these hardcoded rules may include human biases or errors, this could mean that the rules are not as accurate as they could be.
+While it can be very useful to allow background knowledge to be injected into the H-PERL model, there are a few trade-offs. Firstly, the model is less adaptable; porting the model to a new environment requires rewriting the background rules. And secondly, these hardcoded rules may include human biases or errors, which could mean that the rules are not as accurate as they could be.
 
 After the action hypotheses have been learnt and the effect rules written, detecting both the actions and effects has the advantage of being very fast, since no searching for a solution is required. The ASP program for finding the actions and effects is simply run once, and contains no choice rules. As Chapter~\ref{chapter:evaluation} will show, the trained event detection component is significantly faster than its hardcoded counterpart.
 
