@@ -22,7 +22,7 @@ While we would have preferred to have compared our models to state-of-the-art ne
 \section{Components}
 \label{section:eval-components}
 
-The first part of the evaluation concerns the individual model components. In this section we compare the performance of the properties, relations and events components from both the hardcoded and trained models. These components are evaluated using perfect input data - where we assume no mistakes have been made in previous parts of the pipeline. We also outline the performance of the object detection component, which is common to both H-PERL models. All of these components are evaluated using the 200 validation videos, rather than the testing videos, although both sets of videos are generated in the same way.
+The first part of the evaluation concerns the individual components. In this section we compare the performance of the properties, relations and events components from both the hardcoded and trained models. These components are evaluated using perfect input data - where we assume no mistakes have been made in previous parts of the pipeline. We also outline the performance of the object detection component, which is common to both H-PERL models. All of these components are evaluated using the 200 validation videos, rather than the testing videos, although both sets of videos are generated in the same way.
 
 This section does not include a dedicated discussion on the object tracker's performance, since there are no QA pairs with which it can be directly evaluated. However, after using some intuitive heuristics to gauge the component's object tracking abilities, we see that the tracker assigns identifiers in exactly the way we would expect for the OceanQA environment. In the rest of this chapter, therefore, it should be assumed that the tracker operates with perfect accuracy on the OceanQA environment, but we cannot provide an official evaluation for this.
 
@@ -51,9 +51,11 @@ In order to conduct the evaluation, we used the \textit{PyCocoTools}\footnote{Av
   \label{table:detector-maps}
 \end{table}
 
+\pagebreak
+
 The results presented in Table~\ref{table:detector-maps} show that our object detector performs very strongly. This isn't particularly surprising, since the dataset environment is very simple and the object detection algorithm used is state-of-the-art. Nonetheless it proves the assumption that it is possible, in the OceanQA environment at least, to extract objects from the frames of the video and work with these objects directly.
 
-Despite the simpicity of the environment, the object detector is, however, quite slow. Detection of all objects in the testing dataset takes about 56 seconds; making the detector the slowest component in the trained model, and the second slowest in the hardcoded model. Figure~\ref{fig:model-timings} shows the full details of the timings for all components. Since the object detector can be trained for a specific environment, we consider it to be adaptable. Training can take a long time however, and each environment must have a large number of object detection examples available.
+Despite the simplicity of the environment, the object detector is, however, quite slow. Detection of all objects in the testing dataset takes about 56 seconds; making the detector the slowest component in the trained model, and the second slowest in the hardcoded model. Figure~\ref{fig:model-timings} shows the full details of the timings for all components. Since the object detector can be trained for a specific environment, we consider it to be adaptable. It is worth noting, however, that the detector is not trained using QA data, but rather requires extra supervision to train.
 
 
 \subsection{Properties}
@@ -97,7 +99,7 @@ Since the properties component is predicting multiple properties for each object
 
 The results show that both the hardcoded and trained models have (almost) perfect performance. It is surprising that the trained model can achieve the same result as the hardcoded model, despite only using weakly-supervised QA training data - data where most objects are not labelled with property values. It is worth noting, however, that this analysis uses the full-data version of the validation dataset; this means that the object detection was performed without any errors. However, even when the trained object detector was used, Section~\ref{section:eval-models} shows that the properties questions were answered almost perfectly.
 
-Despite being made of neural networks, the properties components are both fairly fast. Both components took approximately 18 seconds to label the entire all of the objects in the testing data with properties. As with the detector, both property component implementations are deemed adaptable, since they can simply be retrained for a new environment. One potential issue for the trained properties component, however, is a lack of data. The QA training data is sparsely labelled to start with, and, since training this component requires solving an optimisation problem, there may not be enough data for the optimiser to find a `good' solution. However, we did not have time to explore this potential issue any further.
+Despite being made of neural networks, the properties components are both fairly fast. Both components took approximately 18 seconds to label all of the objects in the testing data with property values. As with the detector, both property component implementations are deemed adaptable, since they can simply be retrained for a new environment. However, as with the detector, it is worth noticing that the hardcoded properties component requires extra supervision, making it less adaptable than its trained counterpart.
 
 
 \subsection{Relations}
@@ -139,6 +141,8 @@ Table~\ref{table:eval-hardcoded-relations} shows that the hardcoded relations co
 
 While the hardcoded relations component takes only $22.8$ seconds to process the entire testing dataset, the trained component takes almost twice as long, at $39.6$ seconds. This time difference is due to the trained component using a neural function, rather than a hardcoded function. However, despite being slower, the trained component is more adaptable than the hardcoded component, since it can learn the definition of binary relations from the data.
 
+\pagebreak
+
 
 \subsection{Events}
 
@@ -167,7 +171,7 @@ As well as being very slow, the hardcoded model also comes with very poor adapta
 \section{Models}
 \label{section:eval-models}
 
-In this section we outline the performance of both H-PERL models, as well the error correcting version of the hardcoded model. Section~\ref{subsection:eval-performance} outlines the performance details of the models on the 200 testing videos, as well as the relative component timings, some of which have already been mentioned above. Then, in Section~\ref{subsection:eval-robustness}, we evaluate the models when a faulty detector is used, in order to compare their robustness to changes in the object detection data.
+In this section we outline the performance of both H-PERL models, as well the error correcting version of the hardcoded model. Section~\ref{subsection:eval-performance} outlines the performance details of the models on the 200 testing videos, as well as the relative component timings, some of which have already been mentioned above. Then, in Section~\ref{subsection:eval-robustness}, we evaluate the models when a faulty object detector is used, in order to compare their robustness to changes in the object detection data.
 
 
 \subsection{Performance}
@@ -200,7 +204,7 @@ Table~\ref{table:models-eval} provides a number of interesting comparisons betwe
 
   \item The error correcting version of the hardcoded model performs better than the baseline version. Despite the performance increase being quite small, this shows that the error correcting algorithm had an unambiguous positive effect on the model's performance. Table~\ref{table:model-question-acc}, which provides a breakdown of the models' accuracy on each question type, shows that the performance difference is most pronounced for the questions which relate to events.
 
-  \item As alluded to earlier, the trained model is significantly faster than either of hardcoded implementations. This is entirely down to the difference in speed between the hardcoded and trained events components.
+  \item As alluded to earlier, the trained model is significantly faster than either of the hardcoded implementations. This is entirely down to the difference in speed between the hardcoded and trained events components.
 \end{enumerate}
 
 \begin{table}[h!]
@@ -218,7 +222,7 @@ Table~\ref{table:models-eval} provides a number of interesting comparisons betwe
   \label{table:model-question-acc}
 \end{table}
 
-Since speed is a key criteria for our evaluation, we provide the breakdown of the timings for each component for the hardcoded and trained models. The timings for the error correcting version of the hardcoded model are not shown, however, they are almost identical to those of the hardcoded model. These breakdowns are shown in Figure~\ref{fig:model-timings}.
+Since speed is a key criteria for our evaluation, we provide the breakdown of the timings for each component for the hardcoded and trained models. The timings for the error correcting version of the hardcoded model are not shown since they are almost identical to those of the hardcoded model. These breakdowns are shown in Figure~\ref{fig:model-timings}.
 
 \begin{figure}
   \centering
@@ -237,7 +241,7 @@ Since speed is a key criteria for our evaluation, we provide the breakdown of th
   \label{fig:model-timings}
 \end{figure}
 
-As mentioned previously, the hardcoded model cannot be easily ported to another environment. This is mostly due to its relations and events components, but also because it makes use of the full-data version of the dataset for training its properties component. Other environments will not be able to guarantee that a similar type of dataset is available. The trained mode, on the other hand, is relatively adaptable to other environments, since its components can be re-trained using a different dataset fairly easily.
+As mentioned previously, the hardcoded model cannot be easily ported to another environment. This is mostly due to its relations and events components, but also because it makes use of the full-data version of the dataset for training its properties component. Other environments will not be able to guarantee that a similar type of dataset is available. The trained model, on the other hand, is more adaptable to new environments, since its core components can be re-trained using a different dataset fairly easily. Both models, however, make use of manually engineered object tracking, question parsing and QA system components. These components would likely prove difficult or time-consuming to rewrite for new environments.
 
 
 \subsection{Robustness}
@@ -247,7 +251,7 @@ Having evaluated a number of H-PERL models, we would also like to evaluate the s
 
 However, since H-PERL is a pipelined architecture, we must also evaluate the models in terms of how well they deal with deficiencies in the early stages of the architecture. In particular, we focus on how well each H-PERL model operates when the object detection is imperfect. For this reason, we run a robustness test against each of the three model implementations to find out how reliant they are on highly accuracte object detection.
 
-In this section we only deal with a single type of object detection error, where the detector misses an object completely. To implement this, we take the full-data version of the 200 OceanQA test videos and remove each object with probability $p$. We run tests with four different values for $p$: $0$, $0.1$, $0.2$ and $0.3$. A probability of $0$ means that full-data version of the test data is unchanged. Figures~\ref{fig:hardcoded-accs} and~\ref{fig:trained-accs} show how the accuracies of the hardcoded and trained models change with $p$. The pink bar in each case shows the accuracy of the standard H-PERL model, where the trained object decector is used. The results for the error correcting version of the hardcoded model are not shown since they are very similar to those of the hardcoded model.
+In this section we only deal with a single type of object detection error, where the detector misses an object completely. To implement this, we take the full-data version of the 200 OceanQA test videos and remove each object with probability $p$. We run tests with four different values for $p$: $0$, $0.1$, $0.2$ and $0.3$. A probability of $0$ means that the full-data version of the test data is unchanged. Figures~\ref{fig:hardcoded-accs} and~\ref{fig:trained-accs} show how the accuracies of the hardcoded and trained models change with $p$. The pink bar in each case shows the accuracy of the standard H-PERL model, where the trained object detector is used. The results for the error correcting version of the hardcoded model are not shown since they are very similar to those of the standard hardcoded model.
 
 \begin{figure}
   \centering
@@ -268,7 +272,7 @@ In this section we only deal with a single type of object detection error, where
   \label{fig:model-accs}
 \end{figure}
 
-Figure~\ref{fig:model-accs} shows the accuracies of the models when a 20 seconds timeout was applied to the event detection components. This is particularly important for the hardcoded model and helps to explain the stark difference in performance for higher values of $p$. Due to the timeout the hardcoded event detector was often unable to search through the entire space required to find the optimal set of actions. As mentioned in Chapter~\ref{chapter:hardcoded}, the hardcoded event detector is likely to suffer from this problem when the input data is noisy, which is exactly the sort of condition these robustness tests are trying to emulate. Table~\ref{table:robustness-timings}, which provides the robustness test timings for each model, shows the problem in more detail.
+Figure~\ref{fig:model-accs} shows the accuracies of the models when a 20 second timeout was applied to the event detection components. This is particularly important for the hardcoded model and helps to explain the stark difference in performance for higher values of $p$. Due to the timeout, the hardcoded event detector was often unable to search through the entire space required to find the optimal set of actions. As mentioned in Chapter~\ref{chapter:hardcoded}, the hardcoded event detector is likely to suffer from this problem when the input data is noisy, which is exactly the sort of condition these robustness tests are trying to emulate. Table~\ref{table:robustness-timings}, which provides the robustness test timings for each model, shows the problem in more detail.
 
 \begin{table}[b!]
   \centering
@@ -285,9 +289,11 @@ Figure~\ref{fig:model-accs} shows the accuracies of the models when a 20 seconds
   \label{table:robustness-timings}
 \end{table}
 
+\pagebreak
+
 Although the performance of the trained model, during the robustness tests, is significantly better than that of the hardcoded model, the tests show that both models are heavily reliant on highly accurate object detection. Going from perfect object detection down to $90\%$ detection leads to a $24.7\%$ drop in accuracy, from $99.7\%$ to $75\%$. Given that many object detectors trained on real-world datasets have significantly poorer performance than our OceanQA detector, means that more work may need to be done to improve this situation before H-PERL can be applied to real-world environments.
 
-Having said this, however, it is also worth keeping in mind that the artificial mistakes added to the detection are a very blunt; real object detector errors are much more nuanced. For example, although state-of-the-art object detectors can achieve a mAP of almost $80\%$ on some datasets~\cite{cnn-uses:faster-r-cnn}, that doesn't mean that $20\%$ of objects are missed entirely. Rather, it may mean that objects are detected correctly but with low confidence scores, or that objects are detected but the their bounding boxes are slightly wrong, or even that object are detected with the wrong class. For this reason, we cannot directly interpolate the results of these robustness experiments to the results we would expect to see H-PERL models achieve on real-world data. However, these experiments do make clear that H-PERL models are heavily reliant on a high-performing object detection component.
+Having said this, however, it is also worth keeping in mind that the artificial mistakes added to the detection are very blunt; real object detector errors are much more nuanced. For example, although state-of-the-art object detectors can achieve a mAP of almost $80\%$ on some datasets~\cite{cnn-uses:faster-r-cnn}, that doesn't mean that $20\%$ of objects are missed entirely. Rather, it may mean that objects are detected correctly but with low confidence scores, or that objects are detected but the their bounding boxes are slightly wrong, or even that objects are detected with the wrong class. For this reason, we cannot directly interpolate the results of these robustness experiments to the results we would expect to see H-PERL models achieve on real-world data. However, these experiments do make clear that H-PERL models are heavily reliant on a high-performing object detection component.
 
 
 
