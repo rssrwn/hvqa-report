@@ -8,12 +8,6 @@
 \label{chapter:conclusion}
 
 
-% TODO discuss:
-% 1. trade-offs (providing a env spec and requiring that everything be discrete) and advantages (learning the model of an environment explicitly to allow explanations, error correction) of using hybrid models generally (as well our specific models). (See listed trade-offs in H-PERL chapter, advantages may come from observations made in the evaluation section)
-% 3. Compare to NS-DR
-% 4. Compare to objectives to see if completed
-
-
 Many aspects of the OceanQA dataset and the H-PERL approach have been discussed in previous chapters. This chapter therefore aims to summarise these details, and particularly focus on the strengths and weaknesses of our VideoQA architecture. We also attempt to compare our approach qualitatively to existing work in VideoQA. Finally, we conclude by outlining a number of possible extensions to our architecture, some of which may help to address the drawbacks of the approach, or apply the approach to different tasks.
 
 
@@ -23,7 +17,7 @@ In Chapter~\ref{chapter:h-perl} we described the H-PERL architecture as a hybrid
 
 Chapters~\ref{chapter:hardcoded} and~\ref{chapter:trained} each outlined specific H-PERL models. The hardcoded model, outlined in Chapter~\ref{chapter:hardcoded}, used mostly manually engineered components. These components allowed the hardcoded model to find and correct errors in the object detection, but also made it less adaptable to new environments. The trained model, described in Chapter~\ref{chapter:trained}, continued to use some engineered components, but trained its \textit{core} components using QA pairs. The trained model also proved the usefulness of hybrid models, by allowing background knowledge of the environment to be used to find the set of effects which occur in a video.
 
-In Chapter~\ref{chapter:evaluation}, which outlined the performance differences between the models, we saw that the trained model was significantly faster than the hardcoded model, and that the error correcting abilities of the hardcoded model made it slightly more accurate. We also noticed that both models we heavily reliant on highly accurate object detection, but that the trained model was less susceptible to a reduction in accuracy due to noisy data.
+In Chapter~\ref{chapter:evaluation}, which outlined the performance differences between the models, we saw that the trained model was significantly faster than the hardcoded model, and that the error correcting abilities of the hardcoded model made it slightly more accurate. We also noticed that both models are heavily reliant on highly accurate object detection, but that the trained model was less susceptible to a reduction in accuracy due to noisy data.
 
 Chapter~\ref{chapter:h-perl} noted that one of H-PERL's key strengths was its adaptability to other tasks; as long as there exists QA pairs with which a component can learn a particular concept, many different QA tasks can be solved. Chapter~\ref{chapter:h-perl} also mentioned a number of requirements that each H-PERL model has, as well as a number of assumptions that needed to be made about the data. These requirements and assumptions could be deemed quite strict, however, future extensions to our architecture may be able to overcome them.
 
@@ -31,11 +25,11 @@ We now summarise the weaknesses of the current state of the H-PERL approach that
 \begin{enumerate}
   \item Both H-PERL models require a highly accurate object detector, which, for many environments, is a very difficult requirement to meet.
 
-  \item The H-PERL architecture relies on a hardcoded question parser, which limits each model's ability to adapt to new environments, since, in the general case, parsing questions by-hand is almost impossible.
+  \item The H-PERL architecture relies on a hardcoded question parser. This limits each model's ability to adapt to new environments, since, in the general case, parsing questions by-hand is almost impossible.
 
   \item Currently, H-PERL relies on datasets containing specific questions which can be used to train components individually. In a general question-answering setting this will not be the case; questions will require knowledge of many different concepts to answer.
 
-  \item H-PERL can currently only solve environments which require knowledge of only: objects, object properties, relations between objects and events. This assumption is too simplistic for many environments.
+  \item H-PERL can currently only solve environments which require knowledge of only: objects; object properties; relations between objects; and events. This assumption is too simplistic for many environments.
 
   \item Unlike other machine learning methods, an environment specification must be provided to each H-PERL model. For complex environments, this may be very difficult to generate.
 \end{enumerate}
@@ -46,16 +40,14 @@ Of course, as well as disadvantages, H-PERL also comes with many advantages. We 
 
   \item Since H-PERL stores information extracted from a video symbolically, it is very simple to analyse, understand and explain the model's behaviour.
 
-  \item The hardcoded H-PERL model was able to correct errors in an earlier component by reasoning about uncertainty. And, indeed, there are many more possibilities for further symbolic error correction functionality to be added, since H-PERL represents information about each video explicitly.
+  \item The hardcoded H-PERL model was able to correct errors in an earlier component by reasoning about uncertainty. And, indeed, there are many more possibilities for further symbolic error correction functionality to be added, since H-PERL stores information about each video explicitly.
 
-  \item Both H-PERL models proved the utility of background knowledge injection. The hardcoded model was able to use an entire $\mathcal{AL}$ model to detect events, and the trained model was able to use ASP rules to detect effects.
+  \item Both H-PERL models proved the utility of background knowledge injection. The hardcoded model was able to use an $\mathcal{AL}$ model to detect events, and the trained model was able to use ASP rules to detect effects.
 
-  \item After symbolic information has been extracted from the video, all of the questions for that video can be answered in one go, meaning the architecture can be quite fast. This is in contrast to some VideoQA implementations which make use of attention; each question is applied to the attention module individually in order to extract the relevant parts of the video.
+  \item After symbolic information has been extracted from the video, all of the questions for that video can be answered in one go, meaning the architecture can be quite fast. This is in contrast to some VideoQA implementations which make use of attention; each question is applied to the attention module individually (excluding batching) to extract the relevant parts of the video.
 \end{enumerate}
 
-% In addition to these advantages, we also conjecture that H-PERL would train significantly faster and with much fewer data than an end-to-end neural network. We believe this should be the case since
-
-There may be many more strengths and weaknesses of the H-PERL approach, such as training and evaluation speed or efficiency. However, given that time and resources for the project were limited, it was not always possible to conduct such performance evaluations or quantitative comparisons to other models. We also note that Section~\ref{section:future-work} mentions a number of possible improvements to H-PERL which may help to mitigate some of its weaknesses.
+There may be many more strengths and weaknesses of the H-PERL approach, such as training and evaluation speed or efficiency. However, given that time and resources for the project were limited, it was not always possible to conduct such performance evaluations or quantitative comparisons to other models. We also note that Section~\ref{section:future-work} mentions a number of possible improvements to H-PERL which may help to mitigate some of the weaknesses described above.
 
 
 \section{Comparison with Existing Models}
@@ -65,35 +57,31 @@ We spend the second part of this section comparing H-PERL to the Neuro-Symbolic 
 
 \subsection{End-to-End Architectures}
 
-Both H-PERL and all of the end-to-end neural network approaches presented in Chapter~\ref{chapter:related} attempt to extract features from the video. One of the key differences between the two approaches is that H-PERL makes these features explicit, while end-to-end networks do not, instead the information in the video is stored implicitly, in a vector. Clearly, storing information explicitly makes the model more transparent, but, in many cases, it is very difficult, especially for the real-world datasets used by many of the implementations in Chapter~\ref{chapter:related}.
+Both H-PERL and all of the end-to-end neural network approaches presented in Chapter~\ref{chapter:related} attempt to extract features from the video. One of the key differences between the two approaches is that H-PERL makes these features explicit, while end-to-end networks do not. Instead the information in the video is stored implicitly, in a vector. Clearly, storing information explicitly makes the model more transparent, however, in many cases, it is very difficult, especially for the real-world datasets used by many of the implementations outlined in Chapter~\ref{chapter:related}.
 
 A further difference between H-PERL and end-to-end networks is that H-PERL uses a hardcoded question parser, whereas many existing VideoQA implementations use a neural component, and again store the information extracted from the question implicitly. H-PERL's use of a hardcoded question parser makes it less adaptable to other datasets. It also makes applying H-PERL to free-form, natural language questions without templates impossible.
 
-Finally, attention mechanisms have been used by a number of recent VideoQA implementations~\cite{dataset:tgif-qa, dataset:xu, dataset:youtube2text-qa, dataset:tvqa, videoqa:co-mem, videoqa:cwd, videoqa:mm-att, dataset:pororo-qa}. These allow the model to focus on the most relevant part of the video, based on the current question. While object detection may be considered an attention mechanism in H-PERL, the attention is not dynamically updated for each question. Adding an attention mechanism to H-PERL could allow the model to focus on only the relevant objects of a video, however, a lack of attention allows H-PERL to answer every question for a given video at the same time. Adding an attention mechanism may therefore slow each model down. We consider this idea further in Section~\ref{section:future-work}.
+Finally, attention mechanisms have been used by a number of recent VideoQA implementations~\cite{dataset:tgif-qa, dataset:xu, dataset:youtube2text-qa, dataset:tvqa, videoqa:co-mem, videoqa:cwd, videoqa:mm-att, dataset:pororo-qa}. These allow the model to focus on the most relevant part of the video, based on the current question. While object detection may be considered an attention mechanism in H-PERL, the attention is not dynamically updated for each question. Adding an attention mechanism to H-PERL could allow the model to focus on only the relevant objects of a video, however, a lack of attention allows H-PERL to answer every question for a given video at the same time. Adding an attention mechanism may therefore slow each model down.
 
 
 \subsection{NS-DR Model}
-
-The Neuro-Symbolic Dynamic Reasoning (NS-DR) model was outlined in Chapter~\ref{chapter:related}. We now compare this model to the H-PERL models described in previous chapters.
 
 At a high level, the Neuro-Symbolic Dynamic Reasoning (NS-DR) model, which was outlined in Chapter~\ref{chapter:related}, is very similar to H-PERL. Both approaches make use of some form of object recognition (NS-DR uses Mask R-CNN~\cite{mask-r-cnn}, while H-PERL uses Faster R-CNN~\cite{cnn-uses:faster-r-cnn}), both models extract attributes or properties of objects using neural networks, both approaches attempt to extract event information from the video, and finally, in order to find answers to questions, both models execute programs with the data extracted from the video.
 
 However, when the approaches are analysed in depth a number of key differences emerge, which we list as follows:
 \begin{itemize}
-  \item NS-DR uses a single `object-centric' component, the video frame parser. This component roughly corresponds to two different H-PERL components: the object detector, properties component. The NS-DR video frame parser is also pre-trained on non-QA data - data other than QA pairs. Whereas, in H-PERL, only the object detector is pre-trained; the properties component can be trained using QA pairs. In this sense H-PERL is more adaptable to new environments, since each environment requires only a trained object detector and a dataset containing properties questions.
+  \item NS-DR uses a single `object-centric' component, the video frame parser. This component roughly corresponds to two different H-PERL components: the object detection and properties components. The NS-DR video frame parser is also pre-trained on non-QA data - data other than QA pairs. Whereas, in H-PERL, only the object detector is pre-trained; the properties component can be trained using QA pairs. In this sense H-PERL is more adaptable to new environments, since each environment requires only a trained object detector and a dataset containing properties questions.
 
-  \item While H-PERL makes use of symbolic event components, NS-DR uses a neural event prediction engine which models objects and relations between objects as a graph. This likely makes NS-DR's event detection less transparent, since it is harder to tell how the model came to a particular conclusion, but may improve accuracy.
+  \item While both of our H-PERL models make use of symbolic event components, NS-DR uses a neural event prediction engine which models objects and relations between objects as a graph. This likely makes NS-DR's event detection less transparent, since it is harder to tell how the model came to a particular conclusion, but may improve accuracy.
 
   \item NS-DR uses a neural question parser which constructs a functional program, with which the output of the event prediction component is executed. Training this question parser requires additional supervised data, in the form of pairs of natural language questions and their corresponding functional program. H-PERL's question parser is manually engineered specifically for the OceanQA environment. In this case, both question parsing components would be difficult to adapt to new environments, since one would need to either engineer a new component or have a dataset of questions and functional programs available.
 
-  \item Finally, we note that the methods for answer generation are similar in the two models, except that NS-DR uses a trained question parsing component to generate a program to be executed, whereas H-PERL uses a manually engineered question-anwering component, and that H-PERL uses logic programming to both represent the video information and to find the answer to the question.
+  \item Finally, we note that the methods for answer generation are similar in both approaches, except that NS-DR uses a trained question parsing component to generate a program to be executed, whereas H-PERL uses a manually engineered question-anwering component, and that H-PERL uses logic programming to both represent the video information and to find the answer to the question.
 \end{itemize}
 
 
 \section{Future Work}
 \label{section:future-work}
-
-% 2. Future work (adding NLP to the model, other types of questions that can be added to give further advantages of using hybrid, neural models (graph networks) for event detection, extending the ILP to be faster, more accurate and allow larger search spaces, multiple moving objects in videos, non-determinism in videos, removing the need for question type, dymanically updating the attention (object detection) of the model based on the question, learning the QA system rules).
 
 The two sections above indicate a number of possible extensions to the H-PERL model, which may help to alleviate the approach's the drawbacks. We outline some of these extensions as follows:
 \begin{itemize}
@@ -101,11 +89,11 @@ The two sections above indicate a number of possible extensions to the H-PERL mo
 
   \item In addition to an NLP question parser, a neural attention module could be added, which would allow the model to focus on the most salient aspects of a video, for a given question.
 
-  \item In order to learn rules for answering questions, Inductive Logic Programming (ILP) could be applied to the QA system component. This would enable the QA component to be easily applied to new environments and dataset.
+  \item In order to learn rules for answering questions, Inductive Logic Programming (ILP) could be applied to the QA system component. This would enable the QA component to be easily applied to new environments and datasets.
 
   \item Another helpful extension to the model would be to allow end-to-end training to take place, rather than relying on training each component individually using curriculum learning. An end-to-end trained model, may include a \textit{causality} module which, for a given question, would allow it understand which component of the model was responsible for an incorrect answer and should be updated.
 
-  \item A number of extensions to the OceanQA dataset could increase the diffuculty of the environment. These could include: allowing mutliple moving objects; additional object properties such as velocity or acceleration; including non-deterministic actions; adding more binary (or higher arity) relations; or allowing events which need to modelled using continuous variables, moving by $x$ pixels, for example.
+  \item A number of extensions to the OceanQA dataset could be used to increase the diffuculty of the environment. These could include: allowing mutliple moving objects; additional object properties such as velocity or acceleration; including non-deterministic actions; adding more binary (or higher arity) relations; or allowing events which need to modelled using continuous variables, moving by $x$ pixels, for example.
 
   \item Finally, questions which require a deeper understanding of the environment could be added to the dataset. These could include the explanatory, predictive or counterfactual questions used in the CLEVRER dataset, outlined in Chapter~\ref{chapter:related}. Or questions which ask the model to explain why an event occurred could be added.
 \end{itemize}
